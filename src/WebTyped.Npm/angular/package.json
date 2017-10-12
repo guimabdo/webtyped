@@ -1,0 +1,14 @@
+{
+  "name": "@guimabdo/webtyped-angular",
+  "version": "0.6.0",
+  "description": "WebTyped Angular",
+  "author": {
+    "name": "guimabdo"
+  },
+  "peerDependencies": {
+    "rxjs": "5.4.2",
+    "@angular/http": "4.4.4",
+    "@angular/core": "4.4.4",
+    "@guimabdo/webtyped-common": "0.2.0"
+  }
+}

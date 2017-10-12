@@ -1,0 +1,11 @@
+{
+  "version": "1.0.0",
+  "name": "asp.net",
+  "private": true,
+  "devDependencies": {
+    "@angular/core": "4.4.4",
+    "@angular/http": "4.4.4",
+    "@guimabdo/webtyped-common": "0.2.0",
+    "@guimabdo/webtyped-angular": "0.2.0"
+  }
+}

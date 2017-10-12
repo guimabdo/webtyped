@@ -1,0 +1,17 @@
+{
+  "version": "1.0.0",
+  "name": "asp.net",
+  "private": true,
+  "devDependencies": {
+    "@angular/common": "4.4.4",
+    "@angular/core": "4.4.4",
+    "@angular/http": "4.4.4",
+    "@angular/platform-browser": "4.4.4",
+    "@guimabdo/webtyped-common": "0.2.0",
+    "@guimabdo/webtyped-angular": "0.4.0",
+    "rxjs": "5.4.2",
+    "typescript": "2.3.4",
+    "awesome-typescript-loader": "3.2.1",
+    "webpack": "2.6.1"
+  }
+}
