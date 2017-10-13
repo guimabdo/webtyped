@@ -63,7 +63,7 @@ var WebApiObservable = (function (_super) {
             }
             var coreObs = httpObservable.map(function (r) {
                 //Convert response
-                var result = undefined;
+                var result;
                 try {
                     result = r.json();
                 }

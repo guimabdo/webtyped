@@ -14,18 +14,28 @@ using System.Text;
 namespace WebTyped {
 	public class Program {
 		public static int Main(params string[] args) {
-			var cmd = new CommandLineApplication();
+			var cmd = new CommandLineApplication(){
+				Name = "WebTyped",
+				Description = "Generate typescript services and model definitions based on your webApis"
+			};
+			cmd.VersionOption("--version", "0.1.0");
+			cmd.HelpOption("-?|-h|--help");
 
-			cmd.Command("create", target => {
-				var controllers = target.Option("-c | --controllers", "Controllers path (glob supported)", CommandOptionType.SingleValue);
-				var models = target.Option("-m | --models", "Models path (glob supported)", CommandOptionType.MultipleValue);
-				var output = target.Option("-o | --output", "", CommandOptionType.SingleValue);
+			cmd.Command("generate", target => {
+				//var controllers = target.Option("-c | --controllers", "Controllers path (glob supported)", CommandOptionType.SingleValue);
+				//var models = target.Option("-m | --models", "Models path (glob supported)", CommandOptionType.MultipleValue);
+				var sourceFiles = target.Option("-sf | --sourceFiles", "C# source files (glob supported)", CommandOptionType.MultipleValue);
+				var outDir = target.Option("-od | --outDir", "", CommandOptionType.SingleValue);
+				target.HelpOption("-?|-h|--help");
 				target.OnExecute(() => {
 					var matcher = new Matcher();
-					if (controllers.HasValue()) {
-						matcher.AddInclude(controllers.Value());
-					}
-					foreach (var val in models.Values) {
+					//if (controllers.HasValue()) {
+					//	matcher.AddInclude(controllers.Value());
+					//}
+					//foreach (var val in models.Values) {
+					//	matcher.AddInclude(val);
+					//}
+					foreach (var val in sourceFiles.Values) {
 						matcher.AddInclude(val);
 					}
 					var csFiles = matcher.GetResultsInFullPath(Directory.GetCurrentDirectory());
@@ -85,8 +95,8 @@ namespace WebTyped {
 							//
 							//}
 
-							Directory.CreateDirectory(Path.GetDirectoryName(output.Value()));
-							File.WriteAllText(Path.Combine(output.Value(), $"{camelController}.service.ts"), sb.ToString());
+							Directory.CreateDirectory(Path.GetDirectoryName(outDir.Value()));
+							File.WriteAllText(Path.Combine(outDir.Value(), $"{camelController}.service.ts"), sb.ToString());
 						}
 					}
 
@@ -96,13 +106,19 @@ namespace WebTyped {
 					return 0;
 				});
 			});
+
+			cmd.OnExecute(() => {
+				cmd.ShowHelp();
+				return 0;
+			});
+
 			return cmd.Execute(args);
 		}
 
-		
+
 		static bool CheckServicePrerequisites(INamedTypeSymbol t) {
 			var routeAttr = t.GetAttributes().FirstOrDefault(a => a.AttributeClass.Name == "Route" || a.AttributeClass.Name == "RoutePrefix");
-			if(routeAttr == null) { return false; }
+			if (routeAttr == null) { return false; }
 
 			//Bug: https://github.com/dotnet/roslyn/issues/22501
 			//ConstructorArguments value is always 0
@@ -146,7 +162,7 @@ namespace WebTyped {
 				var httpAttr = mtdAttrs.FirstOrDefault(a => a.AttributeClass.Name.StartsWith("Http"));
 				var routeMethodAttr = mtdAttrs.FirstOrDefault(a => a.AttributeClass.Name.StartsWith("Route"));
 				//If has Http attribute
-				if(httpAttr != null) {
+				if (httpAttr != null) {
 					httpMethod = httpAttr.AttributeClass.Name.Substring(4);
 					//Check if it contains route info
 					var args = (httpAttr.ApplicationSyntaxReference.GetSyntax() as AttributeSyntax).ArgumentList.Arguments;
@@ -155,7 +171,7 @@ namespace WebTyped {
 					}
 				}
 				//Check if contains route attr
-				if(routeMethodAttr != null) {
+				if (routeMethodAttr != null) {
 					var args = (routeMethodAttr.ApplicationSyntaxReference.GetSyntax() as AttributeSyntax).ArgumentList.Arguments;
 					if (args.Count > 0) {
 						action = args[0].ToString().Replace("\"", "");
@@ -220,11 +236,11 @@ namespace WebTyped {
 				if (parentName.EndsWith("Controller")) {
 					parentName = parentName.Replace("Controller", "Service");
 				}
-				
+
 				typeName = $"{parentName}.{typeName}";
 				parent = parent.ContainingType;
 			}
-			
+
 			string genericPart = "";
 			//Generic
 			if (type.IsGenericType) {
@@ -233,7 +249,7 @@ namespace WebTyped {
 
 			//Change type to ts type
 			typeName = ToTsTypeName(typeName);
-			
+
 			return $"{typeName}{genericPart}";
 		}
 

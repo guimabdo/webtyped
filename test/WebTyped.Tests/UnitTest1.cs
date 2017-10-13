@@ -10,10 +10,10 @@ namespace WebTyped.Tests {
 		public void TestMethod1() {
 			var folder = Directory.GetCurrentDirectory();
 			var result = Program.Main(new[] {
-				"create",
-				"--controllers", "../../../../WebTyped.Example.Web/Controllers/**/*.cs",
-				"--models", "../../../../WebTyped.Example.Web/Models/**/*.cs",
-				"--output", "../../../../WebTyped.Example.Web/ClientApp/app/webApi/"
+				"generate",
+				"--sourceFiles", "../../../../WebTyped.Example.Web/Controllers/**/*.cs",
+				"--sourceFiles", "../../../../WebTyped.Example.Web/Models/**/*.cs",
+				"--outDir", "../../../../WebTyped.Example.Web/ClientApp/app/webApi/"
 				//"--controllers", "../../../UnitTest1.cs",
 				//"--models", "../../../UnitTest1.cs",
 			});

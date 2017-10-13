@@ -5,10 +5,10 @@
   "author": {
     "name": "guimabdo"
   },
-  "peerDependencies": {
-    "rxjs": "5.4.2",
-    "@angular/http": "4.4.4",
-    "@angular/core": "4.4.4",
+  "dependencies": {
+    "rxjs": "^5.0.1",
+    "@angular/http": "^4.2.5",
+    "@angular/core": "^4.2.5",
     "@guimabdo/webtyped-common": "0.2.0"
   }
 }

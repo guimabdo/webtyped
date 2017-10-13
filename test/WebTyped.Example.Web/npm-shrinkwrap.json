@@ -121,6 +121,11 @@
       "resolved": "https://registry.npmjs.org/@guimabdo/webtyped-common/-/webtyped-common-0.2.0.tgz",
       "integrity": "sha512-YCbAkeQoXUz0cRbEUqZVOm7ZGpTrEgZ5FQ5zGximSAUmqLXy1f35+wr1/t0nEUwXAEvFr2E8y6rGWDq4iKxQkw=="
     },
+    "@guimabdo/webtyped-generator": {
+      "version": "0.1.0",
+      "resolved": "https://registry.npmjs.org/@guimabdo/webtyped-generator/-/webtyped-generator-0.1.0.tgz",
+      "integrity": "sha512-sGj90gfli7RTLBaCIKtQKKsgteJMsjqgN1cF+wo/ynSZT4/8ExaSSHOyxEslc9MdaqUdgjY6gvYWbkxLE4EctQ=="
+    },
     "@ngtools/webpack": {
       "version": "1.5.0",
       "resolved": "https://registry.npmjs.org/@ngtools/webpack/-/webpack-1.5.0.tgz",
