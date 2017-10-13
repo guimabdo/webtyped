@@ -3,7 +3,9 @@ import { WebApiEventEmmiterService, WebApiObservable } from './';
 import { WebApiCallInfo } from '@guimabdo/webtyped-common';
 export class WebApiClient {
 
-    constructor(private api: string,
+    constructor(
+        private baseUrl: string,
+        private api: string,
         private http: Http,
         private eventEmmiter: WebApiEventEmmiterService) { }
 
@@ -26,7 +28,7 @@ export class WebApiClient {
         httpMethod: string, body?: any, search?: any): WebApiObservable<T> {
         return new WebApiObservable<T>(info, this.eventEmmiter, this.http,
             httpMethod,
-            'api', //baseBath
+            this.baseUrl,
             this.api, action, body, search);
 
 

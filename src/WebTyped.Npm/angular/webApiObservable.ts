@@ -7,13 +7,13 @@ export class WebApiObservable<T> extends Observable<T>{
                 protected eventEmmiter: WebApiEventEmmiterService,
                 protected http: Http,
                 protected httpMethod: string,
-                protected basePath: string,
+                protected baseUrl: string,
                 protected api: string,
                 protected action: string,
                 protected body: any,
                 protected search: any){
         super(sub => {
-            var url = `${basePath}/${api}/${action}`;
+            var url = `${baseUrl}/${api}/${action}`;
            
             var fData = "FormData";
             var isFormData = body && typeof (body) === fData;

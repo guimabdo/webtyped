@@ -9,6 +9,7 @@ import { NavMenuComponent } from './components/navmenu/navmenu.component';
 import { HomeComponent } from './components/home/home.component';
 import { FetchDataComponent } from './components/fetchdata/fetchdata.component';
 import { CounterComponent } from './components/counter/counter.component';
+import * as webApi from './webApi/';
 
 @NgModule({
     declarations: [
@@ -29,6 +30,9 @@ import { CounterComponent } from './components/counter/counter.component';
             { path: 'fetch-data', component: FetchDataComponent },
             { path: '**', redirectTo: 'home' }
         ])
+    ],
+    providers: [
+        ...webApi.providers
     ]
 })
 export class AppModuleShared {

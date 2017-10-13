@@ -14,9 +14,9 @@ var rxjs_1 = require("rxjs");
 var http_1 = require("@angular/http");
 var WebApiObservable = (function (_super) {
     __extends(WebApiObservable, _super);
-    function WebApiObservable(info, eventEmmiter, http, httpMethod, basePath, api, action, body, search) {
+    function WebApiObservable(info, eventEmmiter, http, httpMethod, baseUrl, api, action, body, search) {
         var _this = _super.call(this, function (sub) {
-            var url = basePath + "/" + api + "/" + action;
+            var url = baseUrl + "/" + api + "/" + action;
             var fData = "FormData";
             var isFormData = body && typeof (body) === fData;
             //Creating headers
@@ -85,7 +85,7 @@ var WebApiObservable = (function (_super) {
         _this.eventEmmiter = eventEmmiter;
         _this.http = http;
         _this.httpMethod = httpMethod;
-        _this.basePath = basePath;
+        _this.baseUrl = baseUrl;
         _this.api = api;
         _this.action = action;
         _this.body = body;

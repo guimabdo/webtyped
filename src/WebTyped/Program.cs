@@ -14,7 +14,7 @@ using System.Text;
 namespace WebTyped {
 	public class Program {
 		public static int Main(params string[] args) {
-			var cmd = new CommandLineApplication(){
+			var cmd = new CommandLineApplication() {
 				Name = "WebTyped",
 				Description = "Generate typescript services and model definitions based on your webApis"
 			};
@@ -50,57 +50,63 @@ namespace WebTyped {
 					var compilation = CSharpCompilation.Create("Comp", trees, new[] { mscorlib });
 					var semanticModels = trees.ToDictionary(t => t, t => compilation.GetSemanticModel(t));
 
+					var servicesDir = Path.Combine(outDir.Value(), "services");
+					var modelsDir = Path.Combine(outDir.Value(), "models");
+					Directory.CreateDirectory(servicesDir);
+					Directory.CreateDirectory(modelsDir);
+					var sbServicesIndex = new StringBuilder();
+					sbServicesIndex.AppendLine("import * as services from './';");
+
+					
+					var serviceNames = new List<string>();
 					foreach (var t in trees) {
 						foreach (var @class in t.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>()) {
 							var sm = semanticModels[t];
 
 							var dsClass = sm.GetDeclaredSymbol(@class);
-
+							//Only root types, subtypes are handled with its roots
 							if (dsClass.ContainingType != null) { continue; }
-							if (!dsClass.Name.EndsWith("Controller")) {
-								continue;
+							if (CheckServicePrerequisites(dsClass)) {
+								var controller = dsClass.Name.Substring(0, dsClass.Name.Length - "Controller".Length);
+								serviceNames.Add($"{controller}Service");
+								var sb = new StringBuilder();
+								sb.AppendLine("import { Injectable, Inject, forwardRef } from '@angular/core';");
+								sb.AppendLine("import { Http } from '@angular/http';");
+								sb.AppendLine("import { WebApiClient, WebApiEventEmmiterService, WebApiObservable } from '@guimabdo/webtyped-angular';");
+								sb.AppendLine(CreateServiceCode(dsClass));
+
+								var svcFileName = $"{controller.ToCamelCase()}.service";
+								File.WriteAllText(Path.Combine(servicesDir, $"{svcFileName}.ts"), sb.ToString());
+								sbServicesIndex.AppendLine($"export * from './{svcFileName}';");
+
+								//Nested types
+								var nestedTypes = dsClass.GetMembers().OfType<INamedTypeSymbol>();
+								if (nestedTypes.Any()) {
+									sb = new StringBuilder();
+									sb.AppendLine($"declare module {controller}Service {{");
+									nestedTypes.ToList().ForEach(s => sb.AppendLine(CreateModelCode(s, 1)));
+									sb.AppendLine("}");
+									File.WriteAllText(Path.Combine(modelsDir, $"{controller.ToCamelCase()}.service.d.ts"), sb.ToString());
+								}
+							} else if (CheckModelPrerequisites(dsClass)) {
+								File.WriteAllText(Path.Combine(modelsDir, $"{dsClass.Name.ToCamelCase()}.d.ts"), CreateServiceCode(dsClass));
 							}
-
-							if (!CheckServicePrerequisites(dsClass)) { continue; }
-
-							var controller = dsClass.Name.Substring(0, dsClass.Name.Length - "Controller".Length);
-							var camelController = controller[0].ToString().ToLower() + controller.Substring(1);
-							var sb = new StringBuilder();
-							sb.AppendLine("import { Injectable, Inject, forwardRef } from '@angular/core';");
-							sb.AppendLine("import { Http } from '@angular/http';");
-							sb.AppendLine("import { WebApiClient, WebApiEventEmmiterService, WebApiObservable } from '@guimabdo/webtyped-angular';");
-							sb.AppendLine(CreateServiceCode(dsClass));
-
-							//if (dsClass.Name.EndsWith("Controller")) {
-							//	str = str.Replace("__Controller__", controller);
-							//}
-							//
-							//var methods = new StringBuilder();
-							//var subClasses = new StringBuilder();
-							//foreach (var m in dsClass.GetMembers()) {
-							//	if (m.Kind == SymbolKind.NamedType) {
-							//		subClasses.AppendLine(CreateModelCode(m as INamedTypeSymbol));
-							//		continue;
-							//	}
-							//	if (m.Kind != SymbolKind.Method) { continue; }
-							//	if (m.IsImplicitlyDeclared) { continue; }
-							//	if (!m.IsDefinition) { continue; }
-							//	methods.AppendLine($"\t{m.Name} = () => null;");
-							//}
-							//str = str.Replace("__Methods__", methods.ToString());
-							//if (subClasses.Length > 0) {
-							//	str += $"export module {controller}Service {{";
-							//	str += subClasses.ToString();
-							//	str += "}}";
-							//
-							//}
-
-							Directory.CreateDirectory(Path.GetDirectoryName(outDir.Value()));
-							File.WriteAllText(Path.Combine(outDir.Value(), $"{camelController}.service.ts"), sb.ToString());
 						}
 					}
+					sbServicesIndex.AppendLine("export var all = [");
+					sbServicesIndex.AppendLine(string.Join("," + System.Environment.NewLine, serviceNames.Select(s => $"services.{s}")));
+					sbServicesIndex.AppendLine("];");
 
+					File.WriteAllText(Path.Combine(servicesDir, $"index.ts"), sbServicesIndex.ToString());
 
+					var sbMainIndex = new StringBuilder();
+					sbMainIndex.AppendLine("import * as services from './services';");
+					sbMainIndex.AppendLine("import { WebApiEventEmmiterService } from '@guimabdo/webtyped-angular';");
+					sbMainIndex.AppendLine("export var providers = [");
+					sbMainIndex.AppendLine(1, "WebApiEventEmmiterService,");
+					sbMainIndex.AppendLine(1, "...services.all");
+					sbMainIndex.AppendLine("];");
+					File.WriteAllText(Path.Combine(outDir.Value(), $"index.ts"), sbMainIndex.ToString());
 
 
 					return 0;
@@ -115,8 +121,14 @@ namespace WebTyped {
 			return cmd.Execute(args);
 		}
 
+		static bool CheckModelPrerequisites(INamedTypeSymbol t) {
+			if (t.Name.EndsWith("Controller")) { return false; }
+			if (t.BaseType != null && t.BaseType.Name.EndsWith("Controller")) { return false; }
+			return true;
+		}
 
 		static bool CheckServicePrerequisites(INamedTypeSymbol t) {
+			if (!t.Name.EndsWith("Controller")) { return false; }
 			var routeAttr = t.GetAttributes().FirstOrDefault(a => a.AttributeClass.Name == "Route" || a.AttributeClass.Name == "RoutePrefix");
 			if (routeAttr == null) { return false; }
 
@@ -129,7 +141,7 @@ namespace WebTyped {
 		}
 
 		static string CreateServiceCode(INamedTypeSymbol t, int level = 0) {
-			var subClasses = new List<INamedTypeSymbol>();
+			//var subClasses = new List<INamedTypeSymbol>();
 			var controller = t.Name.Substring(0, t.Name.Length - "Controller".Length);
 			var routeAttr = t.GetAttributes().FirstOrDefault(a => a.AttributeClass.Name == "Route" || a.AttributeClass.Name.ToString() == "RoutePrefix");
 
@@ -139,13 +151,13 @@ namespace WebTyped {
 			var sb = new StringBuilder();
 			sb.AppendLine(level, "@Injectable()");
 			sb.AppendLine(level, $"export class {controller}Service extends WebApiClient {{");
-			sb.AppendLine(level, $"	constructor(http: Http, @Inject(forwardRef(() => WebApiEventEmmiterService)) eventEmmiter: WebApiEventEmmiterService) {{");
-			sb.AppendLine(level, $@"		super(""{path}"", http, eventEmmiter);");
+			sb.AppendLine(level, $"	constructor(@Inject('API_BASE_URL') baseUrl: string, http: Http, @Inject(forwardRef(() => WebApiEventEmmiterService)) eventEmmiter: WebApiEventEmmiterService) {{");
+			sb.AppendLine(level, $@"		super(baseUrl, ""{path}"", http, eventEmmiter);");
 			sb.AppendLine(level, $"	}}");
 
 			foreach (var m in t.GetMembers()) {
 				if (m.Kind == SymbolKind.NamedType) {
-					subClasses.Add(m as INamedTypeSymbol);
+					//subClasses.Add(m as INamedTypeSymbol);
 					continue;
 				}
 				if (m.Kind != SymbolKind.Method) { continue; }
@@ -182,26 +194,17 @@ namespace WebTyped {
 				sb.AppendLine(level + 1, $"{m.Name} = () : WebApiObservable<{returnType}> => {{ return this.invoke{httpMethod}<{returnType}>({{ func: this.{m.Name}, parameters: {{}} }}, `{action}`, {search}); }};");
 			}
 			sb.AppendLine($"}}");
-			if (subClasses.Any()) {
-				sb.AppendLine(level, $"export module {controller}Service {{");
-				subClasses.ForEach(s => sb.AppendLine(CreateModelCode(s, level + 1)));
-				sb.AppendLine(level, $"}}");
-			}
-			return sb.ToString();
-			//			@Injectable()
-			//export class __Controller__Service extends WebApiClient {
-			//    constructor(http: Http,
-			//        @Inject(forwardRef(() => WebApiEventEmmiterService)) eventEmmiter: WebApiEventEmmiterService) {
-			//        super("", http, eventEmmiter);
-			//    }
-			//    __Methods__
+			//if (subClasses.Any()) {
+			//	sb.AppendLine(level, $"export module {controller}Service {{");
+			//	subClasses.ForEach(s => sb.AppendLine(CreateModelCode(s, level + 1)));
+			//	sb.AppendLine(level, $"}}");
 			//}
-
+			return sb.ToString();
 		}
 		static string CreateModelCode(INamedTypeSymbol t, int level = 0) {
 			var subClasses = new List<INamedTypeSymbol>();
 			var sb = new StringBuilder();
-			sb.AppendLine(level, $"export class {t.Name} {{");
+			sb.AppendLine(level, $"export interface {t.Name} {{");
 			foreach (var m in t.GetMembers()) {
 				if (m.Kind == SymbolKind.NamedType) {
 					subClasses.Add(m as INamedTypeSymbol);
@@ -231,11 +234,13 @@ namespace WebTyped {
 				//Check if parent type is controller > service
 				var parentName = parent.Name;
 				//Adjust to check prerequisites
-				//if(CheckServicePrerequisites(parent)) {	}
-				//For now, we'll just check if ends with "Controller" suffix
-				if (parentName.EndsWith("Controller")) {
+				if (CheckServicePrerequisites(parent)) {
 					parentName = parentName.Replace("Controller", "Service");
 				}
+				//For now, we'll just check if ends with "Controller" suffix
+				//if (parentName.EndsWith("Controller")) {
+				//	parentName = parentName.Replace("Controller", "Service");
+				//}
 
 				typeName = $"{parentName}.{typeName}";
 				parent = parent.ContainingType;

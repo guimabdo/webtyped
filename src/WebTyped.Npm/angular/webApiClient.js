@@ -2,7 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var _1 = require("./");
 var WebApiClient = (function () {
-    function WebApiClient(api, http, eventEmmiter) {
+    function WebApiClient(baseUrl, api, http, eventEmmiter) {
+        this.baseUrl = baseUrl;
         this.api = api;
         this.http = http;
         this.eventEmmiter = eventEmmiter;
@@ -23,8 +24,7 @@ var WebApiClient = (function () {
         return this.invoke(info, action, 'delete', null, search);
     };
     WebApiClient.prototype.invoke = function (info, action, httpMethod, body, search) {
-        return new _1.WebApiObservable(info, this.eventEmmiter, this.http, httpMethod, 'api', //baseBath
-        this.api, action, body, search);
+        return new _1.WebApiObservable(info, this.eventEmmiter, this.http, httpMethod, this.baseUrl, this.api, action, body, search);
     };
     return WebApiClient;
 }());
