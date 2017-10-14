@@ -169,7 +169,14 @@ namespace WebTyped {
 				//Not marked actions will accept posts
 				var httpMethod = "Post";
 				string action = "";
-				string search = "undefined";
+				//string search = "undefined";
+
+				//Get http method from method name pattern
+				if (mtd.Name.StartsWith("Get")) { httpMethod = "Get"; }
+				if (mtd.Name.StartsWith("Post")) { httpMethod = "Post"; }
+				if (mtd.Name.StartsWith("Put")) { httpMethod = "Put"; }
+				if (mtd.Name.StartsWith("Delete")) { httpMethod = "Delete"; }
+				if (mtd.Name.StartsWith("Patch")) { httpMethod = "Patch"; }
 
 				var httpAttr = mtdAttrs.FirstOrDefault(a => a.AttributeClass.Name.StartsWith("Http"));
 				var routeMethodAttr = mtdAttrs.FirstOrDefault(a => a.AttributeClass.Name.StartsWith("Route"));
@@ -190,8 +197,34 @@ namespace WebTyped {
 					}
 				}
 				//Replace route variables
-				action = action.Replace("[action]", m.Name);
-				sb.AppendLine(level + 1, $"{m.Name} = () : WebApiObservable<{returnType}> => {{ return this.invoke{httpMethod}<{returnType}>({{ func: this.{m.Name}, parameters: {{}} }}, `{action}`, {search}); }};");
+				action = action
+					.Replace("[action]", m.Name)
+					.Replace("{", "${");
+
+				//Resolve parameters
+				var strParameters = string.Join(", ",
+					mtd.Parameters.Select(p => $"{p.Name}: {TranslateType(p.Type as INamedTypeSymbol)}")
+				);
+
+				//Resolve how parameters are sent
+				var pendingParameters = new List<string>();
+				foreach(var p in mtd.Parameters) {
+					if (action.Contains($"{{{p.Name}}}")) {
+						continue;
+					}
+					pendingParameters.Add(p.Name);
+				}
+
+				sb.AppendLine(level + 1, $"{m.Name} = ({strParameters}) : WebApiObservable<{returnType}> => {{");
+				sb.AppendLine(level + 2, $"return this.invoke{httpMethod}<{returnType}>({{");
+				sb.AppendLine(level + 4, $"func: this.{m.Name},");
+				sb.AppendLine(level + 4, $"parameters: {{ {string.Join(", ", mtd.Parameters.Select(p => p.Name))} }}");
+				sb.AppendLine(level + 3, "},");
+				sb.AppendLine(level + 3, $"`{action}`,");
+				var search = pendingParameters.Any() ? $"{{ {string.Join(", ", pendingParameters)} }}" : "undefined";
+				sb.AppendLine(level + 3, $"{search}");
+				sb.AppendLine(level + 2, ");");
+				sb.AppendLine(level + 1, "};");
 			}
 			sb.AppendLine($"}}");
 			//if (subClasses.Any()) {

@@ -13,6 +13,7 @@ export class WebApiObservable<T> extends Observable<T>{
                 protected body: any,
                 protected search: any){
         super(sub => {
+            if (baseUrl.endsWith('/')) { baseUrl = baseUrl.substr(0, baseUrl.length - 1); }
             var url = `${baseUrl}/${api}/${action}`;
            
             var fData = "FormData";

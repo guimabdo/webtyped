@@ -112,9 +112,9 @@
       }
     },
     "@guimabdo/webtyped-angular": {
-      "version": "0.10.4",
-      "resolved": "https://registry.npmjs.org/@guimabdo/webtyped-angular/-/webtyped-angular-0.10.4.tgz",
-      "integrity": "sha512-EOEKRT+KAVMsSZwyXN2AIESWq/NnuHBnBvyuyg27itWVFI0Hhtoaf3k5G3vUUnNs6T2VaVCwU4sYhowAB88J3Q==",
+      "version": "0.10.6",
+      "resolved": "https://registry.npmjs.org/@guimabdo/webtyped-angular/-/webtyped-angular-0.10.6.tgz",
+      "integrity": "sha512-udMhqYRcQsE2RdgEom1EiCBAUGvlIlP/R4/kPFmKtJYCMBkhubrqQf0ByDB2nklp4S0AKtasOdSvIDxZx36bKg==",
       "requires": {
         "@angular/core": "4.2.5",
         "@angular/http": "4.2.5",

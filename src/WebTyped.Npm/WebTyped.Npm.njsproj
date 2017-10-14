@@ -34,7 +34,9 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="angular\package-lock.json" />
     <Content Include="angular\package.json" />
+    <Content Include="common\package-lock.json" />
     <Content Include="common\package.json" />
     <Content Include="generator\package.json" />
     <Content Include="generator\program\Microsoft.CodeAnalysis.CSharp.dll" />
@@ -75,6 +77,11 @@
     <TypeScriptCompile Include="angular\webApiObservable.ts" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="angular\index.js" />
+    <Compile Include="angular\webApiClient.js" />
+    <Compile Include="angular\webApiEventEmmiter.service.js" />
+    <Compile Include="common\index.js" />
+    <Compile Include="common\webApiCallInfo.js" />
     <Compile Include="generator\index.js">
       <SubType>Code</SubType>
     </Compile>

@@ -9,6 +9,7 @@ import { NavMenuComponent } from './components/navmenu/navmenu.component';
 import { HomeComponent } from './components/home/home.component';
 import { FetchDataComponent } from './components/fetchdata/fetchdata.component';
 import { CounterComponent } from './components/counter/counter.component';
+import { MegaSampleComponent } from './components/megaSample/megaSample.component';
 import * as webApi from './webApi/';
 
 @NgModule({
@@ -17,7 +18,8 @@ import * as webApi from './webApi/';
         NavMenuComponent,
         CounterComponent,
         FetchDataComponent,
-        HomeComponent
+        HomeComponent,
+        MegaSampleComponent
     ],
     imports: [
         CommonModule,
@@ -28,6 +30,7 @@ import * as webApi from './webApi/';
             { path: 'home', component: HomeComponent },
             { path: 'counter', component: CounterComponent },
             { path: 'fetch-data', component: FetchDataComponent },
+            { path: 'megaSample', component: MegaSampleComponent },
             { path: '**', redirectTo: 'home' }
         ])
     ],

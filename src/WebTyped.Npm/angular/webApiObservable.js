@@ -16,6 +16,9 @@ var WebApiObservable = (function (_super) {
     __extends(WebApiObservable, _super);
     function WebApiObservable(info, eventEmmiter, http, httpMethod, baseUrl, api, action, body, search) {
         var _this = _super.call(this, function (sub) {
+            if (baseUrl.endsWith('/')) {
+                baseUrl = baseUrl.substr(0, baseUrl.length - 1);
+            }
             var url = baseUrl + "/" + api + "/" + action;
             var fData = "FormData";
             var isFormData = body && typeof (body) === fData;
