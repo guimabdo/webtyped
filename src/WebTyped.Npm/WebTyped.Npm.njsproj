@@ -21,6 +21,7 @@
     <OutputPath>.</OutputPath>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
+    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
     <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
@@ -34,8 +35,15 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="angular\index.js.map" />
     <Content Include="angular\package-lock.json" />
     <Content Include="angular\package.json" />
+    <Content Include="angular\src\tsconfig.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="angular\webApiClient.js.map" />
+    <Content Include="angular\webApiEventEmmiter.service.js.map" />
+    <Content Include="angular\webApiInterceptor.js.map" />
     <Content Include="common\package-lock.json" />
     <Content Include="common\package.json" />
     <Content Include="generator\package.json" />
@@ -49,12 +57,11 @@
     <Content Include="generator\program\WebTyped.dll" />
     <Content Include="generator\program\WebTyped.pdb" />
     <Content Include="generator\program\WebTyped.runtimeconfig.json" />
-    <Content Include="tsconfig.json">
-      <SubType>Code</SubType>
-    </Content>
+    <Content Include="package.json" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="angular\" />
+    <Folder Include="angular\src\" />
     <Folder Include="common\" />
     <Folder Include="generator\" />
     <Folder Include="generator\program\" />
@@ -67,19 +74,24 @@
     <Folder Include="generator\program\runtimes\win\lib\netstandard1.3\" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="angular\index.ts">
+    <TypeScriptCompile Include="angular\index.d.ts" />
+    <TypeScriptCompile Include="angular\src\index.ts" />
+    <TypeScriptCompile Include="angular\src\webApiInterceptor.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="angular\webApiClient.d.ts" />
+    <TypeScriptCompile Include="angular\webApiEventEmmiter.service.d.ts" />
+    <TypeScriptCompile Include="angular\webApiInterceptor.d.ts" />
     <TypeScriptCompile Include="common\index.ts" />
     <TypeScriptCompile Include="common\webApiCallInfo.ts" />
-    <TypeScriptCompile Include="angular\webApiClient.ts" />
-    <TypeScriptCompile Include="angular\webApiEventEmmiter.service.ts" />
-    <TypeScriptCompile Include="angular\webApiObservable.ts" />
+    <TypeScriptCompile Include="angular\src\webApiClient.ts" />
+    <TypeScriptCompile Include="angular\src\webApiEventEmmiter.service.ts" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="angular\index.js" />
     <Compile Include="angular\webApiClient.js" />
     <Compile Include="angular\webApiEventEmmiter.service.js" />
+    <Compile Include="angular\webApiInterceptor.js" />
     <Compile Include="common\index.js" />
     <Compile Include="common\webApiCallInfo.js" />
     <Compile Include="generator\index.js">

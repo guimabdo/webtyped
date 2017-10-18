@@ -71,8 +71,9 @@ namespace WebTyped {
 								serviceNames.Add($"{controller}Service");
 								var sb = new StringBuilder();
 								sb.AppendLine("import { Injectable, Inject, forwardRef } from '@angular/core';");
-								sb.AppendLine("import { Http } from '@angular/http';");
-								sb.AppendLine("import { WebApiClient, WebApiEventEmmiterService, WebApiObservable } from '@guimabdo/webtyped-angular';");
+								sb.AppendLine("import { HttpClient } from '@angular/common/http';");
+								sb.AppendLine("import { WebApiClient, WebApiEventEmmiterService } from '@guimabdo/webtyped-angular';");
+								sb.AppendLine("import { Observable } from 'rxjs'");
 								sb.AppendLine(CreateServiceCode(dsClass));
 
 								var svcFileName = $"{controller.ToCamelCase()}.service";
@@ -151,8 +152,8 @@ namespace WebTyped {
 			var sb = new StringBuilder();
 			sb.AppendLine(level, "@Injectable()");
 			sb.AppendLine(level, $"export class {controller}Service extends WebApiClient {{");
-			sb.AppendLine(level, $"	constructor(@Inject('API_BASE_URL') baseUrl: string, http: Http, @Inject(forwardRef(() => WebApiEventEmmiterService)) eventEmmiter: WebApiEventEmmiterService) {{");
-			sb.AppendLine(level, $@"		super(baseUrl, ""{path}"", http, eventEmmiter);");
+			sb.AppendLine(level, $"	constructor(@Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebApiEventEmmiterService)) eventEmmiter: WebApiEventEmmiterService) {{");
+			sb.AppendLine(level, $@"		super(baseUrl, ""{path}"", httpClient, eventEmmiter);");
 			sb.AppendLine(level, $"	}}");
 
 			foreach (var m in t.GetMembers()) {
@@ -184,9 +185,9 @@ namespace WebTyped {
 				if (httpAttr != null) {
 					httpMethod = httpAttr.AttributeClass.Name.Substring(4);
 					//Check if it contains route info
-					var args = (httpAttr.ApplicationSyntaxReference.GetSyntax() as AttributeSyntax).ArgumentList.Arguments;
-					if (args.Count > 0) {
-						action = args[0].ToString().Replace("\"", "");
+					var args = (httpAttr.ApplicationSyntaxReference.GetSyntax() as AttributeSyntax)?.ArgumentList?.Arguments;
+					if (args != null && args.Value.Count > 0) {
+						action = args.Value[0].ToString().Replace("\"", "");
 					}
 				}
 				//Check if contains route attr
@@ -208,19 +209,40 @@ namespace WebTyped {
 
 				//Resolve how parameters are sent
 				var pendingParameters = new List<string>();
+				var bodyParam = "null";
 				foreach(var p in mtd.Parameters) {
+					//[FromRoute]
 					if (action.Contains($"{{{p.Name}}}")) {
+						continue;
+					}
+					//[FromBody]
+					if(p.GetAttributes().Any(a => a.AttributeClass.Name == "FromBody")) {
+						bodyParam = p.Name;
 						continue;
 					}
 					pendingParameters.Add(p.Name);
 				}
 
-				sb.AppendLine(level + 1, $"{m.Name} = ({strParameters}) : WebApiObservable<{returnType}> => {{");
+				//if(pendingParameters.Any() && bodyParam == "null" && new string[] {
+				//	"Put", "Patch", "Post"
+				//}.Contains(httpMethod)) {
+				//	bodyParam = pendingParameters[0];
+				//	pendingParameters.RemoveAt(0);
+				//}
+
+				sb.AppendLine(level + 1, $"{m.Name} = ({strParameters}) : Observable<{returnType}> => {{");
 				sb.AppendLine(level + 2, $"return this.invoke{httpMethod}<{returnType}>({{");
 				sb.AppendLine(level + 4, $"func: this.{m.Name},");
 				sb.AppendLine(level + 4, $"parameters: {{ {string.Join(", ", mtd.Parameters.Select(p => p.Name))} }}");
 				sb.AppendLine(level + 3, "},");
 				sb.AppendLine(level + 3, $"`{action}`,");
+				//Body
+				switch (httpMethod) {
+					case "Put": case "Patch": case "Post":
+						sb.AppendLine(level + 3, $"{bodyParam},");
+						break;
+					default: break;
+				}
 				var search = pendingParameters.Any() ? $"{{ {string.Join(", ", pendingParameters)} }}" : "undefined";
 				sb.AppendLine(level + 3, $"{search}");
 				sb.AppendLine(level + 2, ");");
@@ -258,6 +280,11 @@ namespace WebTyped {
 		}
 
 		static string TranslateType(INamedTypeSymbol type) {
+			//tuples
+			if (type.IsTupleType) {
+				return $"{{{string.Join(", ", type.TupleElements.Select(te => $"{te.Name}: {TranslateType(te.Type as INamedTypeSymbol)}"))}}}";
+			}
+
 			string name = type.Name;
 			var members = type.GetTypeMembers();
 			string typeName = type.Name;
@@ -300,6 +327,7 @@ namespace WebTyped {
 				case nameof(Int64):
 					return "number";
 				case nameof(IEnumerable):
+				case nameof(List<object>):
 					return "Array";
 				default: return typeName;
 			}

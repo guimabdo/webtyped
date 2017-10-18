@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <Folder Include="ClientApp\app\webApi\" />
-    <Folder Include="Models\" />
   </ItemGroup>
 
   <Target Name="DebugRunWebpack" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('wwwroot\dist') ">

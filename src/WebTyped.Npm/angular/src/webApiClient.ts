@@ -1,38 +1,40 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var http_1 = require("@angular/common/http");
-var WebApiClient = (function () {
-    function WebApiClient(baseUrl, api, httpClient, eventEmmiter) {
-        this.baseUrl = baseUrl;
-        this.api = api;
-        this.httpClient = httpClient;
-        this.eventEmmiter = eventEmmiter;
-    }
-    WebApiClient.prototype.invokeGet = function (info, action, search) {
+﻿import { HttpClient, HttpParams } from '@angular/common/http';
+import { WebApiEventEmmiterService } from './';
+import { Observable } from 'rxjs';
+import { WebApiCallInfo } from '@guimabdo/webtyped-common';
+export class WebApiClient {
+
+    constructor(
+        private baseUrl: string,
+        private api: string,
+        private httpClient: HttpClient,
+        private eventEmmiter: WebApiEventEmmiterService) { }
+
+    invokeGet<T>(info: WebApiCallInfo, action: string, search?: any): Observable<T> {
         return this.invoke(info, action, 'get', null, search);
-    };
-    WebApiClient.prototype.invokePatch = function (info, action, body, search) {
+    }
+    invokePatch<T>(info: WebApiCallInfo, action: string, body?: any, search?: any): Observable<T> {
         return this.invoke(info, action, 'patch', body, search);
-    };
-    WebApiClient.prototype.invokePost = function (info, action, body, search) {
+    }
+    invokePost<T>(info: WebApiCallInfo, action: string, body?: any, search?: any): Observable<T> {
         return this.invoke(info, action, 'post', body, search);
-    };
-    WebApiClient.prototype.invokePut = function (info, action, body, search) {
+    }
+    invokePut<T>(info: WebApiCallInfo, action: string, body?: any, search?: any): Observable<T> {
         return this.invoke(info, action, 'put', body, search);
-    };
-    WebApiClient.prototype.invokeDelete = function (info, action, search) {
+    }
+    invokeDelete<T>(info: WebApiCallInfo, action: string, search?: any): Observable<T> {
         return this.invoke(info, action, 'delete', null, search);
-    };
-    WebApiClient.prototype.invoke = function (info, action, httpMethod, body, search) {
-        var _this = this;
+    }
+    private invoke<T>(info: WebApiCallInfo, action: string,
+        httpMethod: string, body?: any, search?: any): Observable<T> {
         var baseUrl = this.baseUrl;
         var httpClient = this.httpClient;
-        if (baseUrl.endsWith('/')) {
-            baseUrl = baseUrl.substr(0, baseUrl.length - 1);
-        }
-        var url = baseUrl + "/" + this.api + "/" + action;
+        if (baseUrl.endsWith('/')) { baseUrl = baseUrl.substr(0, baseUrl.length - 1); }
+        var url = `${baseUrl}/${this.api}/${action}`;
+
         //var fData = "FormData";
         //var isFormData = body && typeof (body) === fData;
+
         ////Creating headers
         //var headers = new HttpHeaders();
         //if (!isFormData) { // multiplart header is resolved by the browser
@@ -42,14 +44,16 @@ var WebApiClient = (function () {
         //        body = JSON.stringify(body);
         //    }
         //}
+
         //Creating options
-        var options = {
+        var options: { params: undefined | HttpParams } = {
             //headers: headers,
             params: undefined
             //withCredentials: true //Cross-domain support? -- with new HttClient, I think this kind of things should be managed with interceptors
         };
+
         if (search) {
-            var params = new http_1.HttpParams();
+            var params = new HttpParams();
             for (var p in search) {
                 params = params.set(p, search[p]);
             }
@@ -64,33 +68,33 @@ var WebApiClient = (function () {
         //    }
         //    options.search = s;
         //}
-        var httpObservable;
+        var httpObservable: Observable<T>;
         switch (httpMethod) {
             case 'get':
-                httpObservable = httpClient.get(url, options);
+                httpObservable = httpClient.get<T>(url, options);
                 break;
             case 'put':
-                httpObservable = httpClient.put(url, body, options);
+                httpObservable = httpClient.put<T>(url, body, options);
                 break;
             case 'patch':
-                httpObservable = httpClient.patch(url, body, options);
+                httpObservable = httpClient.patch<T>(url, body, options);
                 break;
             case 'delete':
-                httpObservable = httpClient.delete(url, options);
+                httpObservable = httpClient.delete<T>(url, options);
                 break;
             case 'post':
             default:
-                httpObservable = httpClient.post(url, body, options);
+                httpObservable = httpClient.post<T>(url, body, options);
                 break;
         }
+
         var coreObs = httpObservable //Emmit completed event
-            .do(function () {
-            _this.eventEmmiter.emit(info);
-        }, function (r) {
-        });
+            .do(() => {
+                this.eventEmmiter.emit(info);
+            },
+            r => {
+                
+            });
         return coreObs;
-    };
-    return WebApiClient;
-}());
-exports.WebApiClient = WebApiClient;
-//# sourceMappingURL=webApiClient.js.map
+    }
+}

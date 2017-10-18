@@ -13,6 +13,7 @@ namespace WebTyped.Tests {
 				"generate",
 				"--sourceFiles", "../../../../WebTyped.Example.Web/Controllers/**/*.cs",
 				"--sourceFiles", "../../../../WebTyped.Example.Web/Models/**/*.cs",
+				"--sourceFiles", "../../../../WebTyped.Example.Web/OtherModels/**/*.cs",
 				"--outDir", "../../../../WebTyped.Example.Web/ClientApp/app/webApi/"
 				//"--controllers", "../../../UnitTest1.cs",
 				//"--models", "../../../UnitTest1.cs",

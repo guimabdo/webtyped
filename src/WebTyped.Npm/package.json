@@ -1,0 +1,11 @@
+{
+  "name": "webtypedroot",
+  "version": "0.0.0",
+  "description": "WebTyped Root",
+  "author": {
+    "name": "guimabdo"
+  },
+  "devDependencies": {
+    "typescript": "2.4.1"
+  }
+}

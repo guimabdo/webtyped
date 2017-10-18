@@ -15,6 +15,11 @@ Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "WebTyped.Npm", "src\WebType
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebTyped.Example.Web", "test\WebTyped.Example.Web\WebTyped.Example.Web.csproj", "{03E0E3A0-A9D2-4418-9AE1-7FD93096C5A1}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "global", "global", "{C80BA096-A257-4256-8583-447B677CE88E}"
+	ProjectSection(SolutionItems) = preProject
+		package.json = package.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
