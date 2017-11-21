@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { Http } from '@angular/http';
-import { SampleDataService } from '../../webApi/services';
+import { SampleDataService } from '../../webApi';
 
 @Component({
     selector: 'fetchdata',

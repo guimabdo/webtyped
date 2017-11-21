@@ -1,6 +1,9 @@
-import * as services from './services';
 import { WebApiEventEmmiterService } from '@guimabdo/webtyped-angular';
+import * as mdl0 from './'
+export * from './megaSample.service';
+export * from './sampleData.service';
 export var providers = [
 	WebApiEventEmmiterService,
-	...services.all
-];
+	mdl0.MegaSampleService,
+	mdl0.SampleDataService
+]

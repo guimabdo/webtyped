@@ -58,6 +58,16 @@ namespace WebTyped_Example_Web.Controllers {
 			return model;
 		}
 
+		[HttpPost("modelA1")]
+		public ModelA PostAndReturnModelSameName([FromBody]ModelA model) {
+			return model;
+		}
+
+		[HttpPost("modelA2")]
+		public WebTyped.Example.Web.OtherModels.ModelA PostAndReturnModelSameName2([FromBody]WebTyped.Example.Web.OtherModels.ModelA model) {
+			return model;
+		}
+
 		//Not working yet
 		[HttpPost("tuple")]
 		public (string str, int number) PostAndReturnTuple([FromBody](string str, int number) tuple) {

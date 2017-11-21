@@ -26,6 +26,10 @@ namespace WebTyped {
 				//var models = target.Option("-m | --models", "Models path (glob supported)", CommandOptionType.MultipleValue);
 				var sourceFiles = target.Option("-sf | --sourceFiles", "C# source files (glob supported)", CommandOptionType.MultipleValue);
 				var outDir = target.Option("-od | --outDir", "", CommandOptionType.SingleValue);
+				//var truncates = target.Option("-t | --truncate", "These namespaces will be removed when reading C# code", CommandOptionType.MultipleValue);
+				var trims = target.Option("-t | --trim", "These module names will be removed when generating ts code", CommandOptionType.MultipleValue);
+				var clear = target.Option("-c | --clear", "Clears folder", CommandOptionType.NoValue);
+				
 				target.HelpOption("-?|-h|--help");
 				target.OnExecute(() => {
 					var matcher = new Matcher();
@@ -50,64 +54,75 @@ namespace WebTyped {
 					var compilation = CSharpCompilation.Create("Comp", trees, new[] { mscorlib });
 					var semanticModels = trees.ToDictionary(t => t, t => compilation.GetSemanticModel(t));
 
-					var servicesDir = Path.Combine(outDir.Value(), "services");
-					var modelsDir = Path.Combine(outDir.Value(), "models");
-					Directory.CreateDirectory(servicesDir);
-					Directory.CreateDirectory(modelsDir);
-					var sbServicesIndex = new StringBuilder();
-					sbServicesIndex.AppendLine("import * as services from './';");
+					//var servicesDir = Path.Combine(outDir.Value(), "services");
+					//var modelsDir = Path.Combine(outDir.Value(), "models");
+					//Directory.CreateDirectory(servicesDir);
+					//Directory.CreateDirectory(modelsDir);
 
-					
-					var serviceNames = new List<string>();
+					//var sbServicesIndex = new StringBuilder();
+					//sbServicesIndex.AppendLine("import * as services from './';");
+
+
+					//var serviceNames = new List<string>();
+					//var services = new List<Service>();
+					//var models = new List<Model>();
+					//var options = new Options(outDir.Value(), truncates.Values);
+					var options = new Options(outDir.Value(), clear.HasValue(), trims.Values);
+					var typeResolver = new TypeResolver(options);
+
 					foreach (var t in trees) {
 						foreach (var @class in t.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>()) {
 							var sm = semanticModels[t];
-
 							var dsClass = sm.GetDeclaredSymbol(@class);
-							//Only root types, subtypes are handled with its roots
-							if (dsClass.ContainingType != null) { continue; }
-							if (CheckServicePrerequisites(dsClass)) {
-								var controller = dsClass.Name.Substring(0, dsClass.Name.Length - "Controller".Length);
-								serviceNames.Add($"{controller}Service");
-								var sb = new StringBuilder();
-								sb.AppendLine("import { Injectable, Inject, forwardRef } from '@angular/core';");
-								sb.AppendLine("import { HttpClient } from '@angular/common/http';");
-								sb.AppendLine("import { WebApiClient, WebApiEventEmmiterService } from '@guimabdo/webtyped-angular';");
-								sb.AppendLine("import { Observable } from 'rxjs'");
-								sb.AppendLine(CreateServiceCode(dsClass));
+							//Only root types. Subtypes are handled with its root
+							// if (dsClass.ContainingType != null) { continue; }
 
-								var svcFileName = $"{controller.ToCamelCase()}.service";
-								File.WriteAllText(Path.Combine(servicesDir, $"{svcFileName}.ts"), sb.ToString());
-								sbServicesIndex.AppendLine($"export * from './{svcFileName}';");
+
+							if (Service.CanBeService(dsClass)) {
+								var svc = new Service(dsClass, typeResolver, options);
+								//svc.Save();
+
+								//sbServicesIndex.AppendLine($"export * from './{svc.FilePathWithoutExtension}';");
+
+								continue;
+
 
 								//Nested types
-								var nestedTypes = dsClass.GetMembers().OfType<INamedTypeSymbol>();
-								if (nestedTypes.Any()) {
-									sb = new StringBuilder();
-									sb.AppendLine($"declare module {controller}Service {{");
-									nestedTypes.ToList().ForEach(s => sb.AppendLine(CreateModelCode(s, 1)));
-									sb.AppendLine("}");
-									File.WriteAllText(Path.Combine(modelsDir, $"{controller.ToCamelCase()}.service.d.ts"), sb.ToString());
-								}
-							} else if (CheckModelPrerequisites(dsClass)) {
-								File.WriteAllText(Path.Combine(modelsDir, $"{dsClass.Name.ToCamelCase()}.d.ts"), CreateServiceCode(dsClass));
+								//var nestedTypes = dsClass.GetMembers().OfType<INamedTypeSymbol>();
+								//if (nestedTypes.Any()) {
+								//	var sb = new StringBuilder();
+								//	sb.AppendLine($"declare module {svc.ClassName}Service {{");
+								//	nestedTypes.ToList().ForEach(s => sb.AppendLine(CreateModelCode(s, 1)));
+								//	sb.AppendLine("}");
+								//	File.WriteAllText(Path.Combine(modelsDir, $"{svc.FilenameWithoutExtenstion}.d.ts"), sb.ToString());
+								//}
+							}
+
+							if (Model.CanBeModel(dsClass)) {
+								var model = new Model(dsClass, typeResolver, options);
+								//model.Save();
+								//File.WriteAllText(Path.Combine(modelsDir, $"{dsClass.Name.ToCamelCase()}.d.ts"), CreateModelCode(dsClass));
+								continue;
 							}
 						}
 					}
-					sbServicesIndex.AppendLine("export var all = [");
-					sbServicesIndex.AppendLine(string.Join("," + System.Environment.NewLine, serviceNames.Select(s => $"services.{s}")));
-					sbServicesIndex.AppendLine("];");
 
-					File.WriteAllText(Path.Combine(servicesDir, $"index.ts"), sbServicesIndex.ToString());
+					typeResolver.SaveAll();
 
-					var sbMainIndex = new StringBuilder();
-					sbMainIndex.AppendLine("import * as services from './services';");
-					sbMainIndex.AppendLine("import { WebApiEventEmmiterService } from '@guimabdo/webtyped-angular';");
-					sbMainIndex.AppendLine("export var providers = [");
-					sbMainIndex.AppendLine(1, "WebApiEventEmmiterService,");
-					sbMainIndex.AppendLine(1, "...services.all");
-					sbMainIndex.AppendLine("];");
-					File.WriteAllText(Path.Combine(outDir.Value(), $"index.ts"), sbMainIndex.ToString());
+					//sbServicesIndex.AppendLine("export var all = [");
+					//sbServicesIndex.AppendLine(string.Join("," + System.Environment.NewLine, typeResolver.Services.Select(s => $"services.{s.FullName}")));
+					//sbServicesIndex.AppendLine("];");
+
+					//File.WriteAllText(Path.Combine(options.ServicesDir, $"index.ts"), sbServicesIndex.ToString());
+
+					//var sbMainIndex = new StringBuilder();
+					//sbMainIndex.AppendLine("import * as services from './services';");
+					//sbMainIndex.AppendLine("import { WebApiEventEmmiterService } from '@guimabdo/webtyped-angular';");
+					//sbMainIndex.AppendLine("export var providers = [");
+					//sbMainIndex.AppendLine(1, "WebApiEventEmmiterService,");
+					//sbMainIndex.AppendLine(1, "...services.all");
+					//sbMainIndex.AppendLine("];");
+					//File.WriteAllText(Path.Combine(outDir.Value(), $"index.ts"), sbMainIndex.ToString());
 
 
 					return 0;
@@ -122,140 +137,151 @@ namespace WebTyped {
 			return cmd.Execute(args);
 		}
 
-		static bool CheckModelPrerequisites(INamedTypeSymbol t) {
-			if (t.Name.EndsWith("Controller")) { return false; }
-			if (t.BaseType != null && t.BaseType.Name.EndsWith("Controller")) { return false; }
-			return true;
-		}
+		//static bool CheckModelPrerequisites(INamedTypeSymbol t) {
+		//	if (t.Name.EndsWith("Controller")) { return false; }
+		//	if (t.BaseType != null && t.BaseType.Name.EndsWith("Controller")) { return false; }
+		//	return true;
+		//}
 
-		static bool CheckServicePrerequisites(INamedTypeSymbol t) {
-			if (!t.Name.EndsWith("Controller")) { return false; }
-			var routeAttr = t.GetAttributes().FirstOrDefault(a => a.AttributeClass.Name == "Route" || a.AttributeClass.Name == "RoutePrefix");
-			if (routeAttr == null) { return false; }
+		//static bool CheckServicePrerequisites(INamedTypeSymbol t) {
+		//	if (!t.Name.EndsWith("Controller")) { return false; }
+		//	var routeAttr = t.GetAttributes().FirstOrDefault(a => a.AttributeClass.Name == "Route" || a.AttributeClass.Name == "RoutePrefix");
+		//	if (routeAttr == null) { return false; }
 
-			//Bug: https://github.com/dotnet/roslyn/issues/22501
-			//ConstructorArguments value is always 0
-			//so we'll get the syntax node
-			var node = routeAttr.ApplicationSyntaxReference.GetSyntax() as AttributeSyntax;
-			if (node.ArgumentList.Arguments.Count < 1) { return false; }
-			return true;
-		}
+		//	//Bug: https://github.com/dotnet/roslyn/issues/22501
+		//	//ConstructorArguments value is always 0
+		//	//so we'll get the syntax node
+		//	var node = routeAttr.ApplicationSyntaxReference.GetSyntax() as AttributeSyntax;
+		//	if (node.ArgumentList.Arguments.Count < 1) { return false; }
+		//	return true;
+		//}
 
-		static string CreateServiceCode(INamedTypeSymbol t, int level = 0) {
-			//var subClasses = new List<INamedTypeSymbol>();
-			var controller = t.Name.Substring(0, t.Name.Length - "Controller".Length);
-			var routeAttr = t.GetAttributes().FirstOrDefault(a => a.AttributeClass.Name == "Route" || a.AttributeClass.Name.ToString() == "RoutePrefix");
+		//static string CreateServiceCode(INamedTypeSymbol t, int level = 0) {
+		//	//var subClasses = new List<INamedTypeSymbol>();
+		//	var controller = t.Name.Substring(0, t.Name.Length - "Controller".Length);
+		//	var routeAttr = t.GetAttributes().FirstOrDefault(a => a.AttributeClass.Name == "Route" || a.AttributeClass.Name.ToString() == "RoutePrefix");
 
-			var arg = (routeAttr.ApplicationSyntaxReference.GetSyntax() as AttributeSyntax).ArgumentList.Arguments[0].ToString().Replace("\"", "");
-			var path = arg.Replace("[controller]", controller);
+		//	var arg = (routeAttr.ApplicationSyntaxReference.GetSyntax() as AttributeSyntax).ArgumentList.Arguments[0].ToString().Replace("\"", "");
+		//	var path = arg.Replace("[controller]", controller);
 
-			var sb = new StringBuilder();
-			sb.AppendLine(level, "@Injectable()");
-			sb.AppendLine(level, $"export class {controller}Service extends WebApiClient {{");
-			sb.AppendLine(level, $"	constructor(@Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebApiEventEmmiterService)) eventEmmiter: WebApiEventEmmiterService) {{");
-			sb.AppendLine(level, $@"		super(baseUrl, ""{path}"", httpClient, eventEmmiter);");
-			sb.AppendLine(level, $"	}}");
+		//	var sb = new StringBuilder();
+		//	var ns = t.ContainingNamespace.ToString();
+		//	if (!string.IsNullOrEmpty(ns)) {
+		//		ns = ns.Replace(".Controllers", ".Services");
+		//		sb.AppendLine(level, $"export module {ns} {{");
+		//		level++;
+		//	}
+		//	sb.AppendLine(level, "@Injectable()");
+		//	sb.AppendLine(level, $"export class {controller}Service extends WebApiClient {{");
+		//	sb.AppendLine(level, $"	constructor(@Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebApiEventEmmiterService)) eventEmmiter: WebApiEventEmmiterService) {{");
+		//	sb.AppendLine(level, $@"		super(baseUrl, ""{path}"", httpClient, eventEmmiter);");
+		//	sb.AppendLine(level, "}");
 
-			foreach (var m in t.GetMembers()) {
-				if (m.Kind == SymbolKind.NamedType) {
-					//subClasses.Add(m as INamedTypeSymbol);
-					continue;
-				}
-				if (m.Kind != SymbolKind.Method) { continue; }
-				if (m.IsImplicitlyDeclared) { continue; }
-				if (!m.IsDefinition) { continue; }
-				var mtd = m as IMethodSymbol;
-				var returnType = TranslateType(mtd.ReturnType as INamedTypeSymbol);
-				var mtdAttrs = mtd.GetAttributes();
-				//Not marked actions will accept posts
-				var httpMethod = "Post";
-				string action = "";
-				//string search = "undefined";
+		//	foreach (var m in t.GetMembers()) {
+		//		if (m.Kind == SymbolKind.NamedType) {
+		//			//subClasses.Add(m as INamedTypeSymbol);
+		//			continue;
+		//		}
+		//		if (m.Kind != SymbolKind.Method) { continue; }
+		//		if (m.IsImplicitlyDeclared) { continue; }
+		//		if (!m.IsDefinition) { continue; }
+		//		var mtd = m as IMethodSymbol;
+		//		var returnType = TranslateType(mtd.ReturnType as INamedTypeSymbol);
+		//		var mtdAttrs = mtd.GetAttributes();
+		//		//Not marked actions will accept posts
+		//		var httpMethod = "Post";
+		//		string action = "";
+		//		//string search = "undefined";
 
-				//Get http method from method name pattern
-				if (mtd.Name.StartsWith("Get")) { httpMethod = "Get"; }
-				if (mtd.Name.StartsWith("Post")) { httpMethod = "Post"; }
-				if (mtd.Name.StartsWith("Put")) { httpMethod = "Put"; }
-				if (mtd.Name.StartsWith("Delete")) { httpMethod = "Delete"; }
-				if (mtd.Name.StartsWith("Patch")) { httpMethod = "Patch"; }
+		//		//Get http method from method name pattern
+		//		if (mtd.Name.StartsWith("Get")) { httpMethod = "Get"; }
+		//		if (mtd.Name.StartsWith("Post")) { httpMethod = "Post"; }
+		//		if (mtd.Name.StartsWith("Put")) { httpMethod = "Put"; }
+		//		if (mtd.Name.StartsWith("Delete")) { httpMethod = "Delete"; }
+		//		if (mtd.Name.StartsWith("Patch")) { httpMethod = "Patch"; }
 
-				var httpAttr = mtdAttrs.FirstOrDefault(a => a.AttributeClass.Name.StartsWith("Http"));
-				var routeMethodAttr = mtdAttrs.FirstOrDefault(a => a.AttributeClass.Name.StartsWith("Route"));
-				//If has Http attribute
-				if (httpAttr != null) {
-					httpMethod = httpAttr.AttributeClass.Name.Substring(4);
-					//Check if it contains route info
-					var args = (httpAttr.ApplicationSyntaxReference.GetSyntax() as AttributeSyntax)?.ArgumentList?.Arguments;
-					if (args != null && args.Value.Count > 0) {
-						action = args.Value[0].ToString().Replace("\"", "");
-					}
-				}
-				//Check if contains route attr
-				if (routeMethodAttr != null) {
-					var args = (routeMethodAttr.ApplicationSyntaxReference.GetSyntax() as AttributeSyntax).ArgumentList.Arguments;
-					if (args.Count > 0) {
-						action = args[0].ToString().Replace("\"", "");
-					}
-				}
-				//Replace route variables
-				action = action
-					.Replace("[action]", m.Name)
-					.Replace("{", "${");
+		//		var httpAttr = mtdAttrs.FirstOrDefault(a => a.AttributeClass.Name.StartsWith("Http"));
+		//		var routeMethodAttr = mtdAttrs.FirstOrDefault(a => a.AttributeClass.Name.StartsWith("Route"));
+		//		//If has Http attribute
+		//		if (httpAttr != null) {
+		//			httpMethod = httpAttr.AttributeClass.Name.Substring(4);
+		//			//Check if it contains route info
+		//			var args = (httpAttr.ApplicationSyntaxReference.GetSyntax() as AttributeSyntax)?.ArgumentList?.Arguments;
+		//			if (args != null && args.Value.Count > 0) {
+		//				action = args.Value[0].ToString().Replace("\"", "");
+		//			}
+		//		}
+		//		//Check if contains route attr
+		//		if (routeMethodAttr != null) {
+		//			var args = (routeMethodAttr.ApplicationSyntaxReference.GetSyntax() as AttributeSyntax).ArgumentList.Arguments;
+		//			if (args.Count > 0) {
+		//				action = args[0].ToString().Replace("\"", "");
+		//			}
+		//		}
+		//		//Replace route variables
+		//		action = action
+		//			.Replace("[action]", m.Name)
+		//			.Replace("{", "${");
 
-				//Resolve parameters
-				var strParameters = string.Join(", ",
-					mtd.Parameters.Select(p => $"{p.Name}: {TranslateType(p.Type as INamedTypeSymbol)}")
-				);
+		//		//Resolve parameters
+		//		var strParameters = string.Join(", ",
+		//			mtd.Parameters.Select(p => $"{p.Name}: {TranslateType(p.Type as INamedTypeSymbol)}")
+		//		);
 
-				//Resolve how parameters are sent
-				var pendingParameters = new List<string>();
-				var bodyParam = "null";
-				foreach(var p in mtd.Parameters) {
-					//[FromRoute]
-					if (action.Contains($"{{{p.Name}}}")) {
-						continue;
-					}
-					//[FromBody]
-					if(p.GetAttributes().Any(a => a.AttributeClass.Name == "FromBody")) {
-						bodyParam = p.Name;
-						continue;
-					}
-					pendingParameters.Add(p.Name);
-				}
+		//		//Resolve how parameters are sent
+		//		var pendingParameters = new List<string>();
+		//		var bodyParam = "null";
+		//		foreach(var p in mtd.Parameters) {
+		//			//[FromRoute]
+		//			if (action.Contains($"{{{p.Name}}}")) {
+		//				continue;
+		//			}
+		//			//[FromBody]
+		//			if(p.GetAttributes().Any(a => a.AttributeClass.Name == "FromBody")) {
+		//				bodyParam = p.Name;
+		//				continue;
+		//			}
+		//			pendingParameters.Add(p.Name);
+		//		}
 
-				//if(pendingParameters.Any() && bodyParam == "null" && new string[] {
-				//	"Put", "Patch", "Post"
-				//}.Contains(httpMethod)) {
-				//	bodyParam = pendingParameters[0];
-				//	pendingParameters.RemoveAt(0);
-				//}
+		//		//if(pendingParameters.Any() && bodyParam == "null" && new string[] {
+		//		//	"Put", "Patch", "Post"
+		//		//}.Contains(httpMethod)) {
+		//		//	bodyParam = pendingParameters[0];
+		//		//	pendingParameters.RemoveAt(0);
+		//		//}
 
-				sb.AppendLine(level + 1, $"{m.Name} = ({strParameters}) : Observable<{returnType}> => {{");
-				sb.AppendLine(level + 2, $"return this.invoke{httpMethod}<{returnType}>({{");
-				sb.AppendLine(level + 4, $"func: this.{m.Name},");
-				sb.AppendLine(level + 4, $"parameters: {{ {string.Join(", ", mtd.Parameters.Select(p => p.Name))} }}");
-				sb.AppendLine(level + 3, "},");
-				sb.AppendLine(level + 3, $"`{action}`,");
-				//Body
-				switch (httpMethod) {
-					case "Put": case "Patch": case "Post":
-						sb.AppendLine(level + 3, $"{bodyParam},");
-						break;
-					default: break;
-				}
-				var search = pendingParameters.Any() ? $"{{ {string.Join(", ", pendingParameters)} }}" : "undefined";
-				sb.AppendLine(level + 3, $"{search}");
-				sb.AppendLine(level + 2, ");");
-				sb.AppendLine(level + 1, "};");
-			}
-			sb.AppendLine($"}}");
-			//if (subClasses.Any()) {
-			//	sb.AppendLine(level, $"export module {controller}Service {{");
-			//	subClasses.ForEach(s => sb.AppendLine(CreateModelCode(s, level + 1)));
-			//	sb.AppendLine(level, $"}}");
-			//}
-			return sb.ToString();
-		}
+		//		sb.AppendLine(level + 1, $"{m.Name} = ({strParameters}) : Observable<{returnType}> => {{");
+		//		sb.AppendLine(level + 2, $"return this.invoke{httpMethod}<{returnType}>({{");
+		//		sb.AppendLine(level + 4, $"func: this.{m.Name},");
+		//		sb.AppendLine(level + 4, $"parameters: {{ {string.Join(", ", mtd.Parameters.Select(p => p.Name))} }}");
+		//		sb.AppendLine(level + 3, "},");
+		//		sb.AppendLine(level + 3, $"`{action}`,");
+		//		//Body
+		//		switch (httpMethod) {
+		//			case "Put": case "Patch": case "Post":
+		//				sb.AppendLine(level + 3, $"{bodyParam},");
+		//				break;
+		//			default: break;
+		//		}
+		//		var search = pendingParameters.Any() ? $"{{ {string.Join(", ", pendingParameters)} }}" : "undefined";
+		//		sb.AppendLine(level + 3, $"{search}");
+		//		sb.AppendLine(level + 2, ");");
+		//		sb.AppendLine(level + 1, "};");
+		//	}
+		//	sb.AppendLine(level, "}");
+		//	if (!string.IsNullOrEmpty(ns)) {
+		//		level--;
+		//		sb.AppendLine(level, "}");
+		//	}
+
+		//	//if (subClasses.Any()) {
+		//	//	sb.AppendLine(level, $"export module {controller}Service {{");
+		//	//	subClasses.ForEach(s => sb.AppendLine(CreateModelCode(s, level + 1)));
+		//	//	sb.AppendLine(level, $"}}");
+		//	//}
+		//	return sb.ToString();
+		//}
 		static string CreateModelCode(INamedTypeSymbol t, int level = 0) {
 			var subClasses = new List<INamedTypeSymbol>();
 			var sb = new StringBuilder();
@@ -294,7 +320,7 @@ namespace WebTyped {
 				//Check if parent type is controller > service
 				var parentName = parent.Name;
 				//Adjust to check prerequisites
-				if (CheckServicePrerequisites(parent)) {
+				if (Service.CanBeService(parent)) {
 					parentName = parentName.Replace("Controller", "Service");
 				}
 				//For now, we'll just check if ends with "Controller" suffix
@@ -331,27 +357,6 @@ namespace WebTyped {
 					return "Array";
 				default: return typeName;
 			}
-		}
-
-		//static string GetResourceString(string resource) {
-		//	var assembly = typeof(Program).Assembly;
-		//	var resourceStream = assembly.GetManifestResourceStream($"WebTyped.Resources.{resource}");
-
-		//	using (var reader = new StreamReader(resourceStream, Encoding.UTF8)) {
-		//		return reader.ReadToEnd();
-		//	}
-		//}
-	}
-
-	public static class Extensions {
-		public static StringBuilder AppendLine(this StringBuilder sb, int level, string text) {
-			return sb
-				.Append('\t', level)
-				.AppendLine(text);
-		}
-
-		public static string ToCamelCase(this string str) {
-			return str[0].ToString().ToLower() + str.Substring(1);
 		}
 	}
 }
