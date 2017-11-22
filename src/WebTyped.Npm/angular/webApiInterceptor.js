@@ -14,13 +14,13 @@ var WebApiInterceptor = (function () {
     }
     WebApiInterceptor.prototype.intercept = function (req, next) {
         var body = req.body;
+        //Stringify strings
         if ((typeof body) === "string") {
             body = JSON.stringify(body);
         }
-        //console.log(req);
+        //Force always application/json (otherwise contenttype will be text/plain for strings)
         var headers = req.headers;
         headers = headers.set("Content-Type", "application/json");
-        //console.log(headers);
         var clonedRequest = req.clone({
             responseType: 'text',
             body: body,

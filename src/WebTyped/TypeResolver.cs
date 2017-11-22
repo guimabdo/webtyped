@@ -111,7 +111,7 @@ namespace WebTyped {
 					var servicesDir = Path.Combine(Options.OutDir, sm.Key);
 					var serviceIndexFile = Path.Combine(servicesDir, "index.ts");
 					files.Add(serviceIndexFile);
-					File.WriteAllText(serviceIndexFile, sbServiceIndex.ToString());
+					FileHelper.Write(serviceIndexFile, sbServiceIndex.ToString());
 				}
 				counter++;
 			}
@@ -120,7 +120,7 @@ namespace WebTyped {
 			sbRootIndex.AppendLine("]");
 			var rootIndexFile = Path.Combine(Options.OutDir, "index.ts");
 			files.Add(rootIndexFile);
-			File.WriteAllText(rootIndexFile, sbRootIndex.ToString());
+			FileHelper.Write(rootIndexFile, sbRootIndex.ToString());
 
 			if (Options.Clear) {
 				var currentFiles = Directory.GetFiles(Options.OutDir, "*.ts", SearchOption.AllDirectories);

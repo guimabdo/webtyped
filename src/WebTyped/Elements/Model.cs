@@ -101,9 +101,7 @@ namespace WebTyped {
 			//File.WriteAllText(Path.Combine(Options.ModelsDir, Filename), sb.ToString());
 			string file = Path.Combine(Options.TypingsDir, Filename);
 			string content = sb.ToString();
-			if (!File.Exists(file) || File.ReadAllText(file) != content) {
-				File.WriteAllText(file, content);
-			}
+			FileHelper.Write(file, content);
 			return file;
 		}
 

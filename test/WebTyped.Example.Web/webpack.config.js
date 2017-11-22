@@ -3,6 +3,8 @@ const webpack = require('webpack');
 const merge = require('webpack-merge');
 const AotPlugin = require('@ngtools/webpack').AotPlugin;
 const CheckerPlugin = require('awesome-typescript-loader').CheckerPlugin;
+const WebTypedPlugin = require('../../src/WebTyped.Npm/generator/index').WebTypedPlugin;
+
 
 module.exports = (env) => {
     // Configuration in common to both client-side and server-side bundles
@@ -23,7 +25,14 @@ module.exports = (env) => {
                 { test: /\.(png|jpg|jpeg|gif|svg|ttf)$/, use: 'url-loader?limit=25000' }
             ]
         },
-        plugins: [new CheckerPlugin()]
+        plugins: [new CheckerPlugin()
+            , new WebTypedPlugin({
+            sourceFiles: ["./Controllers/**/*.cs", "./Models/**/*.cs", "./OtherModels/**/*.cs"],
+            outDir: "ClientApp/app/webApi/",
+            trim: ["WebTyped_Example_Web.Services", "WebTyped.Example.Web.Models", "WebTyped.Example.Web"],
+            clear: true
+            })
+        ]
     };
 
     // Configuration for client-side bundle suitable for running in browsers
@@ -36,6 +45,12 @@ module.exports = (env) => {
                 context: __dirname,
                 manifest: require('./wwwroot/dist/vendor-manifest.json')
             })
+            //, new WebTypedPlugin({
+            //    sourceFiles: ["./Controllers/**/*.cs", "./Models/**/*.cs", "./OtherModels/**/*.cs"],
+            //    outDir: "ClientApp/app/webApi/",
+            //    trim: ["WebTyped_Example_Web.Services", "WebTyped.Example.Web.Models", "WebTyped.Example.Web"],
+            //    clear: true
+            //})
         ].concat(isDevBuild ? [
             // Plugins that apply in development builds only
             new webpack.SourceMapDevToolPlugin({

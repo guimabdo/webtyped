@@ -178,9 +178,7 @@ namespace WebTyped {
 			}
 			var file = Path.Combine(dir, Filename);
 			string content = sb.ToString();
-			if (!File.Exists(file) || File.ReadAllText(file) != content) {
-				File.WriteAllText(file, content);
-			}
+			FileHelper.Write(file, content);
 			return file;
 			//File.WriteAllText(Path.Combine(Options.ServicesDir, Filename), sb.ToString());
 		}

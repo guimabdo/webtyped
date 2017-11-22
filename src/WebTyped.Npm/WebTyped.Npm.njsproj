@@ -35,15 +35,11 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="angular\index.js.map" />
     <Content Include="angular\package-lock.json" />
     <Content Include="angular\package.json" />
     <Content Include="angular\src\tsconfig.json">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="angular\webApiClient.js.map" />
-    <Content Include="angular\webApiEventEmmiter.service.js.map" />
-    <Content Include="angular\webApiInterceptor.js.map" />
     <Content Include="common\package-lock.json" />
     <Content Include="common\package.json" />
     <Content Include="generator\package.json" />
@@ -86,11 +82,11 @@
     <TypeScriptCompile Include="common\webApiCallInfo.ts" />
     <TypeScriptCompile Include="angular\src\webApiClient.ts" />
     <TypeScriptCompile Include="angular\src\webApiEventEmmiter.service.ts" />
+    <TypeScriptCompile Include="generator\index.d.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="angular\index.js" />
-    <Compile Include="angular\webApiClient.js" />
-    <Compile Include="angular\webApiEventEmmiter.service.js" />
     <Compile Include="angular\webApiInterceptor.js" />
     <Compile Include="common\index.js" />
     <Compile Include="common\webApiCallInfo.js" />

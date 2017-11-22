@@ -4,5 +4,8 @@
   "description": "WebTyped",
   "author": {
     "name": "guimabdo"
+  },
+  "dependencies": {
+    "glob": "7.1.2"
   }
 }
