@@ -51,4 +51,6 @@
     </ItemGroup>
   </Target>
 
+  <ProjectExtensions><VisualStudio><UserProperties tsconfig_1json__JSONSchema="" /></VisualStudio></ProjectExtensions>
+
 </Project>

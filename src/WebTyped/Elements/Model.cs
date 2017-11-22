@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace WebTyped {
 	public class Model : ITsFile {
@@ -72,7 +73,7 @@ namespace WebTyped {
 			TypeResolver.Add(this);
 		}
 
-		public string Save() {
+		public async Task<string> SaveAsync() {
 			var subClasses = new List<INamedTypeSymbol>();
 			var sb = new StringBuilder();
 
@@ -101,7 +102,7 @@ namespace WebTyped {
 			//File.WriteAllText(Path.Combine(Options.ModelsDir, Filename), sb.ToString());
 			string file = Path.Combine(Options.TypingsDir, Filename);
 			string content = sb.ToString();
-			FileHelper.Write(file, content);
+			await FileHelper.WriteAsync(file, content);
 			return file;
 		}
 

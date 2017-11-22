@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace WebTyped {
 	public class TypeResolver {
@@ -85,10 +86,17 @@ namespace WebTyped {
 			}
 		}
 
-		public void SaveAll() {
-			HashSet<string> files = new HashSet<string>();
-			foreach(var m in Models) { files.Add(m.Save()); }
-			foreach (var s in Services) { files.Add(s.Save()); }
+		public async Task SaveAllAsync() {
+			//HashSet<string> files = new HashSet<string>();
+			List<Task<string>> tasks = new List<Task<string>>();
+			//foreach(var m in Models) { files.Add(m.Save()); }
+			//foreach (var s in Services) { files.Add(s.Save()); }
+			foreach (var m in Models) {
+				tasks.Add(m.SaveAsync());
+			}
+			foreach (var s in Services) {
+				tasks.Add(s.SaveAsync());
+			}
 			//Create indexes
 			//Create root index
 			var sbRootIndex = new StringBuilder();
@@ -110,8 +118,9 @@ namespace WebTyped {
 				if (!string.IsNullOrEmpty(sm.Key)) {
 					var servicesDir = Path.Combine(Options.OutDir, sm.Key);
 					var serviceIndexFile = Path.Combine(servicesDir, "index.ts");
-					files.Add(serviceIndexFile);
-					FileHelper.Write(serviceIndexFile, sbServiceIndex.ToString());
+					//files.Add(serviceIndexFile);
+					//await FileHelper.WriteAsync(serviceIndexFile, sbServiceIndex.ToString());
+					tasks.Add(FileHelper.WriteAsync(serviceIndexFile, sbServiceIndex.ToString()));
 				}
 				counter++;
 			}
@@ -119,12 +128,22 @@ namespace WebTyped {
 			sbRootIndex.AppendLine(1, string.Join($",{System.Environment.NewLine}	", services));
 			sbRootIndex.AppendLine("]");
 			var rootIndexFile = Path.Combine(Options.OutDir, "index.ts");
-			files.Add(rootIndexFile);
-			FileHelper.Write(rootIndexFile, sbRootIndex.ToString());
+			//files.Add(rootIndexFile);
+			//await FileHelper.WriteAsync(rootIndexFile, sbRootIndex.ToString());
+			tasks.Add(FileHelper.WriteAsync(rootIndexFile, sbRootIndex.ToString()));
 
+			
 			if (Options.Clear) {
 				var currentFiles = Directory.GetFiles(Options.OutDir, "*.ts", SearchOption.AllDirectories);
-				foreach(var f in currentFiles.Except(files)) {
+				var files = new HashSet<string>();
+				foreach (var t in tasks) {
+					files.Add(await t);
+				}
+				//Console.WriteLine($"current: {string.Join(", ", currentFiles)}");
+				//Console.WriteLine($"new: {string.Join(", ", files)}");
+				var delete = currentFiles.Except(files);
+				//Console.WriteLine($"celete: {string.Join(", ", delete)}");
+				foreach (var f in delete) {
 					File.Delete(f);
 				}
 				DeleteEmptyDirs(Options.OutDir);

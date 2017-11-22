@@ -26,12 +26,12 @@ module.exports = (env) => {
             ]
         },
         plugins: [new CheckerPlugin()
-            , new WebTypedPlugin({
-            sourceFiles: ["./Controllers/**/*.cs", "./Models/**/*.cs", "./OtherModels/**/*.cs"],
-            outDir: "ClientApp/app/webApi/",
-            trim: ["WebTyped_Example_Web.Services", "WebTyped.Example.Web.Models", "WebTyped.Example.Web"],
-            clear: true
-            })
+            //, new WebTypedPlugin({
+            //sourceFiles: ["./Controllers/**/*.cs", "./Models/**/*.cs", "./OtherModels/**/*.cs"],
+            //outDir: "ClientApp/app/webApi/",
+            //trim: ["WebTyped_Example_Web.Services", "WebTyped.Example.Web.Models", "WebTyped.Example.Web"],
+            //clear: true
+            //})
         ]
     };
 
@@ -45,12 +45,12 @@ module.exports = (env) => {
                 context: __dirname,
                 manifest: require('./wwwroot/dist/vendor-manifest.json')
             })
-            //, new WebTypedPlugin({
-            //    sourceFiles: ["./Controllers/**/*.cs", "./Models/**/*.cs", "./OtherModels/**/*.cs"],
-            //    outDir: "ClientApp/app/webApi/",
-            //    trim: ["WebTyped_Example_Web.Services", "WebTyped.Example.Web.Models", "WebTyped.Example.Web"],
-            //    clear: true
-            //})
+            , new WebTypedPlugin({
+                sourceFiles: ["./Controllers/**/*.cs", "./Models/**/*.cs", "./OtherModels/**/*.cs"],
+                outDir: "ClientApp/app/webApi/",
+                trim: ["WebTyped_Example_Web.Services", "WebTyped.Example.Web.Models", "WebTyped.Example.Web"],
+                clear: true
+            })
         ].concat(isDevBuild ? [
             // Plugins that apply in development builds only
             new webpack.SourceMapDevToolPlugin({

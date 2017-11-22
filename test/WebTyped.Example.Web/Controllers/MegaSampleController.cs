@@ -70,7 +70,7 @@ namespace WebTyped_Example_Web.Controllers {
 
 		//Not working yet
 		[HttpPost("tuple")]
-		public (string str, int number) PostAndReturnTuple([FromBody](string str, int number) tuple) {
+		public (string str, int number) PostAndReturnTuple_NotWorkingYet([FromBody](string str, int number) tuple) {
 			return tuple;
 		}
 

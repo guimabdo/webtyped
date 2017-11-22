@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace WebTyped {
 	public static class FileHelper {
-		public static void Write(string file, string content) {
+		public static async Task<string> WriteAsync(string file, string content) {
 			if (!File.Exists(file) || File.ReadAllText(file) != content) {
-				File.WriteAllText(file, content);
+				await File.WriteAllTextAsync(file, content);
 			}
+			return file;
 		}
 	}
 }

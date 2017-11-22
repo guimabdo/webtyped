@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace WebTyped {
 	public class Service : ITsFile {
@@ -30,21 +31,14 @@ namespace WebTyped {
 			TypeSymbol = controllerType;
 			ControllerName = controllerType.Name.Substring(0, controllerType.Name.Length - "Controller".Length);
 			TypeResolver = typeResolver;
-			//Module = options.TruncateNamespace(controllerType.ContainingNamespace).Replace(".Controllers", ".Services");
 			Module = controllerType.ContainingNamespace.ToString().Replace(".Controllers", ".Services");
 			Module = options.TrimModule(Module);
 			FilenameWithoutExtenstion = $"{ControllerName.ToCamelCase()}.service";
-			//FilenameWithoutExtenstion = $"{Module}.{ControllerName.ToCamelCase()}.service";
-			//if (FilenameWithoutExtenstion.StartsWith('.')) { FilenameWithoutExtenstion = FilenameWithoutExtenstion.Substring(1); }
 			Options = options;
-			//Filename = $"{Namespace}.{ControllerName.ToCamelCase()}.ts";
-			//if (Filename.StartsWith('.')) {
-			//	Filename = Filename.Substring(1);
-			//}
 			TypeResolver.Add(this);
 		}
 
-		public string Save() {
+		public async Task<string> SaveAsync() {
 			var sb = new StringBuilder();
 			sb.AppendLine("import { Injectable, Inject, forwardRef } from '@angular/core';");
 			sb.AppendLine("import { HttpClient } from '@angular/common/http';");
@@ -178,7 +172,7 @@ namespace WebTyped {
 			}
 			var file = Path.Combine(dir, Filename);
 			string content = sb.ToString();
-			FileHelper.Write(file, content);
+			await FileHelper.WriteAsync(file, content);
 			return file;
 			//File.WriteAllText(Path.Combine(Options.ServicesDir, Filename), sb.ToString());
 		}

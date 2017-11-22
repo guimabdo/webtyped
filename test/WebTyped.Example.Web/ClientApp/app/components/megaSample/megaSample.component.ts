@@ -32,6 +32,6 @@ export class MegaSampleComponent {
             Number: 3,
             Text: "test1"
         }).subscribe(s => this.postAndReturnModelResult = s, err => console.log(err));
-        svc.PostAndReturnTuple({ str: "test1", number: 3 }).subscribe(s => this.postAndReturnTupleResult = s, err => console.log(err));
+        svc.PostAndReturnTuple_NotWorkingYet({ str: "test1", number: 3 }).subscribe(s => this.postAndReturnTupleResult = s, err => console.log(err));
     }
 }
