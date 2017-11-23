@@ -25,7 +25,7 @@ namespace WebTyped.Elements
 			foreach (var m in TypeSymbol.GetMembers()) {
 				if (m.Kind == SymbolKind.Field) {
 					var f = m as IFieldSymbol;
-					sb.AppendLine(level + 1, $"{f.Name}: {f.ConstantValue};");
+					sb.AppendLine(level + 1, $"{f.Name} = {f.ConstantValue},");
 				}
 			}
 			sb.AppendLine(level, "}");
