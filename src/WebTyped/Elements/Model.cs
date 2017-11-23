@@ -5,75 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WebTyped.Elements;
 
 namespace WebTyped {
-	public class Model : ITsFile {
-		public INamedTypeSymbol TypeSymbol { get; private set; }
-		public TypeResolver TypeResolver { get; private set; }
-		public Options Options { get; private set; }
-		//public string ClassName { get; set; }
+	public class Model : TsModelBase {
+		public Model(INamedTypeSymbol modelType, TypeResolver typeResolver, Options options) : base(modelType, typeResolver, options) {}
 
-		public string ClassName { get { return TypeSymbol.Name; } }
-
-		public string FullName {
-			get {
-				if (string.IsNullOrEmpty(Module)) { return ClassName; }
-				return $"{Module}.{ClassName}";
-			}
-		}
-
-		public string Module {
-			get {
-				var parent = TypeSymbol.ContainingType;
-				if (parent != null && TypeResolver.TypeFiles.TryGetValue(parent, out var parentElement)) {
-					return $"{parentElement.FullName}";
-				}
-
-				//Module will be Namespace.{parent classes}
-				//var moduleName = Options.TruncateNamespace(TypeSymbol.ContainingNamespace);
-				var moduleName = TypeSymbol.ContainingNamespace.ToString();
-				var parents = new List<string>();
-				while (parent != null) {
-					parents.Add(parent.Name);
-					parent = parent.ContainingType;
-				}
-				if (parents.Any()) {
-					parents.Reverse();
-					moduleName += $".{string.Join(".", parents)}";
-				}
-				return Options.TrimModule(moduleName);
-				//return moduleName;
-			}
-		}
-
-		string FullClassName {
-			get {
-				if (string.IsNullOrEmpty(Module)) { return TypeSymbol.Name; }
-				return $"{Module}.{TypeSymbol.Name}";
-			}
-		}
-
-		string FilenameWithoutExtenstion {
-			get {
-				if (string.IsNullOrEmpty(Module)) { return TypeSymbol.Name.ToCamelCase(); }
-				return $"{Module}.{TypeSymbol.Name.ToCamelCase()}.d";
-			}
-		}
-
-		string Filename {
-			get {
-				return $"{FilenameWithoutExtenstion}.ts";
-			}
-		}
-
-		public Model(INamedTypeSymbol modelType, TypeResolver typeResolver, Options options) {
-			TypeSymbol = modelType;
-			TypeResolver = typeResolver;
-			Options = options;
-			TypeResolver.Add(this);
-		}
-
-		public async Task<string> SaveAsync() {
+		public override async Task<string> SaveAsync() {
 			var subClasses = new List<INamedTypeSymbol>();
 			var sb = new StringBuilder();
 
@@ -106,7 +44,8 @@ namespace WebTyped {
 			return file;
 		}
 
-		public static bool CanBeModel(INamedTypeSymbol t) {
+		public static bool IsModel(INamedTypeSymbol t) {
+			if(t.BaseType?.SpecialType == SpecialType.System_Enum) { return false; }
 			if (t.Name.EndsWith("Controller")) { return false; }
 			if (t.BaseType != null && t.BaseType.Name.EndsWith("Controller")) { return false; }
 			return true;

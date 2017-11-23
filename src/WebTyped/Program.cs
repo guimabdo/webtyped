@@ -11,6 +11,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using WebTyped.Elements;
 
 namespace WebTyped {
 	public class Program {
@@ -71,31 +72,26 @@ namespace WebTyped {
 					foreach (var t in trees) {
 						tasks.Add(t.GetRootAsync().ContinueWith(tks => {
 							var root = tks.Result;
-							foreach (var @class in root.DescendantNodes().OfType<ClassDeclarationSyntax>()) {
+							foreach (var @type in root.DescendantNodes().OfType<BaseTypeDeclarationSyntax>()) {
 								var sm = semanticModels[t];
-								namedTypeSymbols.Add(sm.GetDeclaredSymbol(@class));
-
-								//if (Service.CanBeService(dsClass)) {
-								//	var svc = new Service(dsClass, typeResolver, options);
-								//	continue;
-								//}
-
-								//if (Model.CanBeModel(dsClass)) {
-								//	var model = new Model(dsClass, typeResolver, options);
-								//	continue;
-								//}
+								namedTypeSymbols.Add(sm.GetDeclaredSymbol(@type));
 							}
 						}));
 					}
 					foreach(var tsk in tasks) { await tsk; }
 					foreach(var s in namedTypeSymbols) {
-						if (Service.CanBeService(s)) {
-							var svc = new Service(s, typeResolver, options);
+						if (Service.IsService(s)) {
+							typeResolver.Add(new Service(s, typeResolver, options));
 							continue;
 						}
 
-						if (Model.CanBeModel(s)) {
-							var model = new Model(s, typeResolver, options);
+						if (Model.IsModel(s)) {
+							typeResolver.Add(new Model(s, typeResolver, options));
+							continue;
+						}
+
+						if (TsEnum.IsEnum(s)) {
+							typeResolver.Add(new TsEnum(s, typeResolver, options));
 							continue;
 						}
 					}

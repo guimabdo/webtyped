@@ -35,7 +35,7 @@ namespace WebTyped {
 			Module = options.TrimModule(Module);
 			FilenameWithoutExtenstion = $"{ControllerName.ToCamelCase()}.service";
 			Options = options;
-			TypeResolver.Add(this);
+			//TypeResolver.Add(this);
 		}
 
 		public async Task<string> SaveAsync() {
@@ -177,8 +177,9 @@ namespace WebTyped {
 			//File.WriteAllText(Path.Combine(Options.ServicesDir, Filename), sb.ToString());
 		}
 
-		public static bool CanBeService(INamedTypeSymbol t) {
-			if(t.ContainingType != null) { return false; }
+		public static bool IsService(INamedTypeSymbol t) {
+			if (t.SpecialType == SpecialType.System_Enum) { return false; }
+			if (t.ContainingType != null) { return false; }
 			if (!t.Name.EndsWith("Controller")) { return false; }
 			var routeAttr = t.GetAttributes().FirstOrDefault(a => a.AttributeClass.Name == "Route" || a.AttributeClass.Name == "RoutePrefix");
 			if (routeAttr == null) { return false; }

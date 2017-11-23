@@ -6,26 +6,37 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WebTyped.Elements;
 
 namespace WebTyped {
 	public class TypeResolver {
 		public IEnumerable<Service> Services { get; private set; } = new List<Service>();
-		public IEnumerable<Model> Models { get; private set; } = new List<Model>();
+		public IEnumerable<TsModelBase> Models { get; private set; } = new List<TsModelBase>();
 		public Dictionary<ITypeSymbol, ITsFile> TypeFiles { get; private set; } = new Dictionary<ITypeSymbol, ITsFile>();
 		Options Options { get; set; }
 		public TypeResolver(Options options) {
 			this.Options = options;
 		}
-		public void Add(Service service) {
-			this.TypeFiles[service.TypeSymbol] = service;
-			(this.Services as List<Service>).Add(service);
-		}
-		public void Add(Model model) {
-			this.TypeFiles[model.TypeSymbol] = model;
-			(this.Models as List<Model>).Add(model);
+		//public void Add(Service service) {
+		//	this.TypeFiles[service.TypeSymbol] = service;
+		//	(this.Services as List<Service>).Add(service);
+		//}
+		//public void Add(Model model) {
+		//	this.TypeFiles[model.TypeSymbol] = model;
+		//	(this.Models as List<Model>).Add(model);
+		//}
+
+		public void Add(ITsFile file) {
+			this.TypeFiles[file.TypeSymbol] = file;
+			if(file is TsModelBase) {
+				(this.Models as List<TsModelBase>).Add(file as TsModelBase);
+			}
+			if (file is Service) {
+				(this.Services as List<Service>).Add(file as Service);
+			}
 		}
 		public string Resolve(ITypeSymbol typeSymbol) {
-			if(TypeFiles.TryGetValue(typeSymbol, out var tsType)) {
+			if (TypeFiles.TryGetValue(typeSymbol, out var tsType)) {
 				return tsType.FullName;
 			}
 
@@ -44,7 +55,7 @@ namespace WebTyped {
 				//Check if parent type is controller > service
 				var parentName = parent.Name;
 				//Adjust to check prerequisites
-				if (Service.CanBeService(parent)) {
+				if (Service.IsService(parent)) {
 					parentName = parentName.Replace("Controller", "Service");
 				}
 				//For now, we'll just check if ends with "Controller" suffix
@@ -107,10 +118,10 @@ namespace WebTyped {
 			var counter = 0;
 			var services = new List<string>();
 			services.Add("WebApiEventEmmiterService");
-			foreach(var sm in serviceModules) {
+			foreach (var sm in serviceModules) {
 				sbRootIndex.AppendLine($"import * as mdl{counter} from './{sm.Key}'");
 				var sbServiceIndex = string.IsNullOrEmpty(sm.Key) ? sbRootIndex : new StringBuilder();
-				foreach(var s in sm) {
+				foreach (var s in sm) {
 					sbServiceIndex.AppendLine($"export * from './{s.FilenameWithoutExtenstion}';");
 					services.Add($"mdl{counter}.{s.ClassName}");
 				}
@@ -132,7 +143,7 @@ namespace WebTyped {
 			//await FileHelper.WriteAsync(rootIndexFile, sbRootIndex.ToString());
 			tasks.Add(FileHelper.WriteAsync(rootIndexFile, sbRootIndex.ToString()));
 
-			
+
 			if (Options.Clear) {
 				var currentFiles = Directory.GetFiles(Options.OutDir, "*.ts", SearchOption.AllDirectories);
 				var files = new HashSet<string>();

@@ -9,7 +9,8 @@ namespace WebTyped.Example.Web.Models {
 		public string Name { get; set; }
 		public DateTime Birthday { get; set; }
 		public bool IsOk { get; set; }
-		public string Teste99 { get; set; }
+		public Kind1 Kind1 { get; set; }
+		public Kind2 Kind2 { get; set; }
 	}
 
 	
