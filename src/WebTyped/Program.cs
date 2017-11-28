@@ -28,7 +28,7 @@ namespace WebTyped {
 				var outDir = target.Option("-od | --outDir", "", CommandOptionType.SingleValue);
 				var trims = target.Option("-t | --trim", "These module names will be removed when generating ts code", CommandOptionType.MultipleValue);
 				var clear = target.Option("-c | --clear", "Clears folder", CommandOptionType.NoValue);
-				var serviceMode = target.Option("-sm | --serviceMode", "Http connection fmwork (angular, jquery)", CommandOptionType.SingleValue);
+				var serviceMode = target.Option("-sm | --serviceMode", "Http connection fmwork (angular, jquery, fetch)", CommandOptionType.SingleValue);
 				var baseModule = target.Option("-bm | --baseModule", "Base module for your types", CommandOptionType.SingleValue);
 
 				target.HelpOption("-?|-h|--help");
@@ -70,6 +70,9 @@ namespace WebTyped {
 						switch (serviceMode.Value()) {
 							case "jquery":
 								svModeEnum = ServiceMode.Jquery;
+								break;
+							case "fetch":
+								svModeEnum = ServiceMode.Fetch;
 								break;
 						}
 					}

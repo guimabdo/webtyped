@@ -9,3 +9,8 @@
     <label>{{ p.name }}</label>
     <span>{{ json.stringify(p.value) }}</span>
 </div>
+<h2>Fetch API</h2>
+<div *ngFor="let p of enumerateResults(fetch)">
+    <label>{{ p.name }}</label>
+    <span>{{ json.stringify(p.value) }}</span>
+</div>

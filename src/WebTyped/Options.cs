@@ -9,7 +9,7 @@ namespace WebTyped {
 	public enum ServiceMode {
 		Angular, 
 		Jquery,
-		//Fetch?
+		Fetch
 	}
 	public class Options {
 		public string OutDir { get; private set; }

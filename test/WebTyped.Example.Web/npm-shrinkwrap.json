@@ -7,6 +7,9 @@
     "@guimabdo/webtyped-angular": {
       "version": "file:../../src/WebTyped.Npm/angular"
     },
+    "@guimabdo/webtyped-fetch": {
+      "version": "file:../../src/WebTyped.Npm/fetch"
+    },
     "@guimabdo/webtyped-generator": {
       "version": "file:../../src/WebTyped.Npm/generator",
       "requires": {

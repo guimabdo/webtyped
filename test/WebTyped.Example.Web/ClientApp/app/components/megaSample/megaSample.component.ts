@@ -2,6 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { MegaSampleService } from '../../webApi/Angular';
 import { MegaSampleService as JMegaSampleService } from '../../webApiJquery/JQuery';
+import { MegaSampleService as FMegaSampleService } from '../../webApiFetch/Fetch';
 import * as $ from 'jquery';
 class Results {
     getThisStringFromQueryResult: string | null = null;
@@ -23,6 +24,7 @@ export class MegaSampleComponent {
     json = JSON;
     angular = new Results();
     jquery = new Results();
+    fetch = new Results();
     //getThisStringFromQueryResult: string;
     //getThisStringFromQueryExplicitResult: string;
     //getThisStringFromRouteResult: string;
@@ -67,6 +69,24 @@ export class MegaSampleComponent {
                 Text: "test1"
             }).done(s => this.jquery.postAndReturnModelResult = s).fail( err => console.log(err));
             jSvc.PostAndReturnTuple_NotWorkingYet({ str: "test1", number: 3 }).done(s => this.jquery.postAndReturnTupleResult = s).fail( err => console.log(err));
+        }
+
+        //Fetch
+        if (typeof (fetch) !== 'undefined') {
+            var fSvc = new FMegaSampleService();
+            fSvc.GetThisStringFromQuery("test").then(s => this.fetch.getThisStringFromQueryResult = s, err => console.log(err));
+            fSvc.GetThisStringFromQueryExplicit("test").then(s => this.fetch.getThisStringFromQueryExplicitResult = s, err => console.log(err));
+            fSvc.GetThisStringFromRoute("test").then(s => this.fetch.getThisStringFromRouteResult = s, err => console.log(err));
+            fSvc.GetTheseStrings("test1", "test2").then(arr => this.fetch.getTheseStringsResult = arr, err => console.log(err));
+            fSvc.PostAndReturnThisStringFromQuery("test").then(s => this.fetch.postAndReturnThisStringFromQueryResult = s, err => console.log(err));
+            fSvc.PostAndReturnThisStringFromQueryExplicit("test").then(s => this.fetch.postAndReturnThisStringFromQueryResultExplicit = s, err => console.log(err));
+            fSvc.PostAndReturnThisStringFromRoute("test").then(s => this.fetch.postAndReturnThisStringFromRouteResult = s, err => console.log(err));
+            fSvc.PostAndReturnTheseStrings("test1", "test2", "test3").then(s => this.fetch.postAndReturnTheseStringsResult = s, err => console.log(err));
+            fSvc.PostAndReturnModel({
+                Number: 3,
+                Text: "test1"
+            }).then(s => this.fetch.postAndReturnModelResult = s, err => console.log(err));
+            fSvc.PostAndReturnTuple_NotWorkingYet({ str: "test1", number: 3 }).then(s => this.fetch.postAndReturnTupleResult = s, err => console.log(err));
         }
     }
     enumerateResults(r: Results) {

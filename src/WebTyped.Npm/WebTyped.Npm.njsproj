@@ -53,6 +53,8 @@
     <Content Include="generator\program\WebTyped.dll" />
     <Content Include="generator\program\WebTyped.pdb" />
     <Content Include="generator\program\WebTyped.runtimeconfig.json" />
+    <Content Include="fetch\package.json" />
+    <Content Include="fetch\src\tsconfig.json" />
     <Content Include="jquery\package.json" />
     <Content Include="jquery\src\tsconfig.json" />
     <Content Include="package.json" />
@@ -70,6 +72,8 @@
     <Folder Include="generator\program\runtimes\win\" />
     <Folder Include="generator\program\runtimes\win\lib\" />
     <Folder Include="generator\program\runtimes\win\lib\netstandard1.3\" />
+    <Folder Include="fetch\" />
+    <Folder Include="fetch\src\" />
     <Folder Include="jquery\" />
     <Folder Include="jquery\src\" />
   </ItemGroup>
@@ -89,6 +93,8 @@
     <TypeScriptCompile Include="generator\index.d.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="fetch\src\index.ts" />
+    <TypeScriptCompile Include="fetch\src\webApiClient.ts" />
     <TypeScriptCompile Include="jquery\src\index.ts" />
     <TypeScriptCompile Include="jquery\src\webApiClient.ts" />
   </ItemGroup>

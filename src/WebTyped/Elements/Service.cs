@@ -45,6 +45,9 @@ namespace WebTyped {
 				case ServiceMode.Jquery:
 					sb.AppendLine("import { WebApiClient } from '@guimabdo/webtyped-jquery';");
 					break;
+				case ServiceMode.Fetch:
+					sb.AppendLine("import { WebApiClient } from '@guimabdo/webtyped-fetch';");
+					break;
 				case ServiceMode.Angular:
 				default:
 					sb.AppendLine("import { Injectable, Inject, forwardRef } from '@angular/core';");
@@ -70,6 +73,7 @@ namespace WebTyped {
 					sb.AppendLine(level, $"	constructor(@Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebApiEventEmmiterService)) eventEmmiter: WebApiEventEmmiterService) {{");
 					sb.AppendLine(level, $@"		super(baseUrl, ""{path}"", httpClient, eventEmmiter);");
 					break;
+				case ServiceMode.Fetch:
 				case ServiceMode.Jquery:
 					sb.AppendLine(level, $@"	constructor(baseUrl: string = WebApiClient.baseUrl) {{");
 					sb.AppendLine(level, $@"		super(baseUrl, ""{path}"");");
@@ -150,15 +154,13 @@ namespace WebTyped {
 				//	bodyParam = pendingParameters[0];
 				//	pendingParameters.RemoveAt(0);
 				//}
+				string genericReturnType;
 				switch (Options.ServiceMode) {
-					case ServiceMode.Jquery:
-						sb.AppendLine(level + 1, $"{m.Name} = ({strParameters}) : JQuery.jqXHR<{returnType}> => {{");
-						break;
-					case ServiceMode.Angular:
-					default:
-						sb.AppendLine(level + 1, $"{m.Name} = ({strParameters}) : Observable<{returnType}> => {{");
-						break;
+					case ServiceMode.Jquery: genericReturnType = "JQuery.jqXHR"; break;
+					case ServiceMode.Fetch: genericReturnType = "Promise"; break;
+					case ServiceMode.Angular:default: genericReturnType = "Observable"; break;
 				}
+				sb.AppendLine(level + 1, $"{m.Name} = ({strParameters}) : {genericReturnType}<{returnType}> => {{");
 				sb.AppendLine(level + 2, $"return this.invoke{httpMethod}<{returnType}>({{");
 				sb.AppendLine(level + 4, $"func: this.{m.Name},");
 				sb.AppendLine(level + 4, $"parameters: {{ {string.Join(", ", mtd.Parameters.Select(p => p.Name))} }}");

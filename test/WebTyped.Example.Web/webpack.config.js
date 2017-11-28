@@ -60,6 +60,14 @@ module.exports = (env) => {
                 serviceMode: "jquery",
                 clear: true
             })
+            , new WebTypedPlugin({
+                sourceFiles: ["./Controllers/**/*.cs", "./Models/**/*.cs", "./OtherModels/**/*.cs"],
+                outDir: "ClientApp/app/webApiFetch/",
+                trim: ["WebTyped_Example_Web.Services", "WebTyped.Example.Web.Models", "WebTyped.Example.Web"],
+                baseModule: "Fetch",
+                serviceMode: "fetch",
+                clear: true
+            })
         ].concat(isDevBuild ? [
             // Plugins that apply in development builds only
             new webpack.SourceMapDevToolPlugin({
