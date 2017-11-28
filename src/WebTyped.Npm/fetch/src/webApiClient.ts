@@ -26,6 +26,7 @@ export class WebApiClient {
     }
     private invoke<T>(info: WebApiCallInfo, action: string,
         httpMethod: string, body?: any, search?: any): Promise<T> {
+        if (typeof (fetch) === 'undefined') { return Promise.resolve<T>(null); }
         var baseUrl = this.baseUrl;
         if (baseUrl.endsWith('/')) { baseUrl = baseUrl.substr(0, baseUrl.length - 1); }
         var url = `${baseUrl}/${this.api}/${action}`;

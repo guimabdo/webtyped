@@ -26,6 +26,9 @@ var WebApiClient = (function () {
         return this.invoke(info, action, 'delete', null, search);
     };
     WebApiClient.prototype.invoke = function (info, action, httpMethod, body, search) {
+        if (typeof (fetch) === 'undefined') {
+            return Promise.resolve(null);
+        }
         var baseUrl = this.baseUrl;
         if (baseUrl.endsWith('/')) {
             baseUrl = baseUrl.substr(0, baseUrl.length - 1);
