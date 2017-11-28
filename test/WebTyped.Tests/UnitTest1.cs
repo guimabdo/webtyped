@@ -14,10 +14,11 @@ namespace WebTyped.Tests {
 				"--sourceFiles", "../../../../WebTyped.Example.Web/Controllers/**/*.cs",
 				"--sourceFiles", "../../../../WebTyped.Example.Web/Models/**/*.cs",
 				"--sourceFiles", "../../../../WebTyped.Example.Web/OtherModels/**/*.cs",
-				"--outDir", "../../../../WebTyped.Example.Web/ClientApp/app/webApi/",
+				"--outDir", "../../../../WebTyped.Example.Web/ClientApp/app/webApiUnitTest/",
 				"--trim", "WebTyped_Example_Web.Services",
 				"--trim", "WebTyped.Example.Web",
 				"--trim", "WebTyped.Example.Web.Models",
+				"--baseModule", "UnitTest",
 				"--clear"
 				//"--controllers", "../../../UnitTest1.cs",
 				//"--models", "../../../UnitTest1.cs",

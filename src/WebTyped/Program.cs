@@ -28,6 +28,8 @@ namespace WebTyped {
 				var outDir = target.Option("-od | --outDir", "", CommandOptionType.SingleValue);
 				var trims = target.Option("-t | --trim", "These module names will be removed when generating ts code", CommandOptionType.MultipleValue);
 				var clear = target.Option("-c | --clear", "Clears folder", CommandOptionType.NoValue);
+				var serviceMode = target.Option("-sm | --serviceMode", "Http connection fmwork (angular, jquery)", CommandOptionType.SingleValue);
+				var baseModule = target.Option("-bm | --baseModule", "Base module for your types", CommandOptionType.SingleValue);
 
 				target.HelpOption("-?|-h|--help");
 				target.OnExecute(async () => {
@@ -57,13 +59,22 @@ namespace WebTyped {
 
 					//References
 					var mscorlib = MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
-					foreach(var task in tasks) { await task; }
+					foreach (var task in tasks) { await task; }
 					var compilation = CSharpCompilation.Create("Comp", trees, new[] { mscorlib });
 
 					//1200ms
 
 					var semanticModels = trees.ToDictionary(t => t, t => compilation.GetSemanticModel(t));
-					var options = new Options(outDir.Value(), clear.HasValue(), trims.Values);
+					var svModeEnum = ServiceMode.Angular;
+					if (serviceMode.HasValue()) {
+						switch (serviceMode.Value()) {
+							case "jquery":
+								svModeEnum = ServiceMode.Jquery;
+								break;
+						}
+					}
+
+					var options = new Options(outDir.Value(), clear.HasValue(), svModeEnum, trims.Values, baseModule.Value());
 					var typeResolver = new TypeResolver(options);
 
 					//1330ms
@@ -78,8 +89,8 @@ namespace WebTyped {
 							}
 						}));
 					}
-					foreach(var tsk in tasks) { await tsk; }
-					foreach(var s in namedTypeSymbols) {
+					foreach (var tsk in tasks) { await tsk; }
+					foreach (var s in namedTypeSymbols) {
 						if (Service.IsService(s)) {
 							typeResolver.Add(new Service(s, typeResolver, options));
 							continue;

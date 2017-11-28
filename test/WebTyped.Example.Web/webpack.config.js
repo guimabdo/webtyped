@@ -49,6 +49,15 @@ module.exports = (env) => {
                 sourceFiles: ["./Controllers/**/*.cs", "./Models/**/*.cs", "./OtherModels/**/*.cs"],
                 outDir: "ClientApp/app/webApi/",
                 trim: ["WebTyped_Example_Web.Services", "WebTyped.Example.Web.Models", "WebTyped.Example.Web"],
+                baseModule: "Angular",
+                clear: true
+            })
+            , new WebTypedPlugin({
+                sourceFiles: ["./Controllers/**/*.cs", "./Models/**/*.cs", "./OtherModels/**/*.cs"],
+                outDir: "ClientApp/app/webApiJquery/",
+                trim: ["WebTyped_Example_Web.Services", "WebTyped.Example.Web.Models", "WebTyped.Example.Web"],
+                baseModule: "JQuery",
+                serviceMode: "jquery",
                 clear: true
             })
         ].concat(isDevBuild ? [

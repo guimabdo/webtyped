@@ -6,45 +6,47 @@ using System.Linq;
 using System.Text;
 
 namespace WebTyped {
+	public enum ServiceMode {
+		Angular, 
+		Jquery,
+		//Fetch?
+	}
 	public class Options {
 		public string OutDir { get; private set; }
 		public string TypingsDir { get; private set; }
 		public bool Clear { get; private set; }
-		//public IEnumerable<string> NamespaceTruncs { get; private set; }
 		public IEnumerable<string> ModuleTrims { get; private set; }
-		//public string ServicesDir { get; private set; }
-		//public string ModelsDir { get; private set; }
+		public string BaseModule { get; private set; }
+		public ServiceMode ServiceMode { get; private set; }
 		public Options(string outDir,
 			bool clear,
-			//IEnumerable<String> namespaceTruncs
-			IEnumerable<String> moduleTrims
-			/*, string servicesDir = "", string modelsDir = "typings"*/) {
-			//NamespaceTruncs = namespaceTruncs;
+			ServiceMode serviceMode,
+			IEnumerable<String> moduleTrims, string baseModule) {
 			ModuleTrims = moduleTrims.OrderByDescending(m => m.Length);
 			OutDir = outDir;
 			TypingsDir = Path.Combine(outDir, "typings");
 			Directory.CreateDirectory(TypingsDir);
 			Clear = clear;
-			//ServicesDir = Path.Combine(outDir, servicesDir);
-			//ModelsDir = Path.Combine(outDir, modelsDir);
-			//Directory.CreateDirectory(ServicesDir);
-			//Directory.CreateDirectory(ModelsDir);
+			BaseModule = baseModule;
+			ServiceMode = serviceMode;
 		}
 
-		public string TrimModule(string module) {
+		public string AdjustModule(string module) {
 			foreach(var mt in ModuleTrims) {
 				if (module.StartsWith(mt)) {
 					module = module.Replace(mt, "");
 				}
 			}
-			while (module.StartsWith(".")) {
-				module = module.Substring(1);
+			module = module.Trim('.');
+			if (!string.IsNullOrWhiteSpace(BaseModule)) {
+				module = $"{BaseModule}.{module}";
 			}
+			//while (module.StartsWith(".")) {
+			//	module = module.Substring(1);
+			//}
+			module = module.Trim('.');
+			
 			return module;
 		}
-
-		//public string TruncateNamespace(INamespaceSymbol ns) {
-		//	return ns.ToString();
-		//}
 	}
 }

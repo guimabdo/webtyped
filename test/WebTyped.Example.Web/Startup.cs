@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using WebTyped.Example.Web.Binders;
+using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace WebTyped_Example_Web
 {
@@ -25,6 +26,8 @@ namespace WebTyped_Example_Web
         {
             services.AddMvc(options => {
 				options.ModelBinderProviders.Insert(0, new TupleBinderProvider());
+				//Na doc da ferramenta, lembrar de colocar isso para as strings
+				options.OutputFormatters.RemoveType<StringOutputFormatter>();
 			});
         }
 

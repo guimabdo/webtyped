@@ -53,6 +53,8 @@
     <Content Include="generator\program\WebTyped.dll" />
     <Content Include="generator\program\WebTyped.pdb" />
     <Content Include="generator\program\WebTyped.runtimeconfig.json" />
+    <Content Include="jquery\package.json" />
+    <Content Include="jquery\src\tsconfig.json" />
     <Content Include="package.json" />
   </ItemGroup>
   <ItemGroup>
@@ -68,6 +70,8 @@
     <Folder Include="generator\program\runtimes\win\" />
     <Folder Include="generator\program\runtimes\win\lib\" />
     <Folder Include="generator\program\runtimes\win\lib\netstandard1.3\" />
+    <Folder Include="jquery\" />
+    <Folder Include="jquery\src\" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="angular\index.d.ts" />
@@ -85,6 +89,8 @@
     <TypeScriptCompile Include="generator\index.d.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="jquery\src\index.ts" />
+    <TypeScriptCompile Include="jquery\src\webApiClient.ts" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="angular\webApiInterceptor.js" />

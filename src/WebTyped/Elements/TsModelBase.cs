@@ -40,7 +40,7 @@ namespace WebTyped.Elements {
 					parents.Reverse();
 					moduleName += $".{string.Join(".", parents)}";
 				}
-				return Options.TrimModule(moduleName);
+				return Options.AdjustModule(moduleName);
 				//return moduleName;
 			}
 		}

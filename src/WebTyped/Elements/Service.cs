@@ -19,7 +19,8 @@ namespace WebTyped {
 		}
 		public string ControllerName { get; private set; }
 		public string ClassName { get { return $"{ControllerName}Service"; } }
-		public string FullName { get {
+		public string FullName {
+			get {
 				if (string.IsNullOrEmpty(Module)) { return ClassName; }
 				return $"{Module}.{ClassName}";
 			}
@@ -32,7 +33,7 @@ namespace WebTyped {
 			ControllerName = controllerType.Name.Substring(0, controllerType.Name.Length - "Controller".Length);
 			TypeResolver = typeResolver;
 			Module = controllerType.ContainingNamespace.ToString().Replace(".Controllers", ".Services");
-			Module = options.TrimModule(Module);
+			Module = options.AdjustModule(Module);
 			FilenameWithoutExtenstion = $"{ControllerName.ToCamelCase()}.service";
 			Options = options;
 			//TypeResolver.Add(this);
@@ -40,24 +41,40 @@ namespace WebTyped {
 
 		public async Task<string> SaveAsync() {
 			var sb = new StringBuilder();
-			sb.AppendLine("import { Injectable, Inject, forwardRef } from '@angular/core';");
-			sb.AppendLine("import { HttpClient } from '@angular/common/http';");
-			sb.AppendLine("import { WebApiClient, WebApiEventEmmiterService } from '@guimabdo/webtyped-angular';");
-			sb.AppendLine("import { Observable } from 'rxjs';");
+			switch (Options.ServiceMode) {
+				case ServiceMode.Jquery:
+					sb.AppendLine("import { WebApiClient } from '@guimabdo/webtyped-jquery';");
+					break;
+				case ServiceMode.Angular:
+				default:
+					sb.AppendLine("import { Injectable, Inject, forwardRef } from '@angular/core';");
+					sb.AppendLine("import { HttpClient } from '@angular/common/http';");
+					sb.AppendLine("import { WebApiClient, WebApiEventEmmiterService } from '@guimabdo/webtyped-angular';");
+					sb.AppendLine("import { Observable } from 'rxjs';");
+					break;
+			}
 
 			var routeAttr = TypeSymbol.GetAttributes().FirstOrDefault(a => a.AttributeClass.Name == "Route" || a.AttributeClass.Name.ToString() == "RoutePrefix");
 
 			var arg = (routeAttr.ApplicationSyntaxReference.GetSyntax() as AttributeSyntax).ArgumentList.Arguments[0].ToString().Replace("\"", "");
 			var path = arg.Replace("[controller]", ControllerName);
 			int level = 0;
-			//if (!string.IsNullOrEmpty(Module)) {
-			//	sb.AppendLine($"export module {Module} {{");
-			//	level++;
-			//}
-			sb.AppendLine(level, "@Injectable()");
+			switch (Options.ServiceMode) {
+				case ServiceMode.Angular:
+					sb.AppendLine(level, "@Injectable()");
+					break;
+			}
 			sb.AppendLine(level, $"export class {ClassName} extends WebApiClient {{");
-			sb.AppendLine(level, $"	constructor(@Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebApiEventEmmiterService)) eventEmmiter: WebApiEventEmmiterService) {{");
-			sb.AppendLine(level, $@"		super(baseUrl, ""{path}"", httpClient, eventEmmiter);");
+			switch (Options.ServiceMode) {
+				case ServiceMode.Angular:
+					sb.AppendLine(level, $"	constructor(@Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebApiEventEmmiterService)) eventEmmiter: WebApiEventEmmiterService) {{");
+					sb.AppendLine(level, $@"		super(baseUrl, ""{path}"", httpClient, eventEmmiter);");
+					break;
+				case ServiceMode.Jquery:
+					sb.AppendLine(level, $@"	constructor(baseUrl: string = WebApiClient.baseUrl) {{");
+					sb.AppendLine(level, $@"		super(baseUrl, ""{path}"");");
+					break;
+			}
 			sb.AppendLine(level, "	}");
 
 			foreach (var m in TypeSymbol.GetMembers()) {
@@ -133,8 +150,15 @@ namespace WebTyped {
 				//	bodyParam = pendingParameters[0];
 				//	pendingParameters.RemoveAt(0);
 				//}
-
-				sb.AppendLine(level + 1, $"{m.Name} = ({strParameters}) : Observable<{returnType}> => {{");
+				switch (Options.ServiceMode) {
+					case ServiceMode.Jquery:
+						sb.AppendLine(level + 1, $"{m.Name} = ({strParameters}) : JQuery.jqXHR<{returnType}> => {{");
+						break;
+					case ServiceMode.Angular:
+					default:
+						sb.AppendLine(level + 1, $"{m.Name} = ({strParameters}) : Observable<{returnType}> => {{");
+						break;
+				}
 				sb.AppendLine(level + 2, $"return this.invoke{httpMethod}<{returnType}>({{");
 				sb.AppendLine(level + 4, $"func: this.{m.Name},");
 				sb.AppendLine(level + 4, $"parameters: {{ {string.Join(", ", mtd.Parameters.Select(p => p.Name))} }}");

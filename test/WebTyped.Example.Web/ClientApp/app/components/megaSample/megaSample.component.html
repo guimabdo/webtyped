@@ -1,41 +1,11 @@
 <h1>Mega sample</h1>
-<div>
-    <label>getThisStringFromQueryResult</label>
-    <span>{{ getThisStringFromQueryResult }}</span>
+<h2>Angular</h2>
+<div *ngFor="let p of enumerateResults(angular)">
+    <label>{{ p.name }}</label>
+    <span>{{ json.stringify(p.value) }}</span>
 </div>
-<div>
-    <label>getThisStringFromQueryExplicityResult</label>
-    <span>{{ getThisStringFromQueryExplicitResult }}</span>
-</div>
-<div>
-    <label>getThisStringFromRouteResult</label>
-    <span>{{ getThisStringFromRouteResult }}</span>
-</div>
-<div>
-    <label>getTheseStringsResult</label>
-    <span>{{ getTheseStringsResult }}</span>
-</div>
-<div>
-    <label>postAndReturnThisStringFromQueryResult</label>
-    <span>{{ postAndReturnThisStringFromQueryResult }}</span>
-</div>
-<div>
-    <label>postAndReturnThisStringFromQueryResultExplicit</label>
-    <span>{{ postAndReturnThisStringFromQueryResultExplicit }}</span>
-</div>
-<div>
-    <label>postAndReturnThisStringFromRouteResult</label>
-    <span>{{ postAndReturnThisStringFromRouteResult }}</span>
-</div>
-<div>
-    <label>postAndReturnTheseStringsResult</label>
-    <span>{{ postAndReturnTheseStringsResult }}</span>
-</div>
-<div>
-    <label>postAndReturnModelResult</label>
-    <span>{{ json.stringify(postAndReturnModelResult) }}</span>
-</div>
-<div>
-    <label>postAndReturnTupleResult</label>
-    <span>{{ json.stringify(postAndReturnTupleResult) }}</span>
+<h2>JQuery</h2>
+<div *ngFor="let p of enumerateResults(jquery)">
+    <label>{{ p.name }}</label>
+    <span>{{ json.stringify(p.value) }}</span>
 </div>

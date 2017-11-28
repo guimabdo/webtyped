@@ -17,6 +17,8 @@
     "@guimabdo/webtyped-common": "file:src/WebTyped.Npm/common",
     "rxjs": "5.4.2",
     "zone.js": "0.8.12",
-    "typescript": "2.4.1"
+    "typescript": "2.4.1",
+    "jquery": "3.2.1",
+    "@types/jquery": "3.2.16"
   }
 }

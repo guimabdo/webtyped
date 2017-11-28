@@ -1,7 +1,14 @@
 ﻿var exec = require('child_process').exec;
 var glob = require('glob');
 var generate = function (options, callback) {
-    var cmd = `dotnet "${__dirname}/program/WebTyped.dll" generate ${options.sourceFiles.map(sf => "-sf " + sf).join(" ")} -od ${options.outDir} ${options.trim.map(t => "-t " + t).join(" ")}` + (options.clear ? " -c" : "");
+    var cmd = 
+`dotnet "${__dirname}/program/WebTyped.dll" generate ` + 
+`${options.sourceFiles.map(sf => "-sf " + sf).join(" ")} ` +
+`-od ${options.outDir} ` +
+`${options.trim.map(t => "-t " + t).join(" ")}` + 
+(options.clear ? " -c" : "") + " " +
+(options.serviceMode ? `-sm ${options.serviceMode}` : "") + " " +
+(options.baseModule ? `-bm ${options.baseModule}` : "") + " ";
     var e = exec(cmd, err => {
         if (callback) {
             callback();

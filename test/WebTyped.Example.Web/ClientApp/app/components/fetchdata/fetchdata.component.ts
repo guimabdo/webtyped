@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { Http } from '@angular/http';
-import { SampleDataService } from '../../webApi';
+import { SampleDataService } from '../../webApi/Angular';
 
 @Component({
     selector: 'fetchdata',
@@ -8,20 +8,10 @@ import { SampleDataService } from '../../webApi';
     providers: [SampleDataService]
 })
 export class FetchDataComponent {
-    //public forecasts: WeatherForecast[];
-    public forecasts: SampleDataService.WeatherForecast[];
+    public forecasts: Angular.SampleDataService.WeatherForecast[];
 
     constructor(http: Http, svc: SampleDataService, @Inject('BASE_URL') baseUrl: string) {
         svc.WeatherForecasts().subscribe(result => this.forecasts = result, error => console.log(error));
-        //http.get(baseUrl + 'api/SampleData/WeatherForecasts').subscribe(result => {
-        //    this.forecasts = result.json() as WeatherForecast[];
-        //}, error => console.error(error));
     }
 }
 
-//interface WeatherForecast {
-//    dateFormatted: string;
-//    temperatureC: number;
-//    temperatureF: number;
-//    summary: string;
-//}

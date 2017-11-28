@@ -8,7 +8,81 @@
       "version": "file:../../src/WebTyped.Npm/angular"
     },
     "@guimabdo/webtyped-generator": {
-      "version": "file:../../src/WebTyped.Npm/generator"
+      "version": "file:../../src/WebTyped.Npm/generator",
+      "requires": {
+        "glob": "7.1.2"
+      },
+      "dependencies": {
+        "balanced-match": {
+          "version": "1.0.0",
+          "bundled": true
+        },
+        "brace-expansion": {
+          "version": "1.1.8",
+          "bundled": true,
+          "requires": {
+            "balanced-match": "1.0.0",
+            "concat-map": "0.0.1"
+          }
+        },
+        "concat-map": {
+          "version": "0.0.1",
+          "bundled": true
+        },
+        "fs.realpath": {
+          "version": "1.0.0",
+          "bundled": true
+        },
+        "glob": {
+          "version": "7.1.2",
+          "bundled": true,
+          "requires": {
+            "fs.realpath": "1.0.0",
+            "inflight": "1.0.6",
+            "inherits": "2.0.3",
+            "minimatch": "3.0.4",
+            "once": "1.4.0",
+            "path-is-absolute": "1.0.1"
+          }
+        },
+        "inflight": {
+          "version": "1.0.6",
+          "bundled": true,
+          "requires": {
+            "once": "1.4.0",
+            "wrappy": "1.0.2"
+          }
+        },
+        "inherits": {
+          "version": "2.0.3",
+          "bundled": true
+        },
+        "minimatch": {
+          "version": "3.0.4",
+          "bundled": true,
+          "requires": {
+            "brace-expansion": "1.1.8"
+          }
+        },
+        "once": {
+          "version": "1.4.0",
+          "bundled": true,
+          "requires": {
+            "wrappy": "1.0.2"
+          }
+        },
+        "path-is-absolute": {
+          "version": "1.0.1",
+          "bundled": true
+        },
+        "wrappy": {
+          "version": "1.0.2",
+          "bundled": true
+        }
+      }
+    },
+    "@guimabdo/webtyped-jquery": {
+      "version": "file:../../src/WebTyped.Npm/jquery"
     },
     "@ngtools/webpack": {
       "version": "1.5.0",
@@ -43,6 +117,12 @@
       "version": "2.5.53",
       "resolved": "https://registry.npmjs.org/@types/jasmine/-/jasmine-2.5.53.tgz",
       "integrity": "sha512-2YNL0jXYuN7w07mb1sMZQ6T6zOvGi83v8UbjhBZ8mhvI1VkQ2STU9XOrTFyvWswMyh5rW1evS+e7qltYJvTqPA==",
+      "dev": true
+    },
+    "@types/jquery": {
+      "version": "3.2.16",
+      "resolved": "https://registry.npmjs.org/@types/jquery/-/jquery-3.2.16.tgz",
+      "integrity": "sha512-q2WC02YxQoX2nY1HRKlYGHpGP1saPmD7GN0pwCDlTz35a4eOtJG+aHRlXyjCuXokUukSrR2aXyBhSW3j+jPc0A==",
       "dev": true
     },
     "@types/webpack-env": {

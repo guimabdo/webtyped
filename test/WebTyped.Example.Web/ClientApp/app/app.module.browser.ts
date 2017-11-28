@@ -2,9 +2,10 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppModuleShared } from './app.module.shared';
 import { AppComponent } from './components/app/app.component';
+import { WebApiClient as jWebApiClient } from '@guimabdo/webtyped-jquery';
 
 @NgModule({
-    bootstrap: [ AppComponent ],
+    bootstrap: [AppComponent],
     imports: [
         BrowserModule,
         AppModuleShared
@@ -20,3 +21,4 @@ export class AppModule {
 export function getBaseUrl() {
     return document.getElementsByTagName('base')[0].href;
 }
+jWebApiClient.baseUrl = getBaseUrl();
