@@ -155,7 +155,9 @@ namespace WebTyped {
 				var delete = currentFiles.Except(files);
 				//Console.WriteLine($"celete: {string.Join(", ", delete)}");
 				foreach (var f in delete) {
-					File.Delete(f);
+					if (File.ReadLines(f).First().StartsWith(FileHelper.Mark)) {
+						File.Delete(f);
+					}
 				}
 				DeleteEmptyDirs(Options.OutDir);
 			}

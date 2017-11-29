@@ -1,3 +1,4 @@
+//*Generated with WebTyped*
 import { WebApiClient } from '@guimabdo/webtyped-fetch';
 export class SampleDataService extends WebApiClient {
 	constructor(baseUrl: string = WebApiClient.baseUrl) {
