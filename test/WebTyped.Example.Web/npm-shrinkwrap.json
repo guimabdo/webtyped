@@ -8,7 +8,16 @@
       "version": "file:../../src/WebTyped.Npm/angular"
     },
     "@guimabdo/webtyped-fetch": {
-      "version": "file:../../src/WebTyped.Npm/fetch"
+      "version": "file:../../src/WebTyped.Npm/fetch",
+      "requires": {
+        "jquery-param": "0.2.0"
+      },
+      "dependencies": {
+        "jquery-param": {
+          "version": "0.2.0",
+          "bundled": true
+        }
+      }
     },
     "@guimabdo/webtyped-generator": {
       "version": "file:../../src/WebTyped.Npm/generator",
