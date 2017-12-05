@@ -16,12 +16,14 @@ namespace WebTyped.Elements
 			var sb = new StringBuilder();
 
 			var level = 0;
+			var hasModule = false;
 			if (!string.IsNullOrEmpty(Module)) {
+				hasModule = true;
 				sb.AppendLine($"declare module {Module} {{");
 				level++;
 			}
 
-			sb.AppendLine(level, $"declare enum {TypeSymbol.Name} {{");
+			sb.AppendLine(level, $"{(hasModule ? "" : "declare ")}enum {TypeSymbol.Name} {{");
 			foreach (var m in TypeSymbol.GetMembers()) {
 				if (m.Kind == SymbolKind.Field) {
 					var f = m as IFieldSymbol;

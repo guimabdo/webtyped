@@ -19,6 +19,7 @@ var generate = function (options, callback) {
 };
 
 function WebTypedPlugin(options) {
+    console.log("constructing webtyped plugin");
     this.options = options;
 }
 
@@ -46,6 +47,7 @@ WebTypedPlugin.prototype.apply = function (compiler) {
     runGenerate();
     compiler.plugin("invalid", function (fileName, changeTime) {
         if (currentFiles.some(f => f == fileName)) {
+            console.log(fileName + " changed");
             runGenerate();
         }
     });

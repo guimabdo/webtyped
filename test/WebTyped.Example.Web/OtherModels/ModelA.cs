@@ -5,5 +5,7 @@ using System.Threading.Tasks;
 
 namespace WebTyped.Example.Web.OtherModels {
 	public class ModelA {
+		public int? TestNullable { get; set; }
+		public IList<int> TestIList { get; set; }
 	}
 }

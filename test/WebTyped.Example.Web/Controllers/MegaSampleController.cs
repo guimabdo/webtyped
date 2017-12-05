@@ -74,6 +74,11 @@ namespace WebTyped_Example_Web.Controllers {
 			return tuple;
 		}
 
+		[HttpGet("async")]
+		public Task<int> AsyncTest() {
+			return Task.FromResult(2);
+		}
+
 		//[HttpPost("modelA")]
 		//public ModelA PostAndReturnModelA([FromBody]ModelA modelA) {
 		//	return modelA;

@@ -59,8 +59,10 @@ namespace WebTyped {
 
 					//References
 					var mscorlib = MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
+					var systemRuntime = MetadataReference.CreateFromFile(typeof(int).Assembly.Location);
+					var linqExpressions = MetadataReference.CreateFromFile(typeof(IQueryable).Assembly.Location);
 					foreach (var task in tasks) { await task; }
-					var compilation = CSharpCompilation.Create("Comp", trees, new[] { mscorlib });
+					var compilation = CSharpCompilation.Create("Comp", trees, new[] { mscorlib, systemRuntime, linqExpressions });
 
 					//1200ms
 

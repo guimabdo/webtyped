@@ -90,6 +90,7 @@ namespace WebTyped {
 				if (m.IsImplicitlyDeclared) { continue; }
 				if (!m.IsDefinition) { continue; }
 				var mtd = m as IMethodSymbol;
+				if(m.Name == ".ctor") { continue; }
 				var returnType = TypeResolver.Resolve(mtd.ReturnType as INamedTypeSymbol);
 				var mtdAttrs = mtd.GetAttributes();
 				//Not marked actions will accept posts
@@ -127,15 +128,17 @@ namespace WebTyped {
 					.Replace("[action]", m.Name)
 					.Replace("{", "${");
 
-				//Resolve parameters
-				var strParameters = string.Join(", ",
-					mtd.Parameters.Select(p => $"{p.Name}: {TypeResolver.Resolve(p.Type as INamedTypeSymbol)}")
-				);
-
+				
 				//Resolve how parameters are sent
 				var pendingParameters = new List<string>();
+				var allParameters = new List<IParameterSymbol>();
 				var bodyParam = "null";
 				foreach (var p in mtd.Parameters) {
+					//[FromServices]
+					if (p.GetAttributes().Any(a => a.AttributeClass.Name == "FromServices")) {
+						continue;
+					}
+					allParameters.Add(p);
 					//[FromRoute]
 					if (action.Contains($"{{{p.Name}}}")) {
 						continue;
@@ -147,6 +150,11 @@ namespace WebTyped {
 					}
 					pendingParameters.Add(p.Name);
 				}
+
+				//Resolve parameters
+				var strParameters = string.Join(", ",
+					allParameters.Select(p => $"{p.Name}: {TypeResolver.Resolve(p.Type as INamedTypeSymbol)}")
+				);
 
 				//if(pendingParameters.Any() && bodyParam == "null" && new string[] {
 				//	"Put", "Patch", "Post"
@@ -163,7 +171,7 @@ namespace WebTyped {
 				sb.AppendLine(level + 1, $"{m.Name} = ({strParameters}) : {genericReturnType}<{returnType}> => {{");
 				sb.AppendLine(level + 2, $"return this.invoke{httpMethod}<{returnType}>({{");
 				sb.AppendLine(level + 4, $"func: this.{m.Name},");
-				sb.AppendLine(level + 4, $"parameters: {{ {string.Join(", ", mtd.Parameters.Select(p => p.Name))} }}");
+				sb.AppendLine(level + 4, $"parameters: {{ {string.Join(", ", allParameters.Select(p => p.Name))} }}");
 				sb.AppendLine(level + 3, "},");
 				sb.AppendLine(level + 3, $"`{action}`,");
 				//Body

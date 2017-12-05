@@ -66,34 +66,91 @@ namespace WebTyped {
 				typeName = $"{parentName}.{typeName}";
 				parent = parent.ContainingType;
 			}
+			//Change type to ts type
+			var tsTypeName = ToTsTypeName(typeName, type);
+			//if (tsTypeName == "any") {
+			//	return $"any/* {type.ToString()} */";
+			//}
 
 			string genericPart = "";
 			//Generic
 			if (type.IsGenericType) {
-				genericPart = $"<{string.Join(", ", type.TypeArguments.Select(t => Resolve(t as INamedTypeSymbol)))}>";
+				if (string.IsNullOrEmpty(tsTypeName)) {
+					tsTypeName = Resolve(type.TypeArguments[0]);
+				} else {
+					genericPart = $"<{string.Join(", ", type.TypeArguments.Select(t => Resolve(t as INamedTypeSymbol)))}>";
+				}
 			}
+			//genericPart = genericPart.Replace("*", "");
 
-			//Change type to ts type
-			typeName = ToTsTypeName(typeName);
-
-			return $"{typeName}{genericPart}";
+			if (tsTypeName == "any" || tsTypeName.StartsWith("any/*")) {
+				genericPart = genericPart.Replace("*", "");
+				if (!string.IsNullOrEmpty(genericPart)) {
+					genericPart = $"/*{genericPart}*/";
+				}
+				//return $"{tsTypeName}{(string.IsNullOrEmpty(genericPart) ? "" : $"")}";
+			}
+			return $"{tsTypeName}{genericPart}";
+		}
+		public bool IsNullable(ITypeSymbol t) {
+			return (t as INamedTypeSymbol).ConstructedFrom.ToString() == "System.Nullable<T>";
 		}
 
-		string ToTsTypeName(string typeName) {
-			switch (typeName) {
-				case nameof(Boolean):
+		string ToTsTypeName(string typeName, INamedTypeSymbol original) {
+			if (IsNullable(original)) { return ""; }
+			switch (original.SpecialType) {
+				case SpecialType.System_Boolean:
 					return "boolean";
-				case nameof(DateTime):
-				case nameof(String):
-					return "string";
-				case nameof(Int32):
-				case nameof(Int16):
-				case nameof(Int64):
+				case SpecialType.System_Byte:
+				case SpecialType.System_Decimal:
+				case SpecialType.System_Double:
+				case SpecialType.System_Int16:
+				case SpecialType.System_Int32:
+				case SpecialType.System_Int64:
+				case SpecialType.System_Single:
+				case SpecialType.System_UInt16:
+				case SpecialType.System_UInt32:
+				case SpecialType.System_UInt64:
 					return "number";
-				case nameof(IEnumerable):
-				case nameof(List<object>):
+				case SpecialType.System_Char:
+				case SpecialType.System_String:
+				case SpecialType.System_DateTime:
+					return "string";
+				case SpecialType.System_Array:
+				case SpecialType.System_Collections_Generic_ICollection_T:
+				case SpecialType.System_Collections_Generic_IEnumerable_T:
+				case SpecialType.System_Collections_Generic_IList_T:
+				case SpecialType.System_Collections_Generic_IReadOnlyCollection_T:
+				case SpecialType.System_Collections_Generic_IReadOnlyList_T:
+				case SpecialType.System_Collections_IEnumerable:
 					return "Array";
-				default: return typeName;
+			}
+			var constructedFrom = (original as INamedTypeSymbol).ConstructedFrom.ToString();
+
+			//IQueryable<int> a;
+			switch (constructedFrom) {
+				//ase nameof(Boolean):
+				//	return "boolean";
+				//case nameof(DateTime):
+				//case nameof(String):
+				//	return "string";
+				//case nameof(Int32):
+				//case nameof(Int16):
+				//case nameof(Int64):
+				//	return "number";
+				//case nameof(IEnumerable):
+				case "System.Collections.Generic.IList<T>":
+				case "System.Collections.Generic.List<T>":
+				case "System.Collections.Generic.IEnumerable<T>":
+				case "System.Collections.Generic.ICollection<T>":
+				case "System.Linq.IQueryable<T>":
+					return "Array";
+				case "System.Threading.Tasks.Task":
+					return "void";
+				case "System.Threading.Tasks.Task<TResult>":
+					return "";
+				//default: return typeName;
+				default: return $"any/*{constructedFrom}*/";
 			}
 		}
 
@@ -145,7 +202,9 @@ namespace WebTyped {
 
 
 			if (Options.Clear) {
+				Console.WriteLine("Webtyped - Clearing invalid files");
 				var currentFiles = Directory.GetFiles(Options.OutDir, "*.ts", SearchOption.AllDirectories);
+				//currentFiles.ToList().ForEach(f => Console.WriteLine(f));
 				var files = new HashSet<string>();
 				foreach (var t in tasks) {
 					files.Add(await t);
@@ -153,9 +212,15 @@ namespace WebTyped {
 				//Console.WriteLine($"current: {string.Join(", ", currentFiles)}");
 				//Console.WriteLine($"new: {string.Join(", ", files)}");
 				var delete = currentFiles.Except(files);
+				//delete.ToList().ForEach(f => Console.WriteLine(f));
 				//Console.WriteLine($"celete: {string.Join(", ", delete)}");
 				foreach (var f in delete) {
-					if (File.ReadLines(f).First().StartsWith(FileHelper.Mark)) {
+					var line = File.ReadLines(f).First();
+					var mark = FileHelper.Mark.Replace(System.Environment.NewLine, "");
+					//Console.WriteLine($"{line} == {FileHelper.Mark} - {line.CompareTo(FileHelper.Mark.Replace(System.Environment.NewLine, ""))}");
+					//if (line.ToUpper().Contains(FileHelper.Mark.ToUpper())) {
+					if(line == mark) { 
+						Console.WriteLine($"deleting {f}");
 						File.Delete(f);
 					}
 				}
