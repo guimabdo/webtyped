@@ -155,6 +155,8 @@ namespace WebTyped {
 		}
 
 		public async Task SaveAllAsync() {
+			var currentFiles = Directory.GetFiles(Options.OutDir, "*.ts", SearchOption.AllDirectories);
+		
 			//HashSet<string> files = new HashSet<string>();
 			List<Task<string>> tasks = new List<Task<string>>();
 			//foreach(var m in Models) { files.Add(m.Save()); }
@@ -203,14 +205,11 @@ namespace WebTyped {
 
 			if (Options.Clear) {
 				Console.WriteLine("Webtyped - Clearing invalid files");
-				var currentFiles = Directory.GetFiles(Options.OutDir, "*.ts", SearchOption.AllDirectories);
 				//currentFiles.ToList().ForEach(f => Console.WriteLine(f));
 				var files = new HashSet<string>();
 				foreach (var t in tasks) {
 					files.Add(await t);
 				}
-				//Console.WriteLine($"current: {string.Join(", ", currentFiles)}");
-				//Console.WriteLine($"new: {string.Join(", ", files)}");
 				var delete = currentFiles.Except(files);
 				//delete.ToList().ForEach(f => Console.WriteLine(f));
 				//Console.WriteLine($"celete: {string.Join(", ", delete)}");

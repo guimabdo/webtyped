@@ -5,6 +5,7 @@ using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.Extensions.FileSystemGlobbing;
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -38,15 +39,17 @@ namespace WebTyped {
 						matcher.AddInclude(val);
 					}
 					var csFiles = matcher.GetResultsInFullPath(Directory.GetCurrentDirectory());
-					var trees = new List<SyntaxTree>();
+					var trees = new ConcurrentDictionary<string, SyntaxTree>();
 					var tasks = new List<Task>();
 					foreach (var csFile in csFiles) {
 						tasks.Add(File.ReadAllTextAsync(csFile)
 							.ContinueWith(tsk => {
-								trees.Add(CSharpSyntaxTree.ParseText(tsk.Result));
+								trees.TryAdd(csFile, CSharpSyntaxTree.ParseText(tsk.Result));
 							}));
 						//trees.Add(CSharpSyntaxTree.ParseText(await File.ReadAllTextAsync(csFile)));
 					}
+					//Wait all tasks
+
 					////Wait all task
 					//while (tasks.Any()) {
 					//	tasks.RemoveAll(t => t.IsCompleted);
@@ -62,11 +65,11 @@ namespace WebTyped {
 					var systemRuntime = MetadataReference.CreateFromFile(typeof(int).Assembly.Location);
 					var linqExpressions = MetadataReference.CreateFromFile(typeof(IQueryable).Assembly.Location);
 					foreach (var task in tasks) { await task; }
-					var compilation = CSharpCompilation.Create("Comp", trees, new[] { mscorlib, systemRuntime, linqExpressions });
+					var compilation = CSharpCompilation.Create("Comp", trees.Values, new[] { mscorlib, systemRuntime, linqExpressions });
 
 					//1200ms
 
-					var semanticModels = trees.ToDictionary(t => t, t => compilation.GetSemanticModel(t));
+					var semanticModels = trees.Values.ToDictionary(t => t, t => compilation.GetSemanticModel(t));
 					var svModeEnum = ServiceMode.Angular;
 					if (serviceMode.HasValue()) {
 						switch (serviceMode.Value()) {
@@ -84,8 +87,8 @@ namespace WebTyped {
 
 					//1330ms
 					tasks = new List<Task>();
-					var namedTypeSymbols = new List<INamedTypeSymbol>();
-					foreach (var t in trees) {
+					var namedTypeSymbols = new ConcurrentBag<INamedTypeSymbol>();
+					foreach (var t in trees.Values) {
 						tasks.Add(t.GetRootAsync().ContinueWith(tks => {
 							var root = tks.Result;
 							foreach (var @type in root.DescendantNodes().OfType<BaseTypeDeclarationSyntax>()) {
