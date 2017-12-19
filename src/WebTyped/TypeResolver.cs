@@ -127,6 +127,7 @@ namespace WebTyped {
 				case SpecialType.System_Collections_Generic_IReadOnlyList_T:
 				case SpecialType.System_Collections_IEnumerable:
 					return "Array";
+				case SpecialType.System_Void: return "void";
 			}
 			var constructedFrom = (original as INamedTypeSymbol).ConstructedFrom.ToString();
 
