@@ -25,7 +25,7 @@ var WebApiClient = (function () {
     };
     WebApiClient.prototype.invoke = function (info, action, httpMethod, body, search) {
         var _this = this;
-        var baseUrl = this.baseUrl;
+        var baseUrl = this.baseUrl || "";
         var httpClient = this.httpClient;
         if (baseUrl.endsWith('/')) {
             baseUrl = baseUrl.substr(0, baseUrl.length - 1);
@@ -51,6 +51,10 @@ var WebApiClient = (function () {
         if (search) {
             var params = new http_1.HttpParams();
             for (var p in search) {
+                var val = search[p];
+                if (val === undefined) {
+                    continue;
+                }
                 params = params.set(p, search[p]);
             }
             options.params = params;

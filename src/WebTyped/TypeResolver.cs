@@ -28,7 +28,7 @@ namespace WebTyped {
 
 		public void Add(ITsFile file) {
 			this.TypeFiles[file.TypeSymbol] = file;
-			if(file is TsModelBase) {
+			if (file is TsModelBase) {
 				(this.Models as List<TsModelBase>).Add(file as TsModelBase);
 			}
 			if (file is Service) {
@@ -156,11 +156,7 @@ namespace WebTyped {
 
 		public async Task SaveAllAsync() {
 			var currentFiles = Directory.GetFiles(Options.OutDir, "*.ts", SearchOption.AllDirectories);
-		
-			//HashSet<string> files = new HashSet<string>();
 			List<Task<string>> tasks = new List<Task<string>>();
-			//foreach(var m in Models) { files.Add(m.Save()); }
-			//foreach (var s in Services) { files.Add(s.Save()); }
 			foreach (var m in Models) {
 				tasks.Add(m.SaveAsync());
 			}
@@ -170,23 +166,30 @@ namespace WebTyped {
 			//Create indexes
 			//Create root index
 			var sbRootIndex = new StringBuilder();
-			sbRootIndex.AppendLine("import { WebApiEventEmmiterService } from '@guimabdo/webtyped-angular';");
+			if (Options.ServiceMode == ServiceMode.Angular) {
+				sbRootIndex.AppendLine("import { NgModule } from '@angular/core';");
+				sbRootIndex.AppendLine("import { HttpClientModule } from '@angular/common/http';");
+				sbRootIndex.AppendLine("import { WebApiEventEmmiterService } from '@guimabdo/webtyped-angular';");
+			}
 
 			//Create index for each module folder
-			var serviceModules = Services.GroupBy(s => s.Module).Distinct();
+			var serviceModules = Services
+				.GroupBy(s => s.Module)
+				.Distinct()
+				.OrderBy(g => g.Key);
 			var counter = 0;
 			var services = new List<string>();
-			services.Add("WebApiEventEmmiterService");
+			//services.Add("WebApiEventEmmiterService");
 			foreach (var sm in serviceModules) {
-				sbRootIndex.AppendLine($"import * as mdl{counter} from './{sm.Key}'");
+				sbRootIndex.AppendLine($"import * as mdl{counter} from './{sm.Key.ToCamelCase()}'");
 				var sbServiceIndex = string.IsNullOrEmpty(sm.Key) ? sbRootIndex : new StringBuilder();
-				foreach (var s in sm) {
+				foreach (var s in sm.OrderBy(s => s.ClassName)) {
 					sbServiceIndex.AppendLine($"export * from './{s.FilenameWithoutExtenstion}';");
 					services.Add($"mdl{counter}.{s.ClassName}");
 				}
 
 				if (!string.IsNullOrEmpty(sm.Key)) {
-					var servicesDir = Path.Combine(Options.OutDir, sm.Key);
+					var servicesDir = Path.Combine(Options.OutDir, sm.Key.ToCamelCase());
 					var serviceIndexFile = Path.Combine(servicesDir, "index.ts");
 					//files.Add(serviceIndexFile);
 					//await FileHelper.WriteAsync(serviceIndexFile, sbServiceIndex.ToString());
@@ -194,9 +197,20 @@ namespace WebTyped {
 				}
 				counter++;
 			}
-			sbRootIndex.AppendLine("export var providers = [");
+			sbRootIndex.AppendLine("export var serviceTypes = [");
 			sbRootIndex.AppendLine(1, string.Join($",{System.Environment.NewLine}	", services));
 			sbRootIndex.AppendLine("]");
+			if (Options.ServiceMode == ServiceMode.Angular) {
+				sbRootIndex.AppendLine("@NgModule({");
+				sbRootIndex.AppendLine(1, "imports: [ HttpClientModule ],");
+				sbRootIndex.AppendLine(1, "providers: [");
+				sbRootIndex.AppendLine(2, "WebApiEventEmmiterService,");
+				sbRootIndex.AppendLine(2, "...serviceTypes");
+				sbRootIndex.AppendLine(1, "]");
+				sbRootIndex.AppendLine("})");
+				sbRootIndex.AppendLine("export class WebTypedGeneratedModule {}");
+			}
+
 			var rootIndexFile = Path.Combine(Options.OutDir, "index.ts");
 			//files.Add(rootIndexFile);
 			//await FileHelper.WriteAsync(rootIndexFile, sbRootIndex.ToString());
@@ -210,7 +224,9 @@ namespace WebTyped {
 				foreach (var t in tasks) {
 					files.Add(await t);
 				}
-				var delete = currentFiles.Except(files);
+				//Console.Write("new files");
+				//files.ToList().ForEach(f => Console.WriteLine(f));
+				var delete = currentFiles.Except(files, StringComparer.InvariantCultureIgnoreCase);
 				//delete.ToList().ForEach(f => Console.WriteLine(f));
 				//Console.WriteLine($"celete: {string.Join(", ", delete)}");
 				foreach (var f in delete) {
@@ -218,7 +234,7 @@ namespace WebTyped {
 					var mark = FileHelper.Mark.Replace(System.Environment.NewLine, "");
 					//Console.WriteLine($"{line} == {FileHelper.Mark} - {line.CompareTo(FileHelper.Mark.Replace(System.Environment.NewLine, ""))}");
 					//if (line.ToUpper().Contains(FileHelper.Mark.ToUpper())) {
-					if(line == mark) { 
+					if (line == mark) {
 						Console.WriteLine($"deleting {f}");
 						File.Delete(f);
 					}

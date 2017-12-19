@@ -27,7 +27,7 @@ export class WebApiClient {
     }
     private invoke<T>(info: WebApiCallInfo, action: string,
         httpMethod: string, body?: any, search?: any): Observable<T> {
-        var baseUrl = this.baseUrl;
+        var baseUrl = this.baseUrl || "";
         var httpClient = this.httpClient;
         if (baseUrl.endsWith('/')) { baseUrl = baseUrl.substr(0, baseUrl.length - 1); }
         var url = `${baseUrl}/${this.api}/${action}`;
@@ -55,6 +55,8 @@ export class WebApiClient {
         if (search) {
             var params = new HttpParams();
             for (var p in search) {
+                var val = search[p];
+                if (val === undefined) { continue; }
                 params = params.set(p, search[p]);
             }
             options.params = params;

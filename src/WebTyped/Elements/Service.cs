@@ -50,7 +50,7 @@ namespace WebTyped {
 					break;
 				case ServiceMode.Angular:
 				default:
-					sb.AppendLine("import { Injectable, Inject, forwardRef } from '@angular/core';");
+					sb.AppendLine("import { Injectable, Inject, forwardRef, Optional } from '@angular/core';");
 					sb.AppendLine("import { HttpClient } from '@angular/common/http';");
 					sb.AppendLine("import { WebApiClient, WebApiEventEmmiterService } from '@guimabdo/webtyped-angular';");
 					sb.AppendLine("import { Observable } from 'rxjs';");
@@ -60,7 +60,7 @@ namespace WebTyped {
 			var routeAttr = TypeSymbol.GetAttributes().FirstOrDefault(a => a.AttributeClass.Name == "Route" || a.AttributeClass.Name.ToString() == "RoutePrefix");
 
 			var arg = (routeAttr.ApplicationSyntaxReference.GetSyntax() as AttributeSyntax).ArgumentList.Arguments[0].ToString().Replace("\"", "");
-			var path = arg.Replace("[controller]", ControllerName);
+			var path = arg.Replace("[controller]", ControllerName.ToCamelCase());
 			int level = 0;
 			switch (Options.ServiceMode) {
 				case ServiceMode.Angular:
@@ -70,7 +70,7 @@ namespace WebTyped {
 			sb.AppendLine(level, $"export class {ClassName} extends WebApiClient {{");
 			switch (Options.ServiceMode) {
 				case ServiceMode.Angular:
-					sb.AppendLine(level, $"	constructor(@Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebApiEventEmmiterService)) eventEmmiter: WebApiEventEmmiterService) {{");
+					sb.AppendLine(level, $"	constructor(@Optional() @Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebApiEventEmmiterService)) eventEmmiter: WebApiEventEmmiterService) {{");
 					sb.AppendLine(level, $@"		super(baseUrl, ""{path}"", httpClient, eventEmmiter);");
 					break;
 				case ServiceMode.Fetch:
@@ -86,6 +86,8 @@ namespace WebTyped {
 					//subClasses.Add(m as INamedTypeSymbol);
 					continue;
 				}
+				if(m.DeclaredAccessibility != Accessibility.Public) { continue; }
+				if (m.IsStatic) { continue; }
 				if (m.Kind != SymbolKind.Method) { continue; }
 				if (m.IsImplicitlyDeclared) { continue; }
 				if (!m.IsDefinition) { continue; }
@@ -104,7 +106,7 @@ namespace WebTyped {
 				if (mtd.Name.StartsWith("Put")) { httpMethod = "Put"; }
 				if (mtd.Name.StartsWith("Delete")) { httpMethod = "Delete"; }
 				if (mtd.Name.StartsWith("Patch")) { httpMethod = "Patch"; }
-
+				var methodName = mtd.Name.ToCamelCase();
 				var httpAttr = mtdAttrs.FirstOrDefault(a => a.AttributeClass.Name.StartsWith("Http"));
 				var routeMethodAttr = mtdAttrs.FirstOrDefault(a => a.AttributeClass.Name.StartsWith("Route"));
 				//If has Http attribute
@@ -125,7 +127,7 @@ namespace WebTyped {
 				}
 				//Replace route variables
 				action = action
-					.Replace("[action]", m.Name)
+					.Replace("[action]", methodName)
 					.Replace("{", "${");
 
 				
@@ -153,7 +155,7 @@ namespace WebTyped {
 
 				//Resolve parameters
 				var strParameters = string.Join(", ",
-					allParameters.Select(p => $"{p.Name}: {TypeResolver.Resolve(p.Type as INamedTypeSymbol)}")
+					allParameters.Select(p => $"{p.Name}{(p.IsOptional ? "?" : "")}: {TypeResolver.Resolve(p.Type)}" + (TypeResolver.IsNullable(p.Type) ? " | null" : ""))
 				);
 
 				//if(pendingParameters.Any() && bodyParam == "null" && new string[] {
@@ -168,9 +170,9 @@ namespace WebTyped {
 					case ServiceMode.Fetch: genericReturnType = "Promise"; break;
 					case ServiceMode.Angular:default: genericReturnType = "Observable"; break;
 				}
-				sb.AppendLine(level + 1, $"{m.Name} = ({strParameters}) : {genericReturnType}<{returnType}> => {{");
+				sb.AppendLine(level + 1, $"{methodName} = ({strParameters}) : {genericReturnType}<{returnType}> => {{");
 				sb.AppendLine(level + 2, $"return this.invoke{httpMethod}<{returnType}>({{");
-				sb.AppendLine(level + 4, $"func: this.{m.Name},");
+				sb.AppendLine(level + 4, $"func: this.{methodName},");
 				sb.AppendLine(level + 4, $"parameters: {{ {string.Join(", ", allParameters.Select(p => p.Name))} }}");
 				sb.AppendLine(level + 3, "},");
 				sb.AppendLine(level + 3, $"`{action}`,");
