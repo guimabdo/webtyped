@@ -23,5 +23,10 @@ declare namespace WebTypedPlugin {
          * Clear all .ts files from output dir that are note generated
          */
         clear: boolean;
+
+        /**
+         * Keep case properties for models
+         */
+        keepPropsCase: boolean;
     }
 }

@@ -22,8 +22,11 @@ namespace WebTyped {
 				sb.AppendLine($"declare module {Module} {{");
 				level++;
 			}
-
-			sb.AppendLine(level, $"{(hasModule ? "" : "declare ")}interface {TypeSymbol.Name} {{");
+			string inheritance = "";
+			if(TypeSymbol.BaseType != null && TypeSymbol.BaseType.SpecialType != SpecialType.System_Object) {
+				inheritance = $"extends {TypeResolver.Resolve(TypeSymbol.BaseType)} ";
+			}
+			sb.AppendLine(level, $"{(hasModule ? "" : "declare ")}interface {TypeSymbol.Name} {inheritance}{{");
 			foreach (var m in TypeSymbol.GetMembers()) {
 				if (m.Kind == SymbolKind.NamedType) {
 					subClasses.Add(m as INamedTypeSymbol);
@@ -33,7 +36,7 @@ namespace WebTyped {
 				if (m.DeclaredAccessibility != Accessibility.Public) { continue; }
 				var prop = m as IPropertySymbol;
 				var isNullable = TypeResolver.IsNullable(prop.Type);
-				var name = m.Name.ToCamelCase();
+				var name = Options.KeepPropsCase ? m.Name : m.Name.ToCamelCase();
 				sb.AppendLine(level + 1, $"{name}{(isNullable ? "?":"")}: {TypeResolver.Resolve(prop.Type)};");
 			}
 			sb.AppendLine(level, "}");

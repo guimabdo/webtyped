@@ -8,7 +8,8 @@ var generate = function (options, callback) {
 `${options.trim.map(t => "-t " + t).join(" ")}` + 
 (options.clear ? " -c" : "") + " " +
 (options.serviceMode ? `-sm ${options.serviceMode}` : "") + " " +
-(options.baseModule ? `-bm ${options.baseModule}` : "") + " ";
+(options.baseModule ? `-bm ${options.baseModule}` : "") + " " +
+        (options.keepPropsCase ? " --keepPropsCase" : "");
     var e = exec(cmd, err => {
         if (callback) {
             callback();

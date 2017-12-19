@@ -90,6 +90,9 @@ namespace WebTyped {
 				}
 				//return $"{tsTypeName}{(string.IsNullOrEmpty(genericPart) ? "" : $"")}";
 			}
+			if(tsTypeName == "Array" && string.IsNullOrWhiteSpace(genericPart)) {
+				genericPart = "<any>";
+			}
 			return $"{tsTypeName}{genericPart}";
 		}
 		public bool IsNullable(ITypeSymbol t) {

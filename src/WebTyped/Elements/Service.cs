@@ -80,7 +80,7 @@ namespace WebTyped {
 					break;
 			}
 			sb.AppendLine(level, "	}");
-
+			var existingMethods = new Dictionary<string, int>();
 			foreach (var m in TypeSymbol.GetMembers()) {
 				if (m.Kind == SymbolKind.NamedType) {
 					//subClasses.Add(m as INamedTypeSymbol);
@@ -107,6 +107,12 @@ namespace WebTyped {
 				if (mtd.Name.StartsWith("Delete")) { httpMethod = "Delete"; }
 				if (mtd.Name.StartsWith("Patch")) { httpMethod = "Patch"; }
 				var methodName = mtd.Name.ToCamelCase();
+				if (existingMethods.ContainsKey(methodName)) {
+					existingMethods[methodName]++;
+					methodName = $"{methodName}_{existingMethods[methodName]}";
+				} else {
+					existingMethods.Add(methodName, 0);
+				}
 				var httpAttr = mtdAttrs.FirstOrDefault(a => a.AttributeClass.Name.StartsWith("Http"));
 				var routeMethodAttr = mtdAttrs.FirstOrDefault(a => a.AttributeClass.Name.StartsWith("Route"));
 				//If has Http attribute

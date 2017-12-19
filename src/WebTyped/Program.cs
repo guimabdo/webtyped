@@ -31,6 +31,7 @@ namespace WebTyped {
 				var clear = target.Option("-c | --clear", "Clears folder", CommandOptionType.NoValue);
 				var serviceMode = target.Option("-sm | --serviceMode", "Http connection fmwork (angular, jquery, fetch)", CommandOptionType.SingleValue);
 				var baseModule = target.Option("-bm | --baseModule", "Base module for your types", CommandOptionType.SingleValue);
+				var keepPropsCase = target.Option("--keepPropsCase", "Keep properties case", CommandOptionType.NoValue);
 
 				target.HelpOption("-?|-h|--help");
 				target.OnExecute(async () => {
@@ -82,7 +83,7 @@ namespace WebTyped {
 						}
 					}
 
-					var options = new Options(outDir.Value(), clear.HasValue(), svModeEnum, trims.Values, baseModule.Value());
+					var options = new Options(outDir.Value(), clear.HasValue(), svModeEnum, trims.Values, baseModule.Value(), keepPropsCase.HasValue());
 					var typeResolver = new TypeResolver(options);
 
 					//1330ms
