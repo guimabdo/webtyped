@@ -1,5 +1,5 @@
 ﻿import { HttpClient, HttpParams } from '@angular/common/http';
-import { WebApiEventEmmiterService } from './';
+import { WebApiEventEmitterService } from './';
 import { Observable } from 'rxjs';
 import { WebApiCallInfo } from '@guimabdo/webtyped-common';
 export class WebApiClient {
@@ -8,7 +8,7 @@ export class WebApiClient {
         private baseUrl: string,
         private api: string,
         private httpClient: HttpClient,
-        private eventEmmiter: WebApiEventEmmiterService) { }
+        private eventEmitter: WebApiEventEmitterService) { }
 
     invokeGet<T>(info: WebApiCallInfo, action: string, search?: any): Observable<T> {
         return this.invoke(info, action, 'get', null, search);
@@ -90,9 +90,9 @@ export class WebApiClient {
                 break;
         }
 
-        var coreObs = httpObservable //Emmit completed event
+        var coreObs = httpObservable //Emit completed event
             .do(() => {
-                this.eventEmmiter.emit(info);
+                this.eventEmitter.emit(info);
             },
             r => {
                 

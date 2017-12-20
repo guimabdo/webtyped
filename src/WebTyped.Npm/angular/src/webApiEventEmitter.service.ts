@@ -2,7 +2,7 @@
 import { Observable, Subject } from 'rxjs';
 import { WebApiCallInfo } from '@guimabdo/webtyped-common';
 @Injectable()
-export class WebApiEventEmmiterService {
+export class WebApiEventEmitterService {
     private _eventBus: Subject<WebApiCallInfo> = new Subject<WebApiCallInfo>();
     constructor() { }
 

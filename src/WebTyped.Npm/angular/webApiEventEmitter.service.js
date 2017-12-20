@@ -8,8 +8,8 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
 var rxjs_1 = require("rxjs");
-var WebApiEventEmmiterService = (function () {
-    function WebApiEventEmmiterService() {
+var WebApiEventEmitterService = (function () {
+    function WebApiEventEmitterService() {
         var _this = this;
         this._eventBus = new rxjs_1.Subject();
         this.on = function (f) {
@@ -22,10 +22,10 @@ var WebApiEventEmmiterService = (function () {
             _this._eventBus.next(info);
         };
     }
-    WebApiEventEmmiterService = __decorate([
+    WebApiEventEmitterService = __decorate([
         core_1.Injectable()
-    ], WebApiEventEmmiterService);
-    return WebApiEventEmmiterService;
+    ], WebApiEventEmitterService);
+    return WebApiEventEmitterService;
 }());
-exports.WebApiEventEmmiterService = WebApiEventEmmiterService;
-//# sourceMappingURL=webApiEventEmmiter.service.js.map
+exports.WebApiEventEmitterService = WebApiEventEmitterService;
+//# sourceMappingURL=webApiEventEmitter.service.js.map

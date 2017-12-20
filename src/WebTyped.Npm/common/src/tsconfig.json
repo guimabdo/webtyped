@@ -9,28 +9,21 @@
   //  "noImplicitThis": true,
   //  "suppressImplicitAnyIndexErrors": true,
   //  "moduleResolution": "node",
-  //  "module": "es2015",
   //  "experimentalDecorators": true,
   //  "target": "es5",
   //  "outDir": "../",
   //  "lib": [ "es6", "dom" ]
   //},
-  //"files": [
-  //  "jquery.d.ts",
-  //  "index.ts"
+  //"formatCodeOptions": {
+  //  "indentSize": 2,
+  //  "tabSize": 2
+  //},
+
+  //"include": [
+  //  "src/**/*"
   //]
-  //"compilerOptions": {
-  //  "target": "es5",
-  //  "experimentalDecorators": true,
-  //  "emitDecoratorMetadata": true,
-  //  "lib": [
-  //    "es2015",
-  //    "dom"
-  //  ]
-  //}
   "compilerOptions": {
     "target": "es5",
-    "moduleResolution": "node",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "outDir": "../",
@@ -41,4 +34,7 @@
     ]
   },
   "files": [ "index.ts" ]
+  //"include": [
+  //  "**/*"
+  //]
 }

@@ -1,6 +1,6 @@
 ﻿import './webApiClient';
 import './webApiInterceptor';
-import './webApiEventEmmiter.service';
+import './webApiEventEmitter.service';
 export * from './webApiClient';
-export * from './webApiEventEmmiter.service';
+export * from './webApiEventEmitter.service';
 export * from './webApiInterceptor';

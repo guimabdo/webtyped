@@ -2,11 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var http_1 = require("@angular/common/http");
 var WebApiClient = (function () {
-    function WebApiClient(baseUrl, api, httpClient, eventEmmiter) {
+    function WebApiClient(baseUrl, api, httpClient, eventEmitter) {
         this.baseUrl = baseUrl;
         this.api = api;
         this.httpClient = httpClient;
-        this.eventEmmiter = eventEmmiter;
+        this.eventEmitter = eventEmitter;
     }
     WebApiClient.prototype.invokeGet = function (info, action, search) {
         return this.invoke(info, action, 'get', null, search);
@@ -87,9 +87,9 @@ var WebApiClient = (function () {
                 httpObservable = httpClient.post(url, body, options);
                 break;
         }
-        var coreObs = httpObservable //Emmit completed event
+        var coreObs = httpObservable //Emit completed event
             .do(function () {
-            _this.eventEmmiter.emit(info);
+            _this.eventEmitter.emit(info);
         }, function (r) {
         });
         return coreObs;

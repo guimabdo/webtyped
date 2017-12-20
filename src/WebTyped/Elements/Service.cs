@@ -43,16 +43,16 @@ namespace WebTyped {
 			var sb = new StringBuilder();
 			switch (Options.ServiceMode) {
 				case ServiceMode.Jquery:
-					sb.AppendLine("import { WebApiClient } from '@guimabdo/webtyped-jquery';");
+					sb.AppendLine("import { WebTypedClient } from '@guimabdo/webtyped-jquery';");
 					break;
 				case ServiceMode.Fetch:
-					sb.AppendLine("import { WebApiClient } from '@guimabdo/webtyped-fetch';");
+					sb.AppendLine("import { WebTypedClient } from '@guimabdo/webtyped-fetch';");
 					break;
 				case ServiceMode.Angular:
 				default:
 					sb.AppendLine("import { Injectable, Inject, forwardRef, Optional } from '@angular/core';");
 					sb.AppendLine("import { HttpClient } from '@angular/common/http';");
-					sb.AppendLine("import { WebApiClient, WebApiEventEmmiterService } from '@guimabdo/webtyped-angular';");
+					sb.AppendLine("import { WebTypedClient, WebTypedEventEmitterService } from '@guimabdo/webtyped-angular';");
 					sb.AppendLine("import { Observable } from 'rxjs';");
 					break;
 			}
@@ -67,15 +67,15 @@ namespace WebTyped {
 					sb.AppendLine(level, "@Injectable()");
 					break;
 			}
-			sb.AppendLine(level, $"export class {ClassName} extends WebApiClient {{");
+			sb.AppendLine(level, $"export class {ClassName} extends WebTypedClient {{");
 			switch (Options.ServiceMode) {
 				case ServiceMode.Angular:
-					sb.AppendLine(level, $"	constructor(@Optional() @Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebApiEventEmmiterService)) eventEmmiter: WebApiEventEmmiterService) {{");
-					sb.AppendLine(level, $@"		super(baseUrl, ""{path}"", httpClient, eventEmmiter);");
+					sb.AppendLine(level, $"	constructor(@Optional() @Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebTypedEventEmitterService)) eventEmitter: WebApiEventEmitterService) {{");
+					sb.AppendLine(level, $@"		super(baseUrl, ""{path}"", httpClient, eventEmitter);");
 					break;
 				case ServiceMode.Fetch:
 				case ServiceMode.Jquery:
-					sb.AppendLine(level, $@"	constructor(baseUrl: string = WebApiClient.baseUrl) {{");
+					sb.AppendLine(level, $@"	constructor(baseUrl: string = WebTypedClient.baseUrl) {{");
 					sb.AppendLine(level, $@"		super(baseUrl, ""{path}"");");
 					break;
 			}

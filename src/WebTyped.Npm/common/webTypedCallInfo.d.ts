@@ -1,4 +1,4 @@
-export interface WebApiCallInfo {
+export interface WebTypedCallInfo {
     func: Function;
     parameters: any;
 }

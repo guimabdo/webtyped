@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
 import { WebApiCallInfo } from '@guimabdo/webtyped-common';
-export declare class WebApiEventEmmiterService {
+export declare class WebApiEventEmitterService {
     private _eventBus;
     constructor();
     on: (f: Function) => Observable<WebApiCallInfo>;
