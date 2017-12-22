@@ -9,10 +9,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var http_1 = require("@angular/common/http");
 var core_1 = require("@angular/core");
 var Observable_1 = require("rxjs/Observable");
-var WebApiInterceptor = (function () {
-    function WebApiInterceptor() {
+var WebTypedInterceptor = (function () {
+    function WebTypedInterceptor() {
     }
-    WebApiInterceptor.prototype.intercept = function (req, next) {
+    WebTypedInterceptor.prototype.intercept = function (req, next) {
         var body = req.body;
         //Stringify strings
         if ((typeof body) === "string") {
@@ -53,10 +53,10 @@ var WebApiInterceptor = (function () {
             return Observable_1.Observable.throw(new http_1.HttpErrorResponse(parsedError));
         });
     };
-    WebApiInterceptor = __decorate([
+    WebTypedInterceptor = __decorate([
         core_1.Injectable()
-    ], WebApiInterceptor);
-    return WebApiInterceptor;
+    ], WebTypedInterceptor);
+    return WebTypedInterceptor;
 }());
-exports.WebApiInterceptor = WebApiInterceptor;
-//# sourceMappingURL=webApiInterceptor.js.map
+exports.WebTypedInterceptor = WebTypedInterceptor;
+//# sourceMappingURL=webTypedInterceptor.js.map

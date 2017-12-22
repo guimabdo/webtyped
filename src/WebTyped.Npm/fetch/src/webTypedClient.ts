@@ -1,30 +1,30 @@
-﻿import { WebApiCallInfo } from '@guimabdo/webtyped-common';
+﻿import { WebTypedCallInfo, WebTypedEventEmitter } from '@guimabdo/webtyped-common';
 let param = require('jquery-param');
-export class WebApiClient {
+export class WebTypedClient {
     //Global setting
     public static baseUrl: string = null;
     public static api: string = null;
-    constructor(private baseUrl: string = WebApiClient.baseUrl,
-        private api: string = WebApiClient.api) {
+    constructor(private baseUrl: string = WebTypedClient.baseUrl,
+        private api: string = WebTypedClient.api) {
         this.baseUrl = this.baseUrl || "/";
         this.api = this.api || "";
     }
-    invokeGet<T>(info: WebApiCallInfo, action: string, search?: any): Promise<T> {
+    invokeGet<T>(info: WebTypedCallInfo, action: string, search?: any): Promise<T> {
         return this.invoke(info, action, 'get', null, search);
     }
-    invokePatch<T>(info: WebApiCallInfo, action: string, body?: any, search?: any): Promise<T> {
+    invokePatch<T>(info: WebTypedCallInfo, action: string, body?: any, search?: any): Promise<T> {
         return this.invoke(info, action, 'patch', body, search);
     }
-    invokePost<T>(info: WebApiCallInfo, action: string, body?: any, search?: any): Promise<T> {
+    invokePost<T>(info: WebTypedCallInfo, action: string, body?: any, search?: any): Promise<T> {
         return this.invoke(info, action, 'post', body, search);
     }
-    invokePut<T>(info: WebApiCallInfo, action: string, body?: any, search?: any): Promise<T> {
+    invokePut<T>(info: WebTypedCallInfo, action: string, body?: any, search?: any): Promise<T> {
         return this.invoke(info, action, 'put', body, search);
     }
-    invokeDelete<T>(info: WebApiCallInfo, action: string, search?: any): Promise<T> {
+    invokeDelete<T>(info: WebTypedCallInfo, action: string, search?: any): Promise<T> {
         return this.invoke(info, action, 'delete', null, search);
     }
-    private invoke<T>(info: WebApiCallInfo, action: string,
+    private invoke<T>(info: WebTypedCallInfo, action: string,
         httpMethod: string, body?: any, search?: any): Promise<T> {
         if (typeof (fetch) === 'undefined') { return Promise.resolve<T>(null); }
         var baseUrl = this.baseUrl;
@@ -46,7 +46,11 @@ export class WebApiClient {
             })
         });
         var promise = new Promise<T>((resolve, reject) => {
-            req.then(r => resolve(r.json()), reason => reject(reason));
+            req.then(r => {
+                resolve(r.json());
+                var anyWebTyped = <any>WebTypedEventEmitter;
+                anyWebTyped.single.emit(info);
+            }, reason => reject(reason));
         });
         return promise;
     }

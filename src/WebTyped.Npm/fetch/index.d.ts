@@ -1,2 +1,2 @@
-import './webApiClient';
-export * from './webApiClient';
+import './webTypedClient';
+export * from './webTypedClient';

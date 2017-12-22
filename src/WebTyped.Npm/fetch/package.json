@@ -1,6 +1,6 @@
 {
   "name": "@guimabdo/webtyped-fetch",
-  "version": "0.15.0",
+  "version": "0.16.0",
   "description": "WebTyped fetch",
   "author": {
     "name": "guimabdo"
@@ -9,7 +9,7 @@
     "jquery-param": "0.2.0"
   },
   "peerDependencies": {
-    "@guimabdo/webtyped-common": "^0.15.0"
+    "@guimabdo/webtyped-common": "0.16.2"
   },
   "devDependencies": {
     "@types/jquery-param": "1.0.2"

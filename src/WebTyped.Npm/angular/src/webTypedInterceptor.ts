@@ -2,7 +2,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 @Injectable()
-export class WebApiInterceptor implements HttpInterceptor {
+export class WebTypedInterceptor implements HttpInterceptor {
     constructor() { }
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
