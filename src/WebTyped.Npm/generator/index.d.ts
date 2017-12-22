@@ -7,7 +7,7 @@ declare namespace WebTypedPlugin {
         /**
          * Csharp source files (models and controllers)
          */
-        sourceFiles: [];
+        sourceFiles: Array<string>;
 
         /**
          * Output directory
@@ -17,12 +17,16 @@ declare namespace WebTypedPlugin {
         /**
         * Starting names for trimming modules
         */
-        trim: [];
+        trim: Array<string>;
         
         /**
          * Clear all .ts files from output dir that are note generated
          */
         clear: boolean;
+
+        serviceMode: "angular" | "jquery" | "fetch";
+
+        baseModule: string;
 
         /**
          * Keep case properties for models
@@ -30,3 +34,7 @@ declare namespace WebTypedPlugin {
         keepPropsCase: boolean;
     }
 }
+
+export = {
+    WebTypedPlugin: WebTypedPlugin
+};

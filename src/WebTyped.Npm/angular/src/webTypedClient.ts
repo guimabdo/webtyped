@@ -2,7 +2,7 @@
 import { WebTypedEventEmitterService } from './';
 import { Observable } from 'rxjs';
 import { WebTypedCallInfo } from '@guimabdo/webtyped-common';
-export class WebApiClient {
+export class WebTypedClient {
 
     constructor(
         private baseUrl: string,

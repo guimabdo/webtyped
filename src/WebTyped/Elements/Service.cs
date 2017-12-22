@@ -70,7 +70,7 @@ namespace WebTyped {
 			sb.AppendLine(level, $"export class {ClassName} extends WebTypedClient {{");
 			switch (Options.ServiceMode) {
 				case ServiceMode.Angular:
-					sb.AppendLine(level, $"	constructor(@Optional() @Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebTypedEventEmitterService)) eventEmitter: WebApiEventEmitterService) {{");
+					sb.AppendLine(level, $"	constructor(@Optional() @Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebTypedEventEmitterService)) eventEmitter: WebTypedEventEmitterService) {{");
 					sb.AppendLine(level, $@"		super(baseUrl, ""{path}"", httpClient, eventEmitter);");
 					break;
 				case ServiceMode.Fetch:

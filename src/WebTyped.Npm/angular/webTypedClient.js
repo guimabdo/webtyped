@@ -1,29 +1,29 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var http_1 = require("@angular/common/http");
-var WebApiClient = (function () {
-    function WebApiClient(baseUrl, api, httpClient, eventEmitter) {
+var WebTypedClient = (function () {
+    function WebTypedClient(baseUrl, api, httpClient, eventEmitter) {
         this.baseUrl = baseUrl;
         this.api = api;
         this.httpClient = httpClient;
         this.eventEmitter = eventEmitter;
     }
-    WebApiClient.prototype.invokeGet = function (info, action, search) {
+    WebTypedClient.prototype.invokeGet = function (info, action, search) {
         return this.invoke(info, action, 'get', null, search);
     };
-    WebApiClient.prototype.invokePatch = function (info, action, body, search) {
+    WebTypedClient.prototype.invokePatch = function (info, action, body, search) {
         return this.invoke(info, action, 'patch', body, search);
     };
-    WebApiClient.prototype.invokePost = function (info, action, body, search) {
+    WebTypedClient.prototype.invokePost = function (info, action, body, search) {
         return this.invoke(info, action, 'post', body, search);
     };
-    WebApiClient.prototype.invokePut = function (info, action, body, search) {
+    WebTypedClient.prototype.invokePut = function (info, action, body, search) {
         return this.invoke(info, action, 'put', body, search);
     };
-    WebApiClient.prototype.invokeDelete = function (info, action, search) {
+    WebTypedClient.prototype.invokeDelete = function (info, action, search) {
         return this.invoke(info, action, 'delete', null, search);
     };
-    WebApiClient.prototype.invoke = function (info, action, httpMethod, body, search) {
+    WebTypedClient.prototype.invoke = function (info, action, httpMethod, body, search) {
         var _this = this;
         var baseUrl = this.baseUrl || "";
         var httpClient = this.httpClient;
@@ -94,7 +94,7 @@ var WebApiClient = (function () {
         });
         return coreObs;
     };
-    return WebApiClient;
+    return WebTypedClient;
 }());
-exports.WebApiClient = WebApiClient;
+exports.WebTypedClient = WebTypedClient;
 //# sourceMappingURL=webTypedClient.js.map

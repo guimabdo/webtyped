@@ -173,7 +173,7 @@ namespace WebTyped {
 			if (Options.ServiceMode == ServiceMode.Angular) {
 				sbRootIndex.AppendLine("import { NgModule } from '@angular/core';");
 				sbRootIndex.AppendLine("import { HttpClientModule } from '@angular/common/http';");
-				sbRootIndex.AppendLine("import { WebTypedEventEmmiterService } from '@guimabdo/webtyped-angular';");
+				sbRootIndex.AppendLine("import { WebTypedEventEmitterService } from '@guimabdo/webtyped-angular';");
 			}
 
 			//Create index for each module folder
@@ -183,7 +183,6 @@ namespace WebTyped {
 				.OrderBy(g => g.Key);
 			var counter = 0;
 			var services = new List<string>();
-			//services.Add("WebApiEventEmmiterService");
 			foreach (var sm in serviceModules) {
 				sbRootIndex.AppendLine($"import * as mdl{counter} from './{sm.Key.ToCamelCase()}'");
 				var sbServiceIndex = string.IsNullOrEmpty(sm.Key) ? sbRootIndex : new StringBuilder();
@@ -208,7 +207,7 @@ namespace WebTyped {
 				sbRootIndex.AppendLine("@NgModule({");
 				sbRootIndex.AppendLine(1, "imports: [ HttpClientModule ],");
 				sbRootIndex.AppendLine(1, "providers: [");
-				sbRootIndex.AppendLine(2, "WebTypedEventEmmiterService,");
+				sbRootIndex.AppendLine(2, "WebTypedEventEmitterService,");
 				sbRootIndex.AppendLine(2, "...serviceTypes");
 				sbRootIndex.AppendLine(1, "]");
 				sbRootIndex.AppendLine("})");

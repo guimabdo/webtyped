@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { WebTypedEventEmitterService } from './';
 import { Observable } from 'rxjs';
 import { WebTypedCallInfo } from '@guimabdo/webtyped-common';
-export declare class WebApiClient {
+export declare class WebTypedClient {
     private baseUrl;
     private api;
     private httpClient;
