@@ -1,6 +1,6 @@
 {
   "name": "@guimabdo/webtyped-generator",
-  "version": "0.16.4",
+  "version": "0.16.5",
   "description": "WebTyped",
   "main": "./index.js",
   "types": "./index.d.ts",

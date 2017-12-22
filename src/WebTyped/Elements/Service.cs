@@ -209,7 +209,7 @@ namespace WebTyped {
 			//}
 			var dir = Options.OutDir;
 			if (!string.IsNullOrEmpty(Module)) {
-				dir = Path.Combine(Options.OutDir, Module);
+				dir = Path.Combine(Options.OutDir, Module.ToCamelCase());
 				Directory.CreateDirectory(dir);
 			}
 			var file = Path.Combine(dir, Filename);

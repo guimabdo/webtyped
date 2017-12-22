@@ -171,7 +171,7 @@ namespace WebTyped {
 			//Create root index
 			var sbRootIndex = new StringBuilder();
 			if (Options.ServiceMode == ServiceMode.Angular) {
-				sbRootIndex.AppendLine("import { NgModule } from '@angular/core';");
+				sbRootIndex.AppendLine("import { NgModule, ModuleWithProviders } from '@angular/core';");
 				sbRootIndex.AppendLine("import { HttpClientModule } from '@angular/common/http';");
 				sbRootIndex.AppendLine("import { WebTypedEventEmitterService } from '@guimabdo/webtyped-angular';");
 			}
@@ -204,14 +204,28 @@ namespace WebTyped {
 			sbRootIndex.AppendLine(1, string.Join($",{System.Environment.NewLine}	", services));
 			sbRootIndex.AppendLine("]");
 			if (Options.ServiceMode == ServiceMode.Angular) {
+				//sbRootIndex.AppendLine("@NgModule({");
+				//sbRootIndex.AppendLine(1, "imports: [ HttpClientModule ],");
+				//sbRootIndex.AppendLine(1, "providers: [");
+				//sbRootIndex.AppendLine(2, "WebTypedEventEmitterService,");
+				//sbRootIndex.AppendLine(2, "...serviceTypes");
+				//sbRootIndex.AppendLine(1, "]");
+				//sbRootIndex.AppendLine("})");
+				//sbRootIndex.AppendLine("export class WebTypedGeneratedModule {}");
 				sbRootIndex.AppendLine("@NgModule({");
-				sbRootIndex.AppendLine(1, "imports: [ HttpClientModule ],");
-				sbRootIndex.AppendLine(1, "providers: [");
-				sbRootIndex.AppendLine(2, "WebTypedEventEmitterService,");
-				sbRootIndex.AppendLine(2, "...serviceTypes");
-				sbRootIndex.AppendLine(1, "]");
+				sbRootIndex.AppendLine(1, "imports: [ HttpClientModule ]");
 				sbRootIndex.AppendLine("})");
-				sbRootIndex.AppendLine("export class WebTypedGeneratedModule {}");
+				sbRootIndex.AppendLine("export class WebTypedGeneratedModule {");
+				sbRootIndex.AppendLine(1, "static forRoot(): ModuleWithProviders {");
+				sbRootIndex.AppendLine(2, "return {");
+				sbRootIndex.AppendLine(3, "ngModule: WebTypedGeneratedModule,");
+				sbRootIndex.AppendLine(3, "providers: [");
+				sbRootIndex.AppendLine(4, "WebTypedEventEmitterService,");
+				sbRootIndex.AppendLine(4, "...serviceTypes");
+				sbRootIndex.AppendLine(3, "]");
+				sbRootIndex.AppendLine(2, "};");
+				sbRootIndex.AppendLine(1, "}");
+				sbRootIndex.AppendLine("}");
 			}
 
 			var rootIndexFile = Path.Combine(Options.OutDir, "index.ts");
