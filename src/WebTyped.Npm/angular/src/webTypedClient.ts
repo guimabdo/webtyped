@@ -57,7 +57,8 @@ export class WebTypedClient {
             for (var p in search) {
                 var val = search[p];
                 if (val === undefined) { continue; }
-                params = params.set(p, search[p]);
+                if (val === null) { val = ""; }
+                params = params.set(p, val);
             }
             options.params = params;
         }

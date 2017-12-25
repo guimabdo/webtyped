@@ -55,7 +55,10 @@ var WebTypedClient = (function () {
                 if (val === undefined) {
                     continue;
                 }
-                params = params.set(p, search[p]);
+                if (val === null) {
+                    val = "";
+                }
+                params = params.set(p, val);
             }
             options.params = params;
         }
