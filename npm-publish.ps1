@@ -2,6 +2,8 @@
 $version = $env:APPVEYOR_BUILD_VERSION;
 $vMessage = "version: $version"
 Write-Host $vMessage
+Write-Host "showing npm v"
+npm -v
 set-location ./src/WebTyped.Npm/common
 npm version $version -m $vMessage
 npm publish
