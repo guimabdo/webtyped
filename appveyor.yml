@@ -37,6 +37,6 @@ build_script:
   - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/jquery/src
   - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/angular/src
 after_build:
-
+test: off
 deploy_script:
-  - ps: npm-publish.ps
+  - ps: ./npm-publish.ps1
