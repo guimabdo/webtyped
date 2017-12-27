@@ -6,16 +6,21 @@ Write-Host "showing npm v"
 npm -v
 set-location ./src/WebTyped.Npm/common
 npm version $version -m $vMessage
+npm pack
 npm publish
 set-location ../fetch
 npm version $version -m $vMessage
+npm pack
 npm publish
 set-location ../jquery
 npm version $version -m $vMessage
+npm pack
 npm publish
 set-location ../angular
 npm version $version -m $vMessage
+npm pack
 npm publish
 set-location ../common
 npm version $version -m $vMessage
+npm pack
 npm publish
