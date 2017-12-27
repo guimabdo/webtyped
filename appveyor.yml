@@ -16,6 +16,7 @@ init:
   # Install scripts. (runs after repo cloning)
 install:
   - npm install
+  - npm install @types/node --save-dev
 before_build:
   # Display .NET Core version
   - cmd: dotnet --version
