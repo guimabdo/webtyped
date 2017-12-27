@@ -47,9 +47,7 @@ export class WebTypedClient {
 
         //Creating options
         var options: { params: undefined | HttpParams } = {
-            //headers: headers,
             params: undefined
-            //withCredentials: true //Cross-domain support? -- with new HttClient, I think this kind of things should be managed with interceptors
         };
 
         if (search) {
@@ -58,19 +56,17 @@ export class WebTypedClient {
                 var val = search[p];
                 if (val === undefined) { continue; }
                 if (val === null) { val = ""; }
-                params = params.set(p, val);
+                if (Array.isArray(val)) {
+                    for (var i = 0; i < val.length; i++) {
+                        params = params.append(p, val[i]);
+                    }
+                } else {
+                    params = params.set(p, val);
+                }
             }
             options.params = params;
         }
-        //var currentSearch = Object.assign({}, search);
-        ////Se tiver querystring
-        //if (currentSearch) {
-        //    var s: URLSearchParams = new URLSearchParams();
-        //    for (var p in currentSearch) {
-        //        s.set(p, currentSearch[p]);
-        //    }
-        //    options.search = s;
-        //}
+        
         var httpObservable: Observable<T>;
         switch (httpMethod) {
             case 'get':
