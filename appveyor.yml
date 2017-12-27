@@ -23,10 +23,10 @@ before_build:
   - cmd: dotnet restore ./src/WebTyped/WebTyped.csproj --verbosity m
 build_script:
   - cmd: dotnet build ./src/WebTyped -c Release -o ./src/WebTyped.Npm/generator/program
-  - tsc -p ./src/WebTyped.Npm/common/src
-  - tsc -p ./src/WebTyped.Npm/fetch/src
-  - tsc -p ./src/WebTyped.Npm/jquery/src
-  - tsc -p ./src/WebTyped.Npm/angular/src
+  - cmd: node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/common/src
+  - cmd: node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/fetch/src
+  - cmd: node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/jquery/src
+  - cmd: node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/angular/src
 after_build:
   - cmd: npm publish ./src/WebTyped.Npm/common/
   - cmd: npm publish ./src/WebTyped.Npm/fetch/
