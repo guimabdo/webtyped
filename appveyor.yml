@@ -14,7 +14,13 @@ init:
   # Good practise, because Windows line endings are different from Unix/Linux ones
   - cmd: git config --global core.autocrlf true
   # Install scripts. (runs after repo cloning)
+environment:
+  matrix:
+    - nodejs_version: STABLE
+      configuration: publish
+    - nodejs_version: LTS
 install:
+  - ps: Install-Product node $env:nodejs_version
   - npm install
   - npm install @types/node --save-dev
 before_build:
@@ -22,6 +28,8 @@ before_build:
   - cmd: dotnet --version
   # Display minimal restore text
   - cmd: dotnet restore ./src/WebTyped/WebTyped.csproj --verbosity m
+  - node --version
+  - npm --version
 build_script:
   - cmd: dotnet build ./src/WebTyped -c Release -o ./src/WebTyped.Npm/generator/program
   - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/common/src
@@ -29,9 +37,22 @@ build_script:
   - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/jquery/src
   - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/angular/src
 after_build:
-  - cmd: npm publish ./src/WebTyped.Npm/common/
-  - cmd: npm publish ./src/WebTyped.Npm/fetch/
-  - cmd: npm publish ./src/WebTyped.Npm/jquery/
-  - cmd: npm publish ./src/WebTyped.Npm/angular/
-  - cmd: npm publish ./src/WebTyped.Npm/generator/
-deploy:
+
+deploy_script:
+  - ps: |
+        "//registry.npmjs.org/:_authToken=$($ENV:npm_token)" | Out-File (Join-Path $ENV:APPVEYOR_BUILD_FOLDER ".npmrc") -Encoding UTF8
+        set-location ./src/WebTyped.Npm/common
+        npm version $ENV:version -m 'v$($ENV:version)'
+        npm publish
+        set-location ../fetch
+        npm version $ENV:version -m 'v$($ENV:version)'
+        npm publish
+        set-location ../jquery
+        npm version $ENV:version -m 'v$($ENV:version)'
+        npm publish
+        set-location ../angular
+        npm version $ENV:version -m 'v$($ENV:version)'
+        npm publish
+        set-location ../generator
+        npm version $ENV:version -m 'v$($ENV:version)'
+        npm publish
