@@ -40,3 +40,5 @@ after_build:
 test: off
 deploy_script:
   - ps: ./npm-publish.ps1
+  - ps: Write-Host "trying to log version"
+  - ps: Write-Host $env:version
