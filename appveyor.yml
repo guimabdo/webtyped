@@ -23,6 +23,15 @@ before_build:
   - cmd: dotnet restore ./src/WebTyped/WebTyped.csproj --verbosity m
 build_script:
   - cmd: dotnet build ./src/WebTyped -c Release -o ./src/WebTyped.Npm/generator/program
+  - cmd: tsc -p ./src/WebTyped.Npm/common/src
+  - cmd: tsc -p ./src/WebTyped.Npm/fetch/src
+  - cmd: tsc -p ./src/WebTyped.Npm/jquery/src
+  - cmd: tsc -p ./src/WebTyped.Npm/angular/src
 after_build:
   # For once the build has completed
 deploy:
+  - cmd: npm publish ./src/WebTyped.Npm/common/
+  - cmd: npm publish ./src/WebTyped.Npm/fetch/
+  - cmd: npm publish ./src/WebTyped.Npm/jquery/
+  - cmd: npm publish ./src/WebTyped.Npm/angular/
+  - cmd: npm publish ./src/WebTyped.Npm/generator/
