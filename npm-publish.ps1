@@ -1,6 +1,8 @@
 "//registry.npmjs.org/:_authToken=`$`{npm_token`}" | Out-File (Join-Path $ENV:APPVEYOR_BUILD_FOLDER ".npmrc") -Encoding UTF8
 $vMessage = "version: $env:version"
 Write-Host $vMessage
+Write-Host $env:version
+Write-Host $env:npm_token
 set-location ./src/WebTyped.Npm/common
 npm version $env:version -m 'v$($ENV:version)'
 npm publish
