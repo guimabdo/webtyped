@@ -1,6 +1,6 @@
 {
   "name": "@guimabdo/webtyped-angular",
-  "version": "0.16.3",
+  "version": "0.0.0",
   "description": "WebTyped Angular",
   "author": {
     "name": "guimabdo"
@@ -8,7 +8,9 @@
   "peerDependencies": {
     "rxjs": "^5.4.2",
     "@angular/core": "^4.3.0",
-    "@angular/common": "^4.3.0",
-    "@guimabdo/webtyped-common": "^0.16.2"
+    "@angular/common": "^4.3.0"
+  },
+  "dependencies": {
+    "@guimabdo/webtyped-common": "latest"
   }
 }

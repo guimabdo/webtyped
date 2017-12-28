@@ -1,12 +1,14 @@
 {
   "name": "@guimabdo/webtyped-jquery",
-  "version": "0.16.2",
+  "version": "0.0.0",
   "description": "WebTyped Jquery",
   "author": {
     "name": "guimabdo"
   },
   "peerDependencies": {
-    "@guimabdo/webtyped-common": "^0.16.2",
     "jquery": "^3.2.1"
+  },
+  "dependencies": {
+    "@guimabdo/webtyped-common": "latest"
   }
 }
