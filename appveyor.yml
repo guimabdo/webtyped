@@ -40,3 +40,6 @@ after_build:
 test: off
 deploy_script:
   - ps: ./npm-publish.ps1
+  - cd ./src/WebTyped.Npm/common 
+  - npm version %version% -m 'v%version%'
+  - npm publish
