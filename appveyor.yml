@@ -41,6 +41,18 @@ test: off
 deploy_script:
   - ps: '"//registry.npmjs.org/:_authToken=$env:npm_token`n" | out-file "$env:userprofile\.npmrc" -Encoding ASCII'
   - cd ./src/WebTyped.Npm/common 
-  - npm whoami
   - npm version %APPVEYOR_BUILD_VERSION% -m 'v%APPVEYOR_BUILD_VERSION%'
   - npm publish
+  - cd ../fetch
+  - npm version %version% -m 'v%version%'
+  - npm publish
+  - cd ../jquery
+  - npm version %version% -m 'v%version%'
+  - npm publish
+  - cd ../angular
+  - npm version %version% -m 'v%version%'
+  - npm publish
+  - cd ../generator
+  - npm version %version% -m 'v%version%'
+  - npm publish
+  - cd ../../../
