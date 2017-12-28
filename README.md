@@ -59,4 +59,6 @@ export class SomeComponent {
 }
 ```
 
+## Requirements
 
+netcore 2.0 on dev machine
