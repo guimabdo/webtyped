@@ -22,7 +22,7 @@ module.exports = {
 			  sourceFiles: [
 				   "./Controllers/Api/**/*.cs",
 				   "./Models/**/*.cs"],
-			  serviceMode: "fetch",
+			  serviceMode: "fetch", //or "jquery", or "angular"
 			  outDir: "./src/webtyped/",
 			  clear: true
 		})
