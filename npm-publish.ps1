@@ -5,7 +5,7 @@ $token = $env:npm_token
 npm whoami
 set-location ./src/WebTyped.Npm/common
 npm version $version -m $vMessage
-iex "npm publish""
+iex "npm publish"
 set-location ../fetch
 npm version $version -m $vMessage
 npm publish
