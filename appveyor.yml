@@ -44,15 +44,15 @@ deploy_script:
   - npm version %APPVEYOR_BUILD_VERSION% -m 'v%APPVEYOR_BUILD_VERSION%'
   - npm publish
   - cd ../fetch
-  - npm version %version% -m 'v%version%'
+  - npm version %APPVEYOR_BUILD_VERSION% -m 'v%APPVEYOR_BUILD_VERSION%'
   - npm publish
   - cd ../jquery
-  - npm version %version% -m 'v%version%'
+  - npm version %APPVEYOR_BUILD_VERSION% -m 'v%APPVEYOR_BUILD_VERSION%'
   - npm publish
   - cd ../angular
-  - npm version %version% -m 'v%version%'
+  - npm version %APPVEYOR_BUILD_VERSION% -m 'v%APPVEYOR_BUILD_VERSION%'
   - npm publish
   - cd ../generator
-  - npm version %version% -m 'v%version%'
+  - npm version %APPVEYOR_BUILD_VERSION% -m 'v%APPVEYOR_BUILD_VERSION%'
   - npm publish
   - cd ../../../
