@@ -29,3 +29,34 @@ module.exports = {
 	  ]
 }
 ```
+
+Run webpack and use generated services wherever you want:
+
+```typescript
+import { MyService } from './webtyped/<services-folder>';
+let myService = new MyService(); //Generated from MyController.cs
+myService.get().then(result => console.log(result));
+```
+
+### Angular? Import the generated module and inject services when needed:
+
+app.module.ts
+
+```typescript
+import { WebTypedGeneratedModule } from './webtyped';
+@NgModule({
+	imports: [WebTypedGeneratedModule.forRoot()]
+})
+export class AppModule {}
+```
+
+some.component.ts (for example)
+```typescript
+import { MyService } from './webtyped/<services-folder>';
+@Component({...})
+export class SomeComponent {
+	constructor(myService: MyService){}
+}
+```
+
+
