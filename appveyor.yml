@@ -39,7 +39,10 @@ build_script:
 after_build:
 test: off
 deploy_script:
-  - ps: ./npm-publish.ps1
+  - npm login
+  - %env:npm_user%
+  - %env:npm_pwd%
+  - %env:npm_mail%
   - cd ./src/WebTyped.Npm/common 
   - npm version %version% -m 'v%version%'
   - npm publish
