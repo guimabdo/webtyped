@@ -16,8 +16,6 @@ init:
   # Install scripts. (runs after repo cloning)
 environment:
   matrix:
-    - nodejs_version: STABLE
-      configuration: publish
     - nodejs_version: LTS
 install:
   - ps: Install-Product node $env:nodejs_version
