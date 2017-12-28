@@ -3,3 +3,29 @@
 # WebTyped
 
  WebTyped is a tool for generating strongly typed TypeScript code from your http://ASP.NET or http://ASP.NET/core Web Apis.
+
+## Quick Start
+
+```
+npm install @guimabdo/webtyped-generator
+npm install @guimabdo/webtyped-[fetch|jquery|angular]
+
+```
+
+webpack.config.js:
+
+```javascript
+const WebTypedPlugin = require('@guimabdo/webtyped-generator').WebTypedPlugin;
+module.exports = {
+   plugins: [
+		  new WebTypedPlugin({
+			  sourceFiles: [
+				   "./Controllers/Api/**/*.cs",
+				   "./Models/**/*.cs"],
+			  serviceMode: "fetch",
+			  outDir: "./src/webtyped/",
+			  clear: true
+		})
+	  ]
+}
+```
