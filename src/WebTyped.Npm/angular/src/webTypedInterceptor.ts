@@ -6,21 +6,20 @@ export class WebTypedInterceptor implements HttpInterceptor {
     constructor() { }
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        //var body = req.body;
-        ////Stringify strings
-        //if ((typeof body) === "string") {
-        //    body = JSON.stringify(body);
-        //}
-        ////Force always application/json (otherwise contenttype will be text/plain for strings)
-        //var headers = req.headers;
-        //headers = headers.set("Content-Type", "application/json");
+        var body = req.body;
+        //Stringify strings
+        if ((typeof body) === "string") {
+            body = JSON.stringify(body);
+        }
+        //Force always application/json (otherwise contenttype will be text/plain for strings)
+        var headers = req.headers;
+        headers = headers.set("Content-Type", "application/json");
 
-        //var clonedRequest = req.clone({
-        //    responseType: 'text',
-        //    body: body,
-        //    headers: headers
-        //});
-        
+        var clonedRequest = req.clone({
+            responseType: 'text',
+            body: body,
+            headers: headers
+        });
        
         return next.handle(req)
             .map((event: HttpEvent<any>) => {
