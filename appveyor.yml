@@ -29,7 +29,7 @@ before_build:
   - node --version
   - npm --version
 build_script:
-  - cmd: dotnet build ./src/WebTyped -c Release -o ../WebTyped.Npm/generator/program
+  - cmd: dotnet publish ./src/WebTyped -c Release -o ../WebTyped.Npm/generator/program
   - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/common/src
   - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/fetch/src
   - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/jquery/src
