@@ -1,15 +1,15 @@
 //*Generated with WebTyped*
-import { WebApiClient } from '@guimabdo/webtyped-fetch';
-export class SampleDataService extends WebApiClient {
-	constructor(baseUrl: string = WebApiClient.baseUrl) {
-		super(baseUrl, "api/SampleData");
+import { WebTypedClient } from '@guimabdo/webtyped-fetch';
+export class SampleDataService extends WebTypedClient {
+	constructor(baseUrl: string = WebTypedClient.baseUrl) {
+		super(baseUrl, "api/sampleData");
 	}
-	WeatherForecasts = () : Promise<Array<Fetch.SampleDataService.WeatherForecast>> => {
+	weatherForecasts = () : Promise<Array<Fetch.SampleDataService.WeatherForecast>> => {
 		return this.invokeGet<Array<Fetch.SampleDataService.WeatherForecast>>({
-				func: this.WeatherForecasts,
+				func: this.weatherForecasts,
 				parameters: {  }
 			},
-			`WeatherForecasts`,
+			`weatherForecasts`,
 			undefined
 		);
 	};

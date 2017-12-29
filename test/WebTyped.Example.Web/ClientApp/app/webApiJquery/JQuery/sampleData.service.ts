@@ -1,15 +1,15 @@
 //*Generated with WebTyped*
-import { WebApiClient } from '@guimabdo/webtyped-jquery';
-export class SampleDataService extends WebApiClient {
-	constructor(baseUrl: string = WebApiClient.baseUrl) {
-		super(baseUrl, "api/SampleData");
+import { WebTypedClient } from '@guimabdo/webtyped-jquery';
+export class SampleDataService extends WebTypedClient {
+	constructor(baseUrl: string = WebTypedClient.baseUrl) {
+		super(baseUrl, "api/sampleData");
 	}
-	WeatherForecasts = () : JQuery.jqXHR<Array<JQuery.SampleDataService.WeatherForecast>> => {
+	weatherForecasts = () : JQuery.jqXHR<Array<JQuery.SampleDataService.WeatherForecast>> => {
 		return this.invokeGet<Array<JQuery.SampleDataService.WeatherForecast>>({
-				func: this.WeatherForecasts,
+				func: this.weatherForecasts,
 				parameters: {  }
 			},
-			`WeatherForecasts`,
+			`weatherForecasts`,
 			undefined
 		);
 	};

@@ -12,7 +12,7 @@ import { FetchDataComponent } from './components/fetchdata/fetchdata.component';
 import { CounterComponent } from './components/counter/counter.component';
 import { MegaSampleComponent } from './components/megaSample/megaSample.component';
 import * as webApi from './webApi/';
-import { WebApiInterceptor } from '@guimabdo/webtyped-angular';
+//import { WebApiInterceptor } from '@guimabdo/webtyped-angular';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
 @NgModule({
@@ -36,15 +36,17 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
             { path: 'fetch-data', component: FetchDataComponent },
             { path: 'megaSample', component: MegaSampleComponent },
             { path: '**', redirectTo: 'home' }
-        ])
+        ]
+        ),
+        webApi.WebTypedGeneratedModule.forRoot()
     ],
     providers: [
-        {
-            provide: HTTP_INTERCEPTORS,
-            useClass: WebApiInterceptor,
-            multi: true,
-        },
-        ...webApi.providers
+        //{
+        //    provide: HTTP_INTERCEPTORS,
+        //    useClass: WebApiInterceptor,
+        //    multi: true,
+        //},
+        //...webApi.providers
     ]
 })
 export class AppModuleShared {

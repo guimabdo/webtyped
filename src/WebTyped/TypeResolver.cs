@@ -172,8 +172,8 @@ namespace WebTyped {
 			var sbRootIndex = new StringBuilder();
 			if (Options.ServiceMode == ServiceMode.Angular) {
 				sbRootIndex.AppendLine("import { NgModule, ModuleWithProviders } from '@angular/core';");
-				sbRootIndex.AppendLine("import { HttpClientModule } from '@angular/common/http';");
-				sbRootIndex.AppendLine("import { WebTypedEventEmitterService } from '@guimabdo/webtyped-angular';");
+				sbRootIndex.AppendLine("import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';");
+				sbRootIndex.AppendLine("import { WebTypedEventEmitterService, WebTypedInterceptor } from '@guimabdo/webtyped-angular';");
 			}
 
 			//Create index for each module folder
@@ -220,6 +220,11 @@ namespace WebTyped {
 				sbRootIndex.AppendLine(2, "return {");
 				sbRootIndex.AppendLine(3, "ngModule: WebTypedGeneratedModule,");
 				sbRootIndex.AppendLine(3, "providers: [");
+				sbRootIndex.AppendLine(4, "{");
+				sbRootIndex.AppendLine(5, "provide: HTTP_INTERCEPTORS,");
+				sbRootIndex.AppendLine(5, "useClass: WebTypedInterceptor,");
+				sbRootIndex.AppendLine(5, "multi: true");
+				sbRootIndex.AppendLine(4, "},");
 				sbRootIndex.AppendLine(4, "WebTypedEventEmitterService,");
 				sbRootIndex.AppendLine(4, "...serviceTypes");
 				sbRootIndex.AppendLine(3, "]");

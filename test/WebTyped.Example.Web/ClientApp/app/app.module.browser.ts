@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppModuleShared } from './app.module.shared';
 import { AppComponent } from './components/app/app.component';
-import { WebApiClient as jWebApiClient } from '@guimabdo/webtyped-jquery';
+import { WebTypedClient as jWebApiClient } from '@guimabdo/webtyped-jquery';
 
 @NgModule({
     bootstrap: [AppComponent],

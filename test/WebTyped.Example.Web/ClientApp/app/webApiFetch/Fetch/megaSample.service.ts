@@ -1,48 +1,48 @@
 //*Generated with WebTyped*
-import { WebApiClient } from '@guimabdo/webtyped-fetch';
-export class MegaSampleService extends WebApiClient {
-	constructor(baseUrl: string = WebApiClient.baseUrl) {
-		super(baseUrl, "api/MegaSample");
+import { WebTypedClient } from '@guimabdo/webtyped-fetch';
+export class MegaSampleService extends WebTypedClient {
+	constructor(baseUrl: string = WebTypedClient.baseUrl) {
+		super(baseUrl, "api/megaSample");
 	}
-	GetThisStringFromQuery = (str: string) : Promise<string> => {
+	getThisStringFromQuery = (str: string) : Promise<string> => {
 		return this.invokeGet<string>({
-				func: this.GetThisStringFromQuery,
+				func: this.getThisStringFromQuery,
 				parameters: { str }
 			},
 			``,
 			{ str }
 		);
 	};
-	GetThisStringFromQueryExplicit = (str: string) : Promise<string> => {
+	getThisStringFromQueryExplicit = (str: string) : Promise<string> => {
 		return this.invokeGet<string>({
-				func: this.GetThisStringFromQueryExplicit,
+				func: this.getThisStringFromQueryExplicit,
 				parameters: { str }
 			},
 			`explicit`,
 			{ str }
 		);
 	};
-	GetThisStringFromRoute = (str: string) : Promise<string> => {
+	getThisStringFromRoute = (str: string) : Promise<string> => {
 		return this.invokeGet<string>({
-				func: this.GetThisStringFromRoute,
+				func: this.getThisStringFromRoute,
 				parameters: { str }
 			},
 			`route/${str}`,
 			undefined
 		);
 	};
-	GetTheseStrings = (str: string, str2: string) : Promise<Array<string>> => {
+	getTheseStrings = (str: string, str2: string) : Promise<Array<string>> => {
 		return this.invokeGet<Array<string>>({
-				func: this.GetTheseStrings,
+				func: this.getTheseStrings,
 				parameters: { str, str2 }
 			},
 			`these/${str}`,
 			{ str2 }
 		);
 	};
-	PostAndReturnThisStringFromQuery = (str: string) : Promise<string> => {
+	postAndReturnThisStringFromQuery = (str: string) : Promise<string> => {
 		return this.invokePost<string>({
-				func: this.PostAndReturnThisStringFromQuery,
+				func: this.postAndReturnThisStringFromQuery,
 				parameters: { str }
 			},
 			``,
@@ -50,9 +50,9 @@ export class MegaSampleService extends WebApiClient {
 			{ str }
 		);
 	};
-	PostAndReturnThisStringFromQueryExplicit = (str: string) : Promise<string> => {
+	postAndReturnThisStringFromQueryExplicit = (str: string) : Promise<string> => {
 		return this.invokePost<string>({
-				func: this.PostAndReturnThisStringFromQueryExplicit,
+				func: this.postAndReturnThisStringFromQueryExplicit,
 				parameters: { str }
 			},
 			`explicit`,
@@ -60,9 +60,9 @@ export class MegaSampleService extends WebApiClient {
 			{ str }
 		);
 	};
-	PostAndReturnThisStringFromRoute = (str: string) : Promise<string> => {
+	postAndReturnThisStringFromRoute = (str: string) : Promise<string> => {
 		return this.invokePost<string>({
-				func: this.PostAndReturnThisStringFromRoute,
+				func: this.postAndReturnThisStringFromRoute,
 				parameters: { str }
 			},
 			`${str}`,
@@ -70,9 +70,9 @@ export class MegaSampleService extends WebApiClient {
 			undefined
 		);
 	};
-	PostAndReturnTheseStrings = (str: string, str2: string, str3: string) : Promise<Array<string>> => {
+	postAndReturnTheseStrings = (str: string, str2: string, str3: string) : Promise<Array<string>> => {
 		return this.invokePost<Array<string>>({
-				func: this.PostAndReturnTheseStrings,
+				func: this.postAndReturnTheseStrings,
 				parameters: { str, str2, str3 }
 			},
 			`these/${str}`,
@@ -80,9 +80,9 @@ export class MegaSampleService extends WebApiClient {
 			{ str2 }
 		);
 	};
-	PostAndReturnModel = (model: Fetch.MegaSampleService.Model) : Promise<Fetch.MegaSampleService.Model> => {
+	postAndReturnModel = (model: Fetch.MegaSampleService.Model) : Promise<Fetch.MegaSampleService.Model> => {
 		return this.invokePost<Fetch.MegaSampleService.Model>({
-				func: this.PostAndReturnModel,
+				func: this.postAndReturnModel,
 				parameters: { model }
 			},
 			`model`,
@@ -90,9 +90,9 @@ export class MegaSampleService extends WebApiClient {
 			undefined
 		);
 	};
-	PostAndReturnModelSameName = (model: Fetch.ModelA) : Promise<Fetch.ModelA> => {
+	postAndReturnModelSameName = (model: Fetch.ModelA) : Promise<Fetch.ModelA> => {
 		return this.invokePost<Fetch.ModelA>({
-				func: this.PostAndReturnModelSameName,
+				func: this.postAndReturnModelSameName,
 				parameters: { model }
 			},
 			`modelA1`,
@@ -100,9 +100,9 @@ export class MegaSampleService extends WebApiClient {
 			undefined
 		);
 	};
-	PostAndReturnModelSameName2 = (model: Fetch.OtherModels.ModelA) : Promise<Fetch.OtherModels.ModelA> => {
+	postAndReturnModelSameName2 = (model: Fetch.OtherModels.ModelA) : Promise<Fetch.OtherModels.ModelA> => {
 		return this.invokePost<Fetch.OtherModels.ModelA>({
-				func: this.PostAndReturnModelSameName2,
+				func: this.postAndReturnModelSameName2,
 				parameters: { model }
 			},
 			`modelA2`,
@@ -110,13 +110,22 @@ export class MegaSampleService extends WebApiClient {
 			undefined
 		);
 	};
-	PostAndReturnTuple_NotWorkingYet = (tuple: {str: string, number: number}) : Promise<{str: string, number: number}> => {
+	postAndReturnTuple_NotWorkingYet = (tuple: {str: string, number: number}) : Promise<{str: string, number: number}> => {
 		return this.invokePost<{str: string, number: number}>({
-				func: this.PostAndReturnTuple_NotWorkingYet,
+				func: this.postAndReturnTuple_NotWorkingYet,
 				parameters: { tuple }
 			},
 			`tuple`,
 			tuple,
+			undefined
+		);
+	};
+	asyncTest = () : Promise<number> => {
+		return this.invokeGet<number>({
+				func: this.asyncTest,
+				parameters: {  }
+			},
+			`async`,
 			undefined
 		);
 	};

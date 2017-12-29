@@ -1,8 +1,6 @@
 //*Generated with WebTyped*
-import { WebApiEventEmmiterService } from '@guimabdo/webtyped-angular';
-import * as mdl0 from './Fetch'
-export var providers = [
-	WebApiEventEmmiterService,
+import * as mdl0 from './fetch'
+export var serviceTypes = [
 	mdl0.MegaSampleService,
 	mdl0.SampleDataService
 ]

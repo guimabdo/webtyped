@@ -1,8 +1,8 @@
 import { Component, Inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { MegaSampleService } from '../../webApi/Angular';
-import { MegaSampleService as JMegaSampleService } from '../../webApiJquery/JQuery';
-import { MegaSampleService as FMegaSampleService } from '../../webApiFetch/Fetch';
+import { MegaSampleService } from '../../webApi/angular';
+import { MegaSampleService as JMegaSampleService } from '../../webApiJquery/jQuery';
+import { MegaSampleService as FMegaSampleService } from '../../webApiFetch/fetch';
 import * as $ from 'jquery';
 class Results {
     getThisStringFromQueryResult: string | null = null;
@@ -39,52 +39,52 @@ export class MegaSampleComponent {
     constructor(svc: MegaSampleService, cli: HttpClient) {
 
         //Angular
-        svc.GetThisStringFromQuery("test").subscribe(s => this.angular.getThisStringFromQueryResult = s, err => console.log(err));
-        svc.GetThisStringFromQueryExplicit("test").subscribe(s => this.angular.getThisStringFromQueryExplicitResult = s, err => console.log(err));
-        svc.GetThisStringFromRoute("test").subscribe(s => this.angular.getThisStringFromRouteResult = s, err => console.log(err));
-        svc.GetTheseStrings("test1", "test2").subscribe(arr => this.angular.getTheseStringsResult = arr, err => console.log(err));
-        svc.PostAndReturnThisStringFromQuery("test").subscribe(s => this.angular.postAndReturnThisStringFromQueryResult = s, err => console.log(err));
-        svc.PostAndReturnThisStringFromQueryExplicit("test").subscribe(s => this.angular.postAndReturnThisStringFromQueryResultExplicit = s, err => console.log(err));
-        svc.PostAndReturnThisStringFromRoute("test").subscribe(s => this.angular.postAndReturnThisStringFromRouteResult = s, err => console.log(err));
-        svc.PostAndReturnTheseStrings("test1", "test2", "test3").subscribe(s => this.angular.postAndReturnTheseStringsResult = s, err => console.log(err));
-        svc.PostAndReturnModel({
-            Number: 3,
-            Text: "test1"
+        svc.getThisStringFromQuery("test").subscribe(s => this.angular.getThisStringFromQueryResult = s, err => console.log(err));
+        svc.getThisStringFromQueryExplicit("test").subscribe(s => this.angular.getThisStringFromQueryExplicitResult = s, err => console.log(err));
+        svc.getThisStringFromRoute("test").subscribe(s => this.angular.getThisStringFromRouteResult = s, err => console.log(err));
+        svc.getTheseStrings("test1", "test2").subscribe(arr => this.angular.getTheseStringsResult = arr, err => console.log(err));
+        svc.postAndReturnThisStringFromQuery("test").subscribe(s => this.angular.postAndReturnThisStringFromQueryResult = s, err => console.log(err));
+        svc.postAndReturnThisStringFromQueryExplicit("test").subscribe(s => this.angular.postAndReturnThisStringFromQueryResultExplicit = s, err => console.log(err));
+        svc.postAndReturnThisStringFromRoute("test").subscribe(s => this.angular.postAndReturnThisStringFromRouteResult = s, err => console.log(err));
+        svc.postAndReturnTheseStrings("test1", "test2", "test3").subscribe(s => this.angular.postAndReturnTheseStringsResult = s, err => console.log(err));
+        svc.postAndReturnModel({
+            number: 3,
+            text: "test1"
         }).subscribe(s => this.angular.postAndReturnModelResult = s, err => console.log(err));
-        svc.PostAndReturnTuple_NotWorkingYet({ str: "test1", number: 3 }).subscribe(s => this.angular.postAndReturnTupleResult = s, err => console.log(err));
+        svc.postAndReturnTuple_NotWorkingYet({ str: "test1", number: 3 }).subscribe(s => this.angular.postAndReturnTupleResult = s, err => console.log(err));
 
         //jQuery
         var jSvc = new JMegaSampleService();
-        jSvc.GetThisStringFromQuery("test").done(s => this.jquery.getThisStringFromQueryResult = s).fail(err => console.log(err));
-        jSvc.GetThisStringFromQueryExplicit("test").done(s => this.jquery.getThisStringFromQueryExplicitResult = s).fail(err => console.log(err));
-        jSvc.GetThisStringFromRoute("test").done(s => this.jquery.getThisStringFromRouteResult = s).fail(err => console.log(err));
-        jSvc.GetTheseStrings("test1", "test2").done(arr => this.jquery.getTheseStringsResult = arr).fail(err => console.log(err));
-        jSvc.PostAndReturnThisStringFromQuery("test").done(s => this.jquery.postAndReturnThisStringFromQueryResult = s).fail(err => console.log(err));
-        jSvc.PostAndReturnThisStringFromQueryExplicit("test").done(s => this.jquery.postAndReturnThisStringFromQueryResultExplicit = s).fail(err => console.log(err));
-        jSvc.PostAndReturnThisStringFromRoute("test").done(s => this.jquery.postAndReturnThisStringFromRouteResult = s).fail(err => console.log(err));
-        jSvc.PostAndReturnTheseStrings("test1", "test2", "test3").done(s => this.jquery.postAndReturnTheseStringsResult = s).fail(err => console.log(err));
-        jSvc.PostAndReturnModel({
-            Number: 3,
-            Text: "test1"
+        jSvc.getThisStringFromQuery("test").done(s => this.jquery.getThisStringFromQueryResult = s).fail(err => console.log(err));
+        jSvc.getThisStringFromQueryExplicit("test").done(s => this.jquery.getThisStringFromQueryExplicitResult = s).fail(err => console.log(err));
+        jSvc.getThisStringFromRoute("test").done(s => this.jquery.getThisStringFromRouteResult = s).fail(err => console.log(err));
+        jSvc.getTheseStrings("test1", "test2").done(arr => this.jquery.getTheseStringsResult = arr).fail(err => console.log(err));
+        jSvc.postAndReturnThisStringFromQuery("test").done(s => this.jquery.postAndReturnThisStringFromQueryResult = s).fail(err => console.log(err));
+        jSvc.postAndReturnThisStringFromQueryExplicit("test").done(s => this.jquery.postAndReturnThisStringFromQueryResultExplicit = s).fail(err => console.log(err));
+        jSvc.postAndReturnThisStringFromRoute("test").done(s => this.jquery.postAndReturnThisStringFromRouteResult = s).fail(err => console.log(err));
+        jSvc.postAndReturnTheseStrings("test1", "test2", "test3").done(s => this.jquery.postAndReturnTheseStringsResult = s).fail(err => console.log(err));
+        jSvc.postAndReturnModel({
+            number: 3,
+            text: "test1"
         }).done(s => this.jquery.postAndReturnModelResult = s).fail(err => console.log(err));
-        jSvc.PostAndReturnTuple_NotWorkingYet({ str: "test1", number: 3 }).done(s => this.jquery.postAndReturnTupleResult = s).fail(err => console.log(err));
+        jSvc.postAndReturnTuple_NotWorkingYet({ str: "test1", number: 3 }).done(s => this.jquery.postAndReturnTupleResult = s).fail(err => console.log(err));
 
         //Fetch
 
         var fSvc = new FMegaSampleService();
-        fSvc.GetThisStringFromQuery("test").then(s => this.fetch.getThisStringFromQueryResult = s, err => console.log(err));
-        fSvc.GetThisStringFromQueryExplicit("test").then(s => this.fetch.getThisStringFromQueryExplicitResult = s, err => console.log(err));
-        fSvc.GetThisStringFromRoute("test").then(s => this.fetch.getThisStringFromRouteResult = s, err => console.log(err));
-        fSvc.GetTheseStrings("test1", "test2").then(arr => this.fetch.getTheseStringsResult = arr, err => console.log(err));
-        fSvc.PostAndReturnThisStringFromQuery("test").then(s => this.fetch.postAndReturnThisStringFromQueryResult = s, err => console.log(err));
-        fSvc.PostAndReturnThisStringFromQueryExplicit("test").then(s => this.fetch.postAndReturnThisStringFromQueryResultExplicit = s, err => console.log(err));
-        fSvc.PostAndReturnThisStringFromRoute("test").then(s => this.fetch.postAndReturnThisStringFromRouteResult = s, err => console.log(err));
-        fSvc.PostAndReturnTheseStrings("test1", "test2", "test3").then(s => this.fetch.postAndReturnTheseStringsResult = s, err => console.log(err));
-        fSvc.PostAndReturnModel({
-            Number: 3,
-            Text: "test1"
+        fSvc.getThisStringFromQuery("test").then(s => this.fetch.getThisStringFromQueryResult = s, err => console.log(err));
+        fSvc.getThisStringFromQueryExplicit("test").then(s => this.fetch.getThisStringFromQueryExplicitResult = s, err => console.log(err));
+        fSvc.getThisStringFromRoute("test").then(s => this.fetch.getThisStringFromRouteResult = s, err => console.log(err));
+        fSvc.getTheseStrings("test1", "test2").then(arr => this.fetch.getTheseStringsResult = arr, err => console.log(err));
+        fSvc.postAndReturnThisStringFromQuery("test").then(s => this.fetch.postAndReturnThisStringFromQueryResult = s, err => console.log(err));
+        fSvc.postAndReturnThisStringFromQueryExplicit("test").then(s => this.fetch.postAndReturnThisStringFromQueryResultExplicit = s, err => console.log(err));
+        fSvc.postAndReturnThisStringFromRoute("test").then(s => this.fetch.postAndReturnThisStringFromRouteResult = s, err => console.log(err));
+        fSvc.postAndReturnTheseStrings("test1", "test2", "test3").then(s => this.fetch.postAndReturnTheseStringsResult = s, err => console.log(err));
+        fSvc.postAndReturnModel({
+            number: 3,
+            text: "test1"
         }).then(s => this.fetch.postAndReturnModelResult = s, err => console.log(err));
-        fSvc.PostAndReturnTuple_NotWorkingYet({ str: "test1", number: 3 }).then(s => this.fetch.postAndReturnTupleResult = s, err => console.log(err));
+        fSvc.postAndReturnTuple_NotWorkingYet({ str: "test1", number: 3 }).then(s => this.fetch.postAndReturnTupleResult = s, err => console.log(err));
 
     }
     enumerateResults(r: Results) {

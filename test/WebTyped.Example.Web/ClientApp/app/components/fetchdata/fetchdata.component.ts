@@ -11,7 +11,7 @@ export class FetchDataComponent {
     public forecasts: Angular.SampleDataService.WeatherForecast[];
 
     constructor(http: Http, svc: SampleDataService, @Inject('BASE_URL') baseUrl: string) {
-        svc.WeatherForecasts().subscribe(result => this.forecasts = result, error => console.log(error));
+        svc.weatherForecasts().subscribe(result => this.forecasts = result, error => console.log(error));
     }
 }
 

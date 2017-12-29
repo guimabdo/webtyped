@@ -8,36 +8,34 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 var http_1 = require("@angular/common/http");
 var core_1 = require("@angular/core");
-var Observable_1 = require("rxjs/Observable");
 var WebTypedInterceptor = (function () {
     function WebTypedInterceptor() {
     }
     WebTypedInterceptor.prototype.intercept = function (req, next) {
-        var body = req.body;
-        //Stringify strings
-        if ((typeof body) === "string") {
-            body = JSON.stringify(body);
-        }
-        //Force always application/json (otherwise contenttype will be text/plain for strings)
-        var headers = req.headers;
-        headers = headers.set("Content-Type", "application/json");
-        var clonedRequest = req.clone({
-            responseType: 'text',
-            body: body,
-            headers: headers
-        });
-        //if (clonedRequest.body
-        return next.handle(clonedRequest)
+        //var body = req.body;
+        ////Stringify strings
+        //if ((typeof body) === "string") {
+        //    body = JSON.stringify(body);
+        //}
+        ////Force always application/json (otherwise contenttype will be text/plain for strings)
+        //var headers = req.headers;
+        //headers = headers.set("Content-Type", "application/json");
+        //var clonedRequest = req.clone({
+        //    responseType: 'text',
+        //    body: body,
+        //    headers: headers
+        //});
+        return next.handle(req)
             .map(function (event) {
+            //Manage response so void and "string" responses wont produces parse exception
             if (event instanceof http_1.HttpResponse) {
                 var body;
                 try {
-                    //Fix for https://github.com/angular/angular/issues/18396
                     //(Accepting json strings)
                     body = JSON.parse(event.body);
                 }
                 catch (err) {
-                    //For actions that returns a string
+                    //For actions that returns a string or empty(for void)
                     //asp.net will send the string without quotes
                     //and parse will fail. (Unless you use attr [Produces("application/json")])
                     body = event.body;
@@ -47,11 +45,11 @@ var WebTypedInterceptor = (function () {
                 });
             }
             return event;
-        })
-            .catch(function (error) {
-            var parsedError = Object.assign({}, error, { error: JSON.parse(error.error) });
-            return Observable_1.Observable.throw(new http_1.HttpErrorResponse(parsedError));
         });
+        //.catch((error: HttpErrorResponse) => {
+        //    const parsedError = Object.assign({}, error, { error: JSON.parse(error.error) });
+        //    return Observable.throw(new HttpErrorResponse(parsedError));
+        //});
     };
     WebTypedInterceptor = __decorate([
         core_1.Injectable()

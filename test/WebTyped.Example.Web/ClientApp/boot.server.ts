@@ -6,7 +6,7 @@ import { enableProdMode, ApplicationRef, NgZone, ValueProvider } from '@angular/
 import { platformDynamicServer, PlatformState, INITIAL_CONFIG } from '@angular/platform-server';
 import { createServerRenderer, RenderResult } from 'aspnet-prerendering';
 import { AppModule } from './app/app.module.server';
-import { WebApiClient as jWebApiClient } from '@guimabdo/webtyped-jquery';
+import { WebTypedClient as jWebApiClient } from '@guimabdo/webtyped-jquery';
 
 enableProdMode();
 
