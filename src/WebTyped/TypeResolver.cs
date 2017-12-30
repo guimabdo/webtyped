@@ -67,7 +67,11 @@ namespace WebTyped {
 				parent = parent.ContainingType;
 			}
 			//Change type to ts type
-			var tsTypeName = ToTsTypeName(typeName, type);
+			var tsTypeName = ToTsTypeName(type);
+			//If contains "{" or "}" then it was converted to anonymous type, so no need to do anything more.
+			if (tsTypeName.Contains("{")) {
+				return tsTypeName;
+			}
 			//if (tsTypeName == "any") {
 			//	return $"any/* {type.ToString()} */";
 			//}
@@ -99,7 +103,7 @@ namespace WebTyped {
 			return (t as INamedTypeSymbol).ConstructedFrom.ToString() == "System.Nullable<T>";
 		}
 
-		string ToTsTypeName(string typeName, INamedTypeSymbol original) {
+		string ToTsTypeName(INamedTypeSymbol original) {
 			if (IsNullable(original)) { return ""; }
 			switch (original.SpecialType) {
 				case SpecialType.System_Boolean:
@@ -153,6 +157,12 @@ namespace WebTyped {
 					return "void";
 				case "System.Threading.Tasks.Task<TResult>":
 					return "";
+				case "System.Collections.Generic.KeyValuePair<TKey, TValue>":
+					var keyType = Resolve(original.TypeArguments[0]);
+					var valType = Resolve(original.TypeArguments[1]);
+					return Options.KeepPropsCase ?
+					$"{{ Key: {keyType}, Value: {valType} }}"
+					: $"{{ key: {keyType}, value: {valType} }}";
 				//default: return typeName;
 				default: return $"any/*{constructedFrom}*/";
 			}

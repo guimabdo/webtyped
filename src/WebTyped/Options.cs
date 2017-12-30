@@ -22,7 +22,7 @@ namespace WebTyped {
 		public Options(string outDir,
 			bool clear,
 			ServiceMode serviceMode,
-			IEnumerable<String> moduleTrims, string baseModule, bool pascalProps) {
+			IEnumerable<String> moduleTrims, string baseModule, bool keepPropsCase) {
 			ModuleTrims = moduleTrims.OrderByDescending(m => m.Length);
 			OutDir = outDir;
 			TypingsDir = Path.Combine(outDir, "typings");
@@ -30,7 +30,7 @@ namespace WebTyped {
 			Clear = clear;
 			BaseModule = baseModule;
 			ServiceMode = serviceMode;
-			KeepPropsCase = pascalProps;
+			KeepPropsCase = keepPropsCase;
 		}
 
 		public string AdjustModule(string module) {
