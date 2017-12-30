@@ -10,22 +10,22 @@ export class WebTypedClient {
         private httpClient: HttpClient,
         private eventEmitter: WebTypedEventEmitterService) { }
 
-    invokeGet<T>(info: WebTypedCallInfo, action: string, search?: any): Observable<T> {
+    invokeGet<T>(info: WebTypedCallInfo<T>, action: string, search?: any): Observable<T> {
         return this.invoke(info, action, 'get', null, search);
     }
-    invokePatch<T>(info: WebTypedCallInfo, action: string, body?: any, search?: any): Observable<T> {
+    invokePatch<T>(info: WebTypedCallInfo<T>, action: string, body?: any, search?: any): Observable<T> {
         return this.invoke(info, action, 'patch', body, search);
     }
-    invokePost<T>(info: WebTypedCallInfo, action: string, body?: any, search?: any): Observable<T> {
+    invokePost<T>(info: WebTypedCallInfo<T>, action: string, body?: any, search?: any): Observable<T> {
         return this.invoke(info, action, 'post', body, search);
     }
-    invokePut<T>(info: WebTypedCallInfo, action: string, body?: any, search?: any): Observable<T> {
+    invokePut<T>(info: WebTypedCallInfo<T>, action: string, body?: any, search?: any): Observable<T> {
         return this.invoke(info, action, 'put', body, search);
     }
-    invokeDelete<T>(info: WebTypedCallInfo, action: string, search?: any): Observable<T> {
+    invokeDelete<T>(info: WebTypedCallInfo<T>, action: string, search?: any): Observable<T> {
         return this.invoke(info, action, 'delete', null, search);
     }
-    private invoke<T>(info: WebTypedCallInfo, action: string,
+    private invoke<T>(info: WebTypedCallInfo<T>, action: string,
         httpMethod: string, body?: any, search?: any): Observable<T> {
         var baseUrl = this.baseUrl || "";
         var httpClient = this.httpClient;
@@ -88,7 +88,8 @@ export class WebTypedClient {
         }
 
         var coreObs = httpObservable //Emit completed event
-            .do(() => {
+            .do(data => {
+                info.result = data;
                 this.eventEmitter.emit(info);
             },
             r => {

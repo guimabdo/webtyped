@@ -9,22 +9,22 @@ export class WebTypedClient {
         this.baseUrl = this.baseUrl || "/";
         this.api = this.api || "";
     }
-    invokeGet<T>(info: WebTypedCallInfo, action: string, search?: any): Promise<T> {
+    invokeGet<T>(info: WebTypedCallInfo<T>, action: string, search?: any): Promise<T> {
         return this.invoke(info, action, 'get', null, search);
     }
-    invokePatch<T>(info: WebTypedCallInfo, action: string, body?: any, search?: any): Promise<T> {
+    invokePatch<T>(info: WebTypedCallInfo<T>, action: string, body?: any, search?: any): Promise<T> {
         return this.invoke(info, action, 'patch', body, search);
     }
-    invokePost<T>(info: WebTypedCallInfo, action: string, body?: any, search?: any): Promise<T> {
+    invokePost<T>(info: WebTypedCallInfo<T>, action: string, body?: any, search?: any): Promise<T> {
         return this.invoke(info, action, 'post', body, search);
     }
-    invokePut<T>(info: WebTypedCallInfo, action: string, body?: any, search?: any): Promise<T> {
+    invokePut<T>(info: WebTypedCallInfo<T>, action: string, body?: any, search?: any): Promise<T> {
         return this.invoke(info, action, 'put', body, search);
     }
-    invokeDelete<T>(info: WebTypedCallInfo, action: string, search?: any): Promise<T> {
+    invokeDelete<T>(info: WebTypedCallInfo<T>, action: string, search?: any): Promise<T> {
         return this.invoke(info, action, 'delete', null, search);
     }
-    private invoke<T>(info: WebTypedCallInfo, action: string,
+    private invoke<T>(info: WebTypedCallInfo<T>, action: string,
         httpMethod: string, body?: any, search?: any): Promise<T> {
         if (typeof (fetch) === 'undefined') { return Promise.resolve<T>(null); }
         var baseUrl = this.baseUrl;
@@ -47,8 +47,10 @@ export class WebTypedClient {
         });
         var promise = new Promise<T>((resolve, reject) => {
             req.then(r => {
-                resolve(r.json());
+                var data = r.json();
+                resolve(data);
                 var anyWebTyped = <any>WebTypedEventEmitter;
+                info.result = data;
                 anyWebTyped.single.emit(info);
             }, reason => reject(reason));
         });

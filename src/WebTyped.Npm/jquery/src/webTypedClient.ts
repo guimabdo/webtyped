@@ -23,22 +23,22 @@ export class WebTypedClient {
         this.baseUrl = this.baseUrl || "/";
         this.api = this.api || "";
     }
-    invokeGet<T>(info: WebTypedCallInfo, action: string, search?: any): JQuery.jqXHR<T> {
+    invokeGet<T>(info: WebTypedCallInfo<T>, action: string, search?: any): JQuery.jqXHR<T> {
         return this.invoke(info, action, 'get', null, search);
     }
-    invokePatch<T>(info: WebTypedCallInfo, action: string, body?: any, search?: any): JQuery.jqXHR<T> {
+    invokePatch<T>(info: WebTypedCallInfo<T>, action: string, body?: any, search?: any): JQuery.jqXHR<T> {
         return this.invoke(info, action, 'patch', body, search);
     }
-    invokePost<T>(info: WebTypedCallInfo, action: string, body?: any, search?: any): JQuery.jqXHR<T> {
+    invokePost<T>(info: WebTypedCallInfo<T>, action: string, body?: any, search?: any): JQuery.jqXHR<T> {
         return this.invoke(info, action, 'post', body, search);
     }
-    invokePut<T>(info: WebTypedCallInfo, action: string, body?: any, search?: any): JQuery.jqXHR<T> {
+    invokePut<T>(info: WebTypedCallInfo<T>, action: string, body?: any, search?: any): JQuery.jqXHR<T> {
         return this.invoke(info, action, 'put', body, search);
     }
-    invokeDelete<T>(info: WebTypedCallInfo, action: string, search?: any): JQuery.jqXHR<T> {
+    invokeDelete<T>(info: WebTypedCallInfo<T>, action: string, search?: any): JQuery.jqXHR<T> {
         return this.invoke(info, action, 'delete', null, search);
     }
-    private invoke<T>(info: WebTypedCallInfo, action: string,
+    private invoke<T>(info: WebTypedCallInfo<T>, action: string,
         httpMethod: string, body?: any, search?: any): JQuery.jqXHR<T> {
         if (typeof ($.ajax) === 'undefined') {
             var anyFake: any = new FakeXhr<T>();
@@ -65,6 +65,7 @@ export class WebTypedClient {
         });
         jqXhr.done(result => {
             var anyWebTyped = <any>WebTypedEventEmitter;
+            info.result = result;
             anyWebTyped.single.emit(info);
         });
         return jqXhr;
