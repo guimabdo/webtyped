@@ -21,7 +21,7 @@ export class WebTypedInterceptor implements HttpInterceptor {
             headers: headers
         });
        
-        return next.handle(req)
+        return next.handle(clonedRequest)
             .map((event: HttpEvent<any>) => {
                 //Manage response so void and "string" responses wont produces parse exception
                 if (event instanceof HttpResponse) {
