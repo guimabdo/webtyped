@@ -3,16 +3,16 @@ import { Observable, Subject } from 'rxjs';
 import { WebTypedCallInfo } from '@guimabdo/webtyped-common';
 @Injectable()
 export class WebTypedEventEmitterService {
-    private _eventBus: Subject<WebTypedCallInfo> = new Subject<WebTypedCallInfo>();
+    private _eventBus: Subject<WebTypedCallInfo<any>> = new Subject<WebTypedCallInfo<any>>();
     constructor() { }
 
-    on = (f: Function): Observable<WebTypedCallInfo> => {
+    on = <TResult>(f: Function): Observable<WebTypedCallInfo<TResult>> => {
         return this._eventBus
             .filter(e => {
                 return e.func == f;
             });
     };
-    emit = (info: WebTypedCallInfo): void => {
+    emit = (info: WebTypedCallInfo<any>): void => {
         this._eventBus.next(info);
     };
 }
