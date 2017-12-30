@@ -50,8 +50,10 @@ export class WebTypedClient {
                 var data = r.json();
                 resolve(data);
                 var anyWebTyped = <any>WebTypedEventEmitter;
-                info.result = data;
-                anyWebTyped.single.emit(info);
+                data.then(val => {
+                    info.result = val;
+                    anyWebTyped.single.emit(info);
+                });
             }, reason => reject(reason));
         });
         return promise;
