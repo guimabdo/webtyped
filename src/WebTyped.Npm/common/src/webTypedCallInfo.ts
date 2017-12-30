@@ -1,4 +1,5 @@
-﻿export interface WebTypedCallInfo {
+﻿export interface WebTypedCallInfo<TResult> {
     func: Function,
-    parameters: any
+    parameters: any,
+    result?: TResult;
 }
