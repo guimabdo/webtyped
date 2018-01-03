@@ -38,7 +38,7 @@ let myService = new MyService(); //Generated from MyController.cs
 myService.get().then(result => console.log(result));
 ```
 
-### Angular? Import the generated module and inject services when needed:
+### Angular? (4.3.0+) Import the generated module and inject services when needed:
 
 app.module.ts
 
