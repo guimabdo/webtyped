@@ -58,12 +58,20 @@ export class WebTypedClient {
                 if (val === null) { val = ""; }
                 if (Array.isArray(val)) {
                     for (let i = 0; i < val.length; i++) {
-                        params = params.append(p, val[i]);
+                        let arrVal = val[i];
+                        //Accepting undefined and null, for keeping arr length
+                        if (arrVal === undefined || arrVal === null) { arrVal = ""; }
+                        params = params.append(p, arrVal);
                     }
                 } else {
                     if (typeof val === "object") {
-                        for (let i in val) { //Currently just getting first level of fields. TODO: See how asp.net webapi manage nested objects from uri and then adjust here
-                            params = params.set(i, val[i]);
+                        for (let i in val) { 
+                            let fVal = val[i];
+
+                            if (typeof fVal === "object") { continue; } //Currently just getting first level of fields. TODO: See how asp.net webapi manage nested objects from uri and then adjust here
+                            if (fVal === undefined) { continue; }
+                            if (fVal === null) { fVal = ""; }
+                            params = params.set(i, fVal);
                         }
                     } else {
                         params = params.set(p, val);
