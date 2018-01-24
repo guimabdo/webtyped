@@ -57,11 +57,18 @@ export class WebTypedClient {
                 if (val === undefined) { continue; }
                 if (val === null) { val = ""; }
                 if (Array.isArray(val)) {
-                    for (var i = 0; i < val.length; i++) {
+                    for (let i = 0; i < val.length; i++) {
                         params = params.append(p, val[i]);
                     }
                 } else {
-                    params = params.set(p, val);
+                    if (typeof val === "object") {
+                        for (let i in val) { //Currently just getting first level of fields. TODO: See how asp.net webapi manage nested objects from uri and then adjust here
+                            params = params.set(i, val[i]);
+                        }
+                    } else {
+                        params = params.set(p, val);
+                    }
+
                 }
             }
             options.params = params;
