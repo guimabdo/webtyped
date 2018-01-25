@@ -45,7 +45,7 @@ deploy:
   api_key: $(nuget_key)
   skip_symbols: false
   artifact: nupkgAnnotations
-deploy_script:
+after_deploy:
   - ps: '"//registry.npmjs.org/:_authToken=$env:npm_token`n" | out-file "$env:userprofile\.npmrc" -Encoding ASCII'
   - cd ./src/WebTyped.Npm/common 
   - npm version %APPVEYOR_BUILD_VERSION% -m 'v%APPVEYOR_BUILD_VERSION%'
