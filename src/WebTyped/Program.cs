@@ -12,6 +12,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using WebTyped.Annotations;
 using WebTyped.Elements;
 
 namespace WebTyped {
@@ -63,10 +64,11 @@ namespace WebTyped {
 
 					//References
 					var mscorlib = MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
+					var webTypedAnnotations = MetadataReference.CreateFromFile(typeof(ClientTypeAttribute).Assembly.Location);
 					var systemRuntime = MetadataReference.CreateFromFile(typeof(int).Assembly.Location);
 					var linqExpressions = MetadataReference.CreateFromFile(typeof(IQueryable).Assembly.Location);
 					foreach (var task in tasks) { await task; }
-					var compilation = CSharpCompilation.Create("Comp", trees.Values, new[] { mscorlib, systemRuntime, linqExpressions });
+					var compilation = CSharpCompilation.Create("Comp", trees.Values, new[] { mscorlib, systemRuntime, linqExpressions, webTypedAnnotations });
 
 					//1200ms
 

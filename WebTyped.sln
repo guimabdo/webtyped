@@ -21,6 +21,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "global", "global", "{C80BA0
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebTyped.Npm", "src\WebTyped.Npm\WebTyped.Npm.csproj", "{12971191-24F8-4D37-AF11-CF5A1D339B0C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebTyped.Annotations", "WebTyped.Annotations\WebTyped.Annotations.csproj", "{3C2BC6F0-1B5B-4C0D-9735-1743C501F542}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,10 @@ Global
 		{12971191-24F8-4D37-AF11-CF5A1D339B0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12971191-24F8-4D37-AF11-CF5A1D339B0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12971191-24F8-4D37-AF11-CF5A1D339B0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C2BC6F0-1B5B-4C0D-9735-1743C501F542}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C2BC6F0-1B5B-4C0D-9735-1743C501F542}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C2BC6F0-1B5B-4C0D-9735-1743C501F542}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C2BC6F0-1B5B-4C0D-9735-1743C501F542}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -52,6 +58,7 @@ Global
 		{EA06D8F0-0C4D-4072-A75F-158FEA23930E} = {FE7DC3EF-7264-42F4-A942-5B034CE55658}
 		{03E0E3A0-A9D2-4418-9AE1-7FD93096C5A1} = {FE7DC3EF-7264-42F4-A942-5B034CE55658}
 		{12971191-24F8-4D37-AF11-CF5A1D339B0C} = {0F795EB6-F930-42A6-A16F-5297AEBE91CB}
+		{3C2BC6F0-1B5B-4C0D-9735-1743C501F542} = {0F795EB6-F930-42A6-A16F-5297AEBE91CB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9B562F8C-30E8-4449-87E2-2CC1A712FF43}
