@@ -37,7 +37,7 @@ namespace WebTyped.Tests {
 using System;
 using WebTyped.Annotations;
 namespace Test{
-	[ClientType(""SomeClientName"", module: ""SomeClientExternalModule"")]
+	[ClientType]
 	public class SeilaTestClass {
 	}
 	

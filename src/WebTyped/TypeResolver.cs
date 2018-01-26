@@ -69,11 +69,12 @@ namespace WebTyped {
 					if(tsModel.ExternalType != null) {
 						var externalModule = tsModel.ExternalType.Value.module;
 						var externalName = tsModel.ExternalType.Value.name ?? result.Name;
-						if (externalModule != null) {
+						if (string.IsNullOrWhiteSpace(externalModule)) {
+							result.Name = externalName;
+						}
+						else {
 							var alias = context.GetAliasByModule(externalModule);
 							result.Name = $"{alias}.{externalName}";
-						} else {
-							result.Name = externalName;
 						}
 					}
 				}
