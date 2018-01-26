@@ -52,8 +52,8 @@ namespace Test{
 				new Options(null, false, ServiceMode.Angular, new string[0], "", false)
 			);
 
-			//var outputs = await generator.GenerateOutputsAsync();
-			await generator.WriteFilesAsync();
+			var outputs = await generator.GenerateOutputsAsync();
+			//await generator.WriteFilesAsync();
 		}
 
 
