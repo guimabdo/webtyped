@@ -11,7 +11,7 @@ namespace WebTyped.Elements
 	public class TsEnum : TsModelBase {
 		public TsEnum(INamedTypeSymbol modelType, TypeResolver typeResolver, Options options) : base(modelType, typeResolver, options) {}
 
-		public override async Task<string> SaveAsync() {
+		public override (string file, string content)? GenerateOutput() {
 			var subClasses = new List<INamedTypeSymbol>();
 			var sb = new StringBuilder();
 
@@ -38,8 +38,9 @@ namespace WebTyped.Elements
 			//File.WriteAllText(Path.Combine(Options.ModelsDir, Filename), sb.ToString());
 			string file = Path.Combine(Options.TypingsDir, Filename);
 			string content = sb.ToString();
-			await FileHelper.WriteAsync(file, content);
-			return file;
+			return (file, content);
+			//await FileHelper.WriteAsync(file, content);
+			//return file;
 		}
 
 		public static bool IsEnum(INamedTypeSymbol t) {

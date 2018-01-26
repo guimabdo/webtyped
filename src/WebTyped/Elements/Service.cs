@@ -39,8 +39,9 @@ namespace WebTyped {
 			//TypeResolver.Add(this);
 		}
 
-		public async Task<string> SaveAsync() {
+		public (string file, string content) GenerateOutput() {
 			var sb = new StringBuilder();
+			var context = new ResolutionContext();
 			switch (Options.ServiceMode) {
 				case ServiceMode.Jquery:
 					sb.AppendLine("import { WebTypedClient } from '@guimabdo/webtyped-jquery';");
@@ -93,7 +94,7 @@ namespace WebTyped {
 				if (!m.IsDefinition) { continue; }
 				var mtd = m as IMethodSymbol;
 				if(m.Name == ".ctor") { continue; }
-				var returnType = TypeResolver.Resolve(mtd.ReturnType as INamedTypeSymbol);
+				var returnType = TypeResolver.Resolve(mtd.ReturnType as INamedTypeSymbol, context).Name;
 				var mtdAttrs = mtd.GetAttributes();
 				//Not marked actions will accept posts
 				var httpMethod = "Post";
@@ -161,7 +162,7 @@ namespace WebTyped {
 
 				//Resolve parameters
 				var strParameters = string.Join(", ",
-					allParameters.Select(p => $"{p.Name}{(p.IsOptional ? "?" : "")}: {TypeResolver.Resolve(p.Type)}" + (TypeResolver.IsNullable(p.Type) ? " | null" : ""))
+					allParameters.Select(p => $"{p.Name}{(p.IsOptional ? "?" : "")}: {TypeResolver.Resolve(p.Type, context).Name}" + (TypeResolver.IsNullable(p.Type) ? " | null" : ""))
 				);
 
 				//if(pendingParameters.Any() && bodyParam == "null" && new string[] {
@@ -197,6 +198,7 @@ namespace WebTyped {
 				sb.AppendLine(level + 1, "};");
 			}
 			sb.AppendLine(level, "}");
+			sb.Insert(0, context.GetImportsText());
 			//if (!string.IsNullOrEmpty(Module)) {
 			//	level--;
 			//	sb.AppendLine(level, "}");
@@ -214,8 +216,9 @@ namespace WebTyped {
 			}
 			var file = Path.Combine(dir, Filename);
 			string content = sb.ToString();
-			await FileHelper.WriteAsync(file, content);
-			return file;
+			return (file, content);
+			//await FileHelper.WriteAsync(file, content);
+			//return file;
 			//File.WriteAllText(Path.Combine(Options.ServicesDir, Filename), sb.ToString());
 		}
 

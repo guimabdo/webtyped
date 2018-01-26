@@ -9,6 +9,31 @@ using System.Threading.Tasks;
 using WebTyped.Elements;
 
 namespace WebTyped {
+	public class TypeResolution {
+		public string Name { get; set; }
+	}
+
+	public class ResolutionContext {
+		int counter = 0;
+		Dictionary<string, string> _aliasByModule { get; set; } = new Dictionary<string, string>();
+		public string GetAliasByModule(string externalModule) {
+			if (!_aliasByModule.ContainsKey(externalModule)) {
+				string alias = $"extMdl{counter++}";
+				_aliasByModule[externalModule] = alias;
+			}
+
+			return _aliasByModule[externalModule];
+		}
+
+		public string GetImportsText() {
+			var sb = new StringBuilder();
+			foreach(var kvp in _aliasByModule) {
+				sb.AppendLine($"import * as {kvp.Value} from '{kvp.Key}';");
+			}
+			return sb.ToString();
+		}
+	}
+
 	public class TypeResolver {
 		public IEnumerable<Service> Services { get; private set; } = new List<Service>();
 		public IEnumerable<TsModelBase> Models { get; private set; } = new List<TsModelBase>();
@@ -35,15 +60,31 @@ namespace WebTyped {
 				(this.Services as List<Service>).Add(file as Service);
 			}
 		}
-		public string Resolve(ITypeSymbol typeSymbol) {
+		public TypeResolution Resolve(ITypeSymbol typeSymbol, ResolutionContext context) {
+			var result = new TypeResolution();
 			if (TypeFiles.TryGetValue(typeSymbol, out var tsType)) {
-				return tsType.FullName;
+				result.Name = tsType.FullName;
+				if(tsType is TsModelBase) {
+					var tsModel = tsType as Model; //TODO: think about external enums either
+					if(tsModel.ExternalType != null) {
+						var externalModule = tsModel.ExternalType.Value.module;
+						var externalName = tsModel.ExternalType.Value.name ?? result.Name;
+						if (externalModule != null) {
+							var alias = context.GetAliasByModule(externalModule);
+							result.Name = $"{alias}.{externalName}";
+						} else {
+							result.Name = externalName;
+						}
+					}
+				}
+				return result;
 			}
 
 			var type = typeSymbol as INamedTypeSymbol;
 			//tuples
 			if (type.IsTupleType) {
-				return $"{{{string.Join(", ", type.TupleElements.Select(te => $"{te.Name}: {Resolve(te.Type as INamedTypeSymbol)}"))}}}";
+				result.Name = $"{{{string.Join(", ", type.TupleElements.Select(te => $"{te.Name}: {Resolve(te.Type as INamedTypeSymbol, context).Name}"))}}}";
+				return result;
 			}
 
 			string name = type.Name;
@@ -67,10 +108,11 @@ namespace WebTyped {
 				parent = parent.ContainingType;
 			}
 			//Change type to ts type
-			var tsTypeName = ToTsTypeName(type);
-			//If contains "{" or "}" then it was converted to anonymous type, so no need to do anything more.
+			var tsTypeName = ToTsTypeName(type, context);
+			//If contains "{" or "}" then it was converted to anonymous type, so no need to do anything else.
 			if (tsTypeName.Contains("{")) {
-				return tsTypeName;
+				result.Name = tsTypeName;
+				return result;
 			}
 			//if (tsTypeName == "any") {
 			//	return $"any/* {type.ToString()} */";
@@ -80,9 +122,9 @@ namespace WebTyped {
 			//Generic
 			if (type.IsGenericType) {
 				if (string.IsNullOrEmpty(tsTypeName)) {
-					tsTypeName = Resolve(type.TypeArguments[0]);
+					tsTypeName = Resolve(type.TypeArguments[0], context).Name;
 				} else {
-					genericPart = $"<{string.Join(", ", type.TypeArguments.Select(t => Resolve(t as INamedTypeSymbol)))}>";
+					genericPart = $"<{string.Join(", ", type.TypeArguments.Select(t => Resolve(t as INamedTypeSymbol, context).Name))}>";
 				}
 			}
 			//genericPart = genericPart.Replace("*", "");
@@ -97,13 +139,14 @@ namespace WebTyped {
 			if(tsTypeName == "Array" && string.IsNullOrWhiteSpace(genericPart)) {
 				genericPart = "<any>";
 			}
-			return $"{tsTypeName}{genericPart}";
+			result.Name = $"{tsTypeName}{genericPart}";
+			return result;
 		}
 		public bool IsNullable(ITypeSymbol t) {
 			return (t as INamedTypeSymbol).ConstructedFrom.ToString() == "System.Nullable<T>";
 		}
 
-		string ToTsTypeName(INamedTypeSymbol original) {
+		string ToTsTypeName(INamedTypeSymbol original, ResolutionContext context) {
 			if (IsNullable(original)) { return ""; }
 			switch (original.SpecialType) {
 				case SpecialType.System_Boolean:
@@ -158,8 +201,8 @@ namespace WebTyped {
 				case "System.Threading.Tasks.Task<TResult>":
 					return "";
 				case "System.Collections.Generic.KeyValuePair<TKey, TValue>":
-					var keyType = Resolve(original.TypeArguments[0]);
-					var valType = Resolve(original.TypeArguments[1]);
+					var keyType = Resolve(original.TypeArguments[0], context).Name;
+					var valType = Resolve(original.TypeArguments[1], context).Name;
 					return Options.KeepPropsCase ?
 					$"{{ Key: {keyType}, Value: {valType} }}"
 					: $"{{ key: {keyType}, value: {valType} }}";
@@ -168,14 +211,17 @@ namespace WebTyped {
 			}
 		}
 
-		public async Task SaveAllAsync() {
-			var currentFiles = Directory.GetFiles(Options.OutDir, "*.ts", SearchOption.AllDirectories);
-			List<Task<string>> tasks = new List<Task<string>>();
+
+
+		void Process(Action<string, string> outputManager) {
 			foreach (var m in Models) {
-				tasks.Add(m.SaveAsync());
+				var output = m.GenerateOutput();
+				if (!output.HasValue) { continue; }
+				outputManager(output.Value.file, output.Value.content);
 			}
 			foreach (var s in Services) {
-				tasks.Add(s.SaveAsync());
+				var output = s.GenerateOutput();
+				outputManager(output.file, output.content);
 			}
 			//Create indexes
 			//Create root index
@@ -204,9 +250,7 @@ namespace WebTyped {
 				if (!string.IsNullOrEmpty(sm.Key)) {
 					var servicesDir = Path.Combine(Options.OutDir, sm.Key.ToCamelCase());
 					var serviceIndexFile = Path.Combine(servicesDir, "index.ts");
-					//files.Add(serviceIndexFile);
-					//await FileHelper.WriteAsync(serviceIndexFile, sbServiceIndex.ToString());
-					tasks.Add(FileHelper.WriteAsync(serviceIndexFile, sbServiceIndex.ToString()));
+					outputManager(serviceIndexFile, sbServiceIndex.ToString());
 				}
 				counter++;
 			}
@@ -214,14 +258,6 @@ namespace WebTyped {
 			sbRootIndex.AppendLine(1, string.Join($",{System.Environment.NewLine}	", services));
 			sbRootIndex.AppendLine("]");
 			if (Options.ServiceMode == ServiceMode.Angular) {
-				//sbRootIndex.AppendLine("@NgModule({");
-				//sbRootIndex.AppendLine(1, "imports: [ HttpClientModule ],");
-				//sbRootIndex.AppendLine(1, "providers: [");
-				//sbRootIndex.AppendLine(2, "WebTypedEventEmitterService,");
-				//sbRootIndex.AppendLine(2, "...serviceTypes");
-				//sbRootIndex.AppendLine(1, "]");
-				//sbRootIndex.AppendLine("})");
-				//sbRootIndex.AppendLine("export class WebTypedGeneratedModule {}");
 				sbRootIndex.AppendLine("@NgModule({");
 				sbRootIndex.AppendLine(1, "imports: [ HttpClientModule ]");
 				sbRootIndex.AppendLine("})");
@@ -244,11 +280,19 @@ namespace WebTyped {
 			}
 
 			var rootIndexFile = Path.Combine(Options.OutDir, "index.ts");
-			//files.Add(rootIndexFile);
-			//await FileHelper.WriteAsync(rootIndexFile, sbRootIndex.ToString());
-			tasks.Add(FileHelper.WriteAsync(rootIndexFile, sbRootIndex.ToString()));
+			outputManager(rootIndexFile, sbRootIndex.ToString());
+		}
 
+		public Dictionary<string, string> GenerateOutputs() {
+			var result = new Dictionary<string, string>();
+			Process((file, content) => result.Add(file, content));
+			return result;
+		}
 
+		public async Task SaveAllAsync() {
+			var currentFiles = Directory.GetFiles(Options.OutDir, "*.ts", SearchOption.AllDirectories);
+			List<Task<string>> tasks = new List<Task<string>>();
+			Process((file, content) => tasks.Add(FileHelper.WriteAsync(file, content)));
 			if (Options.Clear) {
 				Console.WriteLine("Webtyped - Clearing invalid files");
 				//currentFiles.ToList().ForEach(f => Console.WriteLine(f));

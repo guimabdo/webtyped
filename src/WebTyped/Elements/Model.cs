@@ -5,13 +5,29 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WebTyped.Annotations;
 using WebTyped.Elements;
 
 namespace WebTyped {
 	public class Model : TsModelBase {
 		public Model(INamedTypeSymbol modelType, TypeResolver typeResolver, Options options) : base(modelType, typeResolver, options) {}
 
-		public override async Task<string> SaveAsync() {
+		public (string name, string module)? ExternalType {
+			get {
+				var clientTypeAttr = TypeSymbol.GetAttributes().FirstOrDefault(a => a.AttributeClass.Name == nameof(ClientTypeAttribute));
+
+				if (clientTypeAttr == null) { return null; }
+
+				var args = clientTypeAttr.ConstructorArguments.ToList();
+				return (args[0].Value.ToString(), args[1].Value.ToString());
+			}
+		}
+
+
+		public override (string file, string content)? GenerateOutput() {
+			//If external
+			if(this.ExternalType != null) { return null; }
+
 			var subClasses = new List<INamedTypeSymbol>();
 			var sb = new StringBuilder();
 
@@ -23,9 +39,11 @@ namespace WebTyped {
 				level++;
 			}
 			string inheritance = "";
-			if(TypeSymbol.BaseType != null && TypeSymbol.BaseType.SpecialType != SpecialType.System_Object) {
-				inheritance = $"extends {TypeResolver.Resolve(TypeSymbol.BaseType)} ";
+			var context = new ResolutionContext();
+			if (TypeSymbol.BaseType != null && TypeSymbol.BaseType.SpecialType != SpecialType.System_Object) {
+				inheritance = $"extends {TypeResolver.Resolve(TypeSymbol.BaseType, context).Name} ";
 			}
+			
 			sb.AppendLine(level, $"{(hasModule ? "" : "declare ")}interface {TypeSymbol.Name} {inheritance}{{");
 			foreach (var m in TypeSymbol.GetMembers()) {
 				if (m.Kind == SymbolKind.NamedType) {
@@ -37,18 +55,19 @@ namespace WebTyped {
 				var prop = m as IPropertySymbol;
 				var isNullable = TypeResolver.IsNullable(prop.Type);
 				var name = Options.KeepPropsCase ? m.Name : m.Name.ToCamelCase();
-				sb.AppendLine(level + 1, $"{name}{(isNullable ? "?":"")}: {TypeResolver.Resolve(prop.Type)};");
+				sb.AppendLine(level + 1, $"{name}{(isNullable ? "?":"")}: {TypeResolver.Resolve(prop.Type, context).Name};");
 			}
 			sb.AppendLine(level, "}");
 			if (!string.IsNullOrEmpty(Module)) {
 				sb.AppendLine("}");
 			}
-
+			sb.Insert(0, context.GetImportsText());
 			//File.WriteAllText(Path.Combine(Options.ModelsDir, Filename), sb.ToString());
 			string file = Path.Combine(Options.TypingsDir, Filename);
 			string content = sb.ToString();
-			await FileHelper.WriteAsync(file, content);
-			return file;
+			return (file, content);
+			//await FileHelper.WriteAsync(file, content);
+			//return file;
 		}
 
 		public static bool IsModel(INamedTypeSymbol t) {

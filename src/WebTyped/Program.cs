@@ -48,31 +48,8 @@ namespace WebTyped {
 							.ContinueWith(tsk => {
 								trees.TryAdd(csFile, CSharpSyntaxTree.ParseText(tsk.Result));
 							}));
-						//trees.Add(CSharpSyntaxTree.ParseText(await File.ReadAllTextAsync(csFile)));
 					}
-					//Wait all tasks
-
-					////Wait all task
-					//while (tasks.Any()) {
-					//	tasks.RemoveAll(t => t.IsCompleted);
-					//	//var completed = tasks.FirstOrDefault(t => t.IsCompleted);
-					//	//if (completed != null) {
-					//	//	//trees.Add(CSharpSyntaxTree.ParseText(await completed));
-					//	//	tasks.Remove(completed);
-					//	//}
-					//}
-
-					//References
-					var mscorlib = MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
-					var webTypedAnnotations = MetadataReference.CreateFromFile(typeof(ClientTypeAttribute).Assembly.Location);
-					var systemRuntime = MetadataReference.CreateFromFile(typeof(int).Assembly.Location);
-					var linqExpressions = MetadataReference.CreateFromFile(typeof(IQueryable).Assembly.Location);
-					foreach (var task in tasks) { await task; }
-					var compilation = CSharpCompilation.Create("Comp", trees.Values, new[] { mscorlib, systemRuntime, linqExpressions, webTypedAnnotations });
-
-					//1200ms
-
-					var semanticModels = trees.Values.ToDictionary(t => t, t => compilation.GetSemanticModel(t));
+					
 					var svModeEnum = ServiceMode.Angular;
 					if (serviceMode.HasValue()) {
 						switch (serviceMode.Value()) {
@@ -86,41 +63,9 @@ namespace WebTyped {
 					}
 
 					var options = new Options(outDir.Value(), clear.HasValue(), svModeEnum, trims.Values, baseModule.Value(), keepPropsCase.HasValue());
-					var typeResolver = new TypeResolver(options);
 
-					//1330ms
-					tasks = new List<Task>();
-					var namedTypeSymbols = new ConcurrentBag<INamedTypeSymbol>();
-					foreach (var t in trees.Values) {
-						tasks.Add(t.GetRootAsync().ContinueWith(tks => {
-							var root = tks.Result;
-							foreach (var @type in root.DescendantNodes().OfType<BaseTypeDeclarationSyntax>()) {
-								var sm = semanticModels[t];
-								namedTypeSymbols.Add(sm.GetDeclaredSymbol(@type));
-							}
-						}));
-					}
-					foreach (var tsk in tasks) { await tsk; }
-					foreach (var s in namedTypeSymbols) {
-						if (Service.IsService(s)) {
-							typeResolver.Add(new Service(s, typeResolver, options));
-							continue;
-						}
-
-						if (Model.IsModel(s)) {
-							typeResolver.Add(new Model(s, typeResolver, options));
-							continue;
-						}
-
-						if (TsEnum.IsEnum(s)) {
-							typeResolver.Add(new TsEnum(s, typeResolver, options));
-							continue;
-						}
-					}
-					//return 0;
-
-					await typeResolver.SaveAllAsync();
-					//var saveTask = typeResolver.SaveAllAsync();
+					var gen = new Generator(trees.Values, options);
+					await gen.WriteFilesAsync();
 					return 0;
 				});
 			});

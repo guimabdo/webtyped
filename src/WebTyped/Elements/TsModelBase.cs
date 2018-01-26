@@ -1,9 +1,11 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WebTyped.Annotations;
 
 namespace WebTyped.Elements {
 	public abstract class TsModelBase : ITsFile {
@@ -21,6 +23,7 @@ namespace WebTyped.Elements {
 			}
 		}
 
+	
 		public string Module {
 			get {
 				var parent = TypeSymbol.ContainingType;
@@ -71,6 +74,7 @@ namespace WebTyped.Elements {
 			Options = options;
 		}
 
-		public abstract Task<string> SaveAsync();
+		//public abstract Task<string> SaveAsync();
+		public abstract (string file, string content)? GenerateOutput();
 	}
 }
