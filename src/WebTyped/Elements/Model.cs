@@ -12,17 +12,7 @@ namespace WebTyped {
 	public class Model : TsModelBase {
 		public Model(INamedTypeSymbol modelType, TypeResolver typeResolver, Options options) : base(modelType, typeResolver, options) {}
 
-		public (string name, string module)? ExternalType {
-			get {
-				var clientTypeAttr = TypeSymbol.GetAttributes().FirstOrDefault(a => a.AttributeClass.Name == nameof(ClientTypeAttribute));
-
-				if (clientTypeAttr == null) { return null; }
-
-				var args = clientTypeAttr.ConstructorArguments.ToList();
-				return (args[0].Value.ToString(), args[1].Value.ToString());
-			}
-		}
-
+	
 
 		public override (string file, string content)? GenerateOutput() {
 			//If external

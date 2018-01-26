@@ -65,7 +65,7 @@ namespace WebTyped {
 			if (TypeFiles.TryGetValue(typeSymbol, out var tsType)) {
 				result.Name = tsType.FullName;
 				if(tsType is TsModelBase) {
-					var tsModel = tsType as Model; //TODO: think about external enums either
+					var tsModel = tsType as TsModelBase;
 					if(tsModel.ExternalType != null) {
 						var externalModule = tsModel.ExternalType.Value.module;
 						var externalName = tsModel.ExternalType.Value.name ?? result.Name;

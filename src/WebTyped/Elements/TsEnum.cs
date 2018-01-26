@@ -12,6 +12,8 @@ namespace WebTyped.Elements
 		public TsEnum(INamedTypeSymbol modelType, TypeResolver typeResolver, Options options) : base(modelType, typeResolver, options) {}
 
 		public override (string file, string content)? GenerateOutput() {
+			//If external
+			if (this.ExternalType != null) { return null; }
 			var subClasses = new List<INamedTypeSymbol>();
 			var sb = new StringBuilder();
 
