@@ -24,6 +24,7 @@ namespace WebTyped {
 			ServiceMode serviceMode,
 			IEnumerable<String> moduleTrims, string baseModule, bool keepPropsCase) {
 			ModuleTrims = moduleTrims.OrderByDescending(m => m.Length);
+			if (string.IsNullOrWhiteSpace(outDir)) { outDir = "./"; }
 			OutDir = outDir;
 			TypingsDir = Path.Combine(outDir, "typings");
 			Directory.CreateDirectory(TypingsDir);

@@ -49,10 +49,11 @@ namespace Test{
 
 			var generator = new Generator(
 				new string[] { cs }, 
-				new Options("", false, ServiceMode.Angular, new string[0], "", false)
+				new Options(null, false, ServiceMode.Angular, new string[0], "", false)
 			);
 
-			var outputs = await generator.GenerateOutputsAsync();
+			//var outputs = await generator.GenerateOutputsAsync();
+			await generator.WriteFilesAsync();
 		}
 
 

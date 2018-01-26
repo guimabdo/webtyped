@@ -64,6 +64,7 @@ namespace WebTyped {
 
 					var options = new Options(outDir.Value(), clear.HasValue(), svModeEnum, trims.Values, baseModule.Value(), keepPropsCase.HasValue());
 
+					foreach (var task in tasks) { await task; }
 					var gen = new Generator(trees.Values, options);
 					await gen.WriteFilesAsync();
 					return 0;
