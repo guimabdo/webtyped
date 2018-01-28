@@ -25,7 +25,7 @@ namespace WebTyped.Elements
 				level++;
 			}
 
-			sb.AppendLine(level, $"{(hasModule ? "" : "declare ")}enum {TypeSymbol.Name} {{");
+			sb.AppendLine(level, $"{(hasModule ? "" : "declare ")}const enum {TypeSymbol.Name} {{");
 			foreach (var m in TypeSymbol.GetMembers()) {
 				if (m.Kind == SymbolKind.Field) {
 					var f = m as IFieldSymbol;
