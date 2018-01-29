@@ -1,17 +1,18 @@
 ﻿import { WebTypedEventEmitter, WebTypedCallInfo } from '@guimabdo/webtyped-common';
 import * as $ from 'jquery';
-class FakeXhr<T> extends Promise<T> {
-    state: () => "pending" | "resolved" | "rejected" = () => "pending";
-    statusCode = () => 0;
-    always = () => this;
-    fail = () => this;
-    done = () => this;
-    progress = () => this;
-    promise = () => this;
-    constructor() {
-        super((res, rej) => res(null));
-    }
-}
+//???
+//class FakeXhr<T> extends Promise<T> {
+//    state: () => "pending" | "resolved" | "rejected" = () => "pending";
+//    statusCode = () => 0;
+//    always = () => this;
+//    fail = () => this;
+//    done = () => this;
+//    progress = () => this;
+//    promise = () => this;
+//    constructor() {
+//        super((res, rej) => res(null));
+//    }
+//}
 var any$ = <any>$;
 any$.webtyped = new WebTypedEventEmitter();
 export class WebTypedClient {
@@ -40,10 +41,11 @@ export class WebTypedClient {
     }
     private invoke<T>(info: WebTypedCallInfo<T>, action: string,
         httpMethod: string, body?: any, search?: any): JQuery.jqXHR<T> {
-        if (typeof ($.ajax) === 'undefined') {
-            var anyFake: any = new FakeXhr<T>();
-            return <JQuery.jqXHR<T>>anyFake;
-        };
+        //???
+        //if (typeof ($.ajax) === 'undefined') {
+        //    var anyFake: any = new FakeXhr<T>();
+        //    return <JQuery.jqXHR<T>>anyFake;
+        //};
         
         var baseUrl = this.baseUrl;
         if (baseUrl.endsWith('/')) { baseUrl = baseUrl.substr(0, baseUrl.length - 1); }
