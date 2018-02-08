@@ -30,7 +30,7 @@ namespace WebTyped {
 					this.RelayFormat = unsupportedNamedTupleMessage;
 					typeName = unsupportedNamedTupleMessage;
 				} else {
-					this.RelayFormat = $"{res.MapAltToOriginalFunc}({this.Name})";
+					this.RelayFormat = $"{this.Name}: {res.MapAltToOriginalFunc}({this.Name})";
 					typeName = res.AltName;
 				}
 			}
