@@ -49,6 +49,12 @@ namespace Test{
 		[HttpGet]
 		public void Get([NamedTuple](int id, string name) param){}
 
+		[HttpPost]
+		public void Post2((int id, string name) param){}
+
+		[HttpGet]
+		public void Get2((int id, string name) param){}
+
 		[HttpGet]
 		public void GetErr([NamedTuple]string param){}
     }

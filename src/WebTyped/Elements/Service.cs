@@ -20,14 +20,21 @@ namespace WebTyped {
 			this.Name = parameterSymbol.Name;
 			this.RelayFormat = this.Name;
 			var p = parameterSymbol;
-			this.Signature = $"{p.Name}{(p.IsOptional ? "?" : "")}: {res.AltName ?? res.Name}" + (res.IsNullable ? " | null" : "");
-			if (p.GetAttributes().Any(a => a.AttributeClass.Name == nameof(NamedTupleAttribute))) {
-				if (string.IsNullOrWhiteSpace(res.MapAltToOriginalFunc)) {
-					this.RelayFormat = "[UNSUPPORTED - NamedTupleAttribute must be used only for tuple parameters]";
+			var hasNamedTupleAttr = p.GetAttributes().Any(a => a.AttributeClass.Name == nameof(NamedTupleAttribute));
+			var hasMapFunc = string.IsNullOrWhiteSpace(res.MapAltToOriginalFunc);
+			string unsupportedNamedTupleMessage = "[UNSUPPORTED - NamedTupleAttribute must be used only for tuple parameters]";
+			string typeName = res.Name;
+			
+			if (hasNamedTupleAttr) {
+				if (!hasMapFunc) {
+					this.RelayFormat = unsupportedNamedTupleMessage;
+					typeName = unsupportedNamedTupleMessage;
 				} else {
 					this.RelayFormat = $"{res.MapAltToOriginalFunc}({this.Name})";
+					typeName = res.AltName;
 				}
 			}
+			this.Signature = $"{p.Name}{(p.IsOptional ? "?" : "")}: {typeName}" + (res.IsNullable ? " | null" : "");
 			this.Ignore = p.GetAttributes().Any(a => a.AttributeClass.Name == "FromServices");
 		}
 		
