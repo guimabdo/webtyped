@@ -21,7 +21,7 @@ namespace WebTyped {
 			this.RelayFormat = this.Name;
 			var p = parameterSymbol;
 			var hasNamedTupleAttr = p.GetAttributes().Any(a => a.AttributeClass.Name == nameof(NamedTupleAttribute));
-			var hasMapFunc = string.IsNullOrWhiteSpace(res.MapAltToOriginalFunc);
+			var hasMapFunc = !string.IsNullOrWhiteSpace(res.MapAltToOriginalFunc);
 			string unsupportedNamedTupleMessage = "[UNSUPPORTED - NamedTupleAttribute must be used only for tuple parameters]";
 			string typeName = res.Name;
 			
