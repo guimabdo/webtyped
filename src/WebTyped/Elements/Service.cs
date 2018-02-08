@@ -6,8 +6,33 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WebTyped.Annotations;
 
 namespace WebTyped {
+	public class ParameterResolution {
+		public string Name { get; private set; }
+		public string Signature { get; private set; }
+		public string RelayFormat { get; private set; }
+		public bool FromBody { get; private set; }
+		public bool Ignore { get; private set; }
+		public ParameterResolution(IParameterSymbol parameterSymbol, TypeResolver typeResolver, ResolutionContext context) {
+			var res = typeResolver.Resolve(parameterSymbol.Type, context);
+			this.Name = parameterSymbol.Name;
+			this.RelayFormat = this.Name;
+			var p = parameterSymbol;
+			this.Signature = $"{p.Name}{(p.IsOptional ? "?" : "")}: {res.AltName ?? res.Name}" + (res.IsNullable ? " | null" : "");
+			if (p.GetAttributes().Any(a => a.AttributeClass.Name == nameof(NamedTupleAttribute))) {
+				if (string.IsNullOrWhiteSpace(res.MapAltToOriginalFunc)) {
+					this.RelayFormat = "[UNSUPPORTED - NamedTupleAttribute must be used only for tuple parameters]";
+				} else {
+					this.RelayFormat = $"{res.MapAltToOriginalFunc}({this.Name})";
+				}
+			}
+			this.Ignore = p.GetAttributes().Any(a => a.AttributeClass.Name == "FromServices");
+		}
+		
+	}
+
 	public class Service : ITsFile {
 		public string Module { get; private set; }
 		string Filename { get { return $"{FilenameWithoutExtenstion}.ts"; } }
@@ -137,33 +162,25 @@ namespace WebTyped {
 					.Replace("[action]", methodName)
 					.Replace("{", "${");
 
-				
 				//Resolve how parameters are sent
-				var pendingParameters = new List<string>();
-				var allParameters = new List<IParameterSymbol>();
+				//var pendingParameters = new List<string>();
+				var pendingParameters = new List<ParameterResolution>();
+				var parameterResolutions = mtd.Parameters.Select(p => new ParameterResolution(p, TypeResolver, context)).Where(p => !p.Ignore);
 				var bodyParam = "null";
-				foreach (var p in mtd.Parameters) {
-					//[FromServices]
-					if (p.GetAttributes().Any(a => a.AttributeClass.Name == "FromServices")) {
-						continue;
-					}
-					allParameters.Add(p);
+				foreach(var pr in parameterResolutions) {
 					//[FromRoute]
-					if (action.Contains($"{{{p.Name}}}")) {
+					if (action.Contains($"{{{pr.Name}}}")) {
 						continue;
 					}
-					//[FromBody]
-					if (p.GetAttributes().Any(a => a.AttributeClass.Name == "FromBody")) {
-						bodyParam = p.Name;
-						continue;
-					}
-					pendingParameters.Add(p.Name);
-				}
 
-				//Resolve parameters
-				var strParameters = string.Join(", ",
-					allParameters.Select(p => $"{p.Name}{(p.IsOptional ? "?" : "")}: {TypeResolver.Resolve(p.Type, context).Name}" + (TypeResolver.IsNullable(p.Type) ? " | null" : ""))
-				);
+					//[FromBody]
+					if (pr.FromBody) {
+						bodyParam = pr.RelayFormat;
+						continue;
+					}
+					pendingParameters.Add(pr);
+				}
+				var strParameters = string.Join(", ", parameterResolutions.Select(pr => pr.Signature));
 
 				//if(pendingParameters.Any() && bodyParam == "null" && new string[] {
 				//	"Put", "Patch", "Post"
@@ -180,7 +197,7 @@ namespace WebTyped {
 				sb.AppendLine(level + 1, $"{methodName} = ({strParameters}) : {genericReturnType}<{returnType}> => {{");
 				sb.AppendLine(level + 2, $"return this.invoke{httpMethod}<{returnType}>({{");
 				sb.AppendLine(level + 4, $"func: this.{methodName},");
-				sb.AppendLine(level + 4, $"parameters: {{ {string.Join(", ", allParameters.Select(p => p.Name))} }}");
+				sb.AppendLine(level + 4, $"parameters: {{ {string.Join(", ", parameterResolutions.Select(p => p.Name))} }}");
 				sb.AppendLine(level + 3, "},");
 				sb.AppendLine(level + 3, $"`{action}`,");
 				//Body
@@ -192,7 +209,7 @@ namespace WebTyped {
 						break;
 					default: break;
 				}
-				var search = pendingParameters.Any() ? $"{{ {string.Join(", ", pendingParameters)} }}" : "undefined";
+				var search = pendingParameters.Any() ? $"{{ {string.Join(", ", pendingParameters.Select(pr => pr.RelayFormat))} }}" : "undefined";
 				sb.AppendLine(level + 3, $"{search}");
 				sb.AppendLine(level + 2, ");");
 				sb.AppendLine(level + 1, "};");

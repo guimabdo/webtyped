@@ -11,6 +11,13 @@ using WebTyped.Elements;
 namespace WebTyped {
 	public class TypeResolution {
 		public string Name { get; set; }
+		/// <summary>
+		/// Currently used for named tuples...
+		/// </summary>
+		public string AltName { get; set; }
+
+		public string MapAltToOriginalFunc { get; set; }
+		public bool IsNullable { get; set; }
 	}
 
 	public class ResolutionContext {
@@ -42,15 +49,7 @@ namespace WebTyped {
 		public TypeResolver(Options options) {
 			this.Options = options;
 		}
-		//public void Add(Service service) {
-		//	this.TypeFiles[service.TypeSymbol] = service;
-		//	(this.Services as List<Service>).Add(service);
-		//}
-		//public void Add(Model model) {
-		//	this.TypeFiles[model.TypeSymbol] = model;
-		//	(this.Models as List<Model>).Add(model);
-		//}
-
+	
 		public void Add(ITsFile file) {
 			this.TypeFiles[file.TypeSymbol] = file;
 			if (file is TsModelBase) {
@@ -62,6 +61,7 @@ namespace WebTyped {
 		}
 		public TypeResolution Resolve(ITypeSymbol typeSymbol, ResolutionContext context) {
 			var result = new TypeResolution();
+			result.IsNullable = IsNullable(typeSymbol);
 			if (TypeFiles.TryGetValue(typeSymbol, out var tsType)) {
 				result.Name = tsType.FullName;
 				if(tsType is TsModelBase) {
@@ -84,7 +84,24 @@ namespace WebTyped {
 			var type = typeSymbol as INamedTypeSymbol;
 			//tuples
 			if (type.IsTupleType) {
-				result.Name = $"{{{string.Join(", ", type.TupleElements.Select(te => $"{te.Name}: {Resolve(te.Type as INamedTypeSymbol, context).Name}"))}}}";
+				//var tupleProps = type.TupleElements
+				//	.Select(te => $"{(Options.KeepPropsCase ? te.Name : te.Name.ToCamelCase())}: {Resolve(te.Type as INamedTypeSymbol, context).Name}");
+				var tupleElements = type.TupleElements
+					.Select(te => new {
+						field = (Options.KeepPropsCase ? te.Name : te.Name.ToCamelCase()),
+						tupleField = (Options.KeepPropsCase ? te.CorrespondingTupleField.Name : te.CorrespondingTupleField.Name.ToCamelCase()),
+						type = Resolve(te.Type as INamedTypeSymbol, context).Name
+					});
+				
+				var tupleProps = tupleElements
+					.Select(te => $"/** field:{te.field} */{te.tupleField}: {te.type}");
+				var tupleAltProps = tupleElements
+					.Select(te => $"/** tuple field:{te.tupleField} */{te.field}: {te.type}");
+				result.Name = $"{{{string.Join(", ", tupleProps)}}}";
+				result.AltName = $"{{{string.Join(", ", tupleAltProps)}}}";
+				var mapParam = "__source";
+				var mapping = string.Join(", ", tupleElements.Select(t => $"{t.tupleField}: {mapParam}.{t.field}"));
+				result.MapAltToOriginalFunc = $"function({mapParam}) {{ return {{ {mapping}  }} }}";
 				return result;
 			}
 

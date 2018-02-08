@@ -22,14 +22,46 @@ namespace WebTyped.Tests {
 			//kvpType = typeof(KeyValuePair<int, string>);
 			var typeSymbol = compilation.GetTypeByMetadataName(kvpType.FullName);
 			typeSymbol = typeSymbol.Construct(
-				compilation.GetTypeByMetadataName(typeof(int).FullName), 
+				compilation.GetTypeByMetadataName(typeof(int).FullName),
 				compilation.GetTypeByMetadataName(typeof(string).FullName)
 			);
 			var name = tr.Resolve(typeSymbol, new ResolutionContext());
 			Assert.AreEqual(name, "{ key: number, value: string }");
 		}
 
-		
+		[TestMethod]
+		public async Task TupleTest() {
+			var cs =
+@"
+using System;
+using WebTyped.Annotations;
+namespace Test{
+	public class ModelWithTuples {
+		public (int, string) Tuple1 { get; set; }
+		public (int id, string name) Tuple2 { get; set; }
+	}
+
+	[Route(""api/[controller]"")]
+	public class ApiWithTupleController {
+		[HttpPost]
+		public void Post([NamedTuple](int id, string name) param){}
+
+		[HttpGet]
+		public void Get([NamedTuple](int id, string name) param){}
+
+		[HttpGet]
+		public void GetErr([NamedTuple]string param){}
+    }
+}
+";
+
+			var generator = new Generator(
+				new string[] { cs },
+				new Options(null, false, ServiceMode.Angular, new string[0], "", false)
+			);
+			var outputs = await generator.GenerateOutputsAsync();
+		}
+
 		[TestMethod]
 		public async Task SeilaTest() {
 			var cs =
@@ -48,7 +80,7 @@ namespace Test{
 ";
 
 			var generator = new Generator(
-				new string[] { cs }, 
+				new string[] { cs },
 				new Options(null, false, ServiceMode.Angular, new string[0], "", false)
 			);
 

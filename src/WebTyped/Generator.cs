@@ -23,13 +23,17 @@ namespace WebTyped {
 		async Task<TypeResolver> PrepareAsync() {
 			var trees = _trees.ToList();
 			//TODO: Temp workaround.. investigate why referencing annotations assembly is nor working properly
-			var clientTypeAttribute = CSharpSyntaxTree.ParseText(@"
+			var attributes = CSharpSyntaxTree.ParseText(@"
 using System;
 
 namespace WebTyped.Annotations {
 	[AttributeUsage(AttributeTargets.Class)]
 	public class ClientTypeAttribute : Attribute {
 		public ClientTypeAttribute(string typeName = null, string module = null) {}
+	}
+	[AttributeUsage(AttributeTargets.Parameter)]
+	public class NamedTupleAttribute : Attribute {
+		public NamedTupleAttribute() {}
 	}
 }
 				
@@ -40,7 +44,7 @@ namespace WebTyped.Annotations {
 			var systemRuntime = MetadataReference.CreateFromFile(typeof(int).Assembly.Location);
 			var linqExpressions = MetadataReference.CreateFromFile(typeof(IQueryable).Assembly.Location);
 
-			var compilation = CSharpCompilation.Create("Comp", trees.Union(new SyntaxTree[] { clientTypeAttribute }), new[] { mscorlib, systemRuntime, linqExpressions/*, webTypedAnnotations*/ });
+			var compilation = CSharpCompilation.Create("Comp", trees.Union(new SyntaxTree[] { attributes }), new[] { mscorlib, systemRuntime, linqExpressions/*, webTypedAnnotations*/ });
 			var typeResolver = new TypeResolver(_options);
 			var tasks = new List<Task>();
 			var namedTypeSymbols = new ConcurrentBag<INamedTypeSymbol>();
