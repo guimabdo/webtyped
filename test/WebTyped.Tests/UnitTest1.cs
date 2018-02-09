@@ -44,13 +44,13 @@ namespace Test{
 	[Route(""api/[controller]"")]
 	public class ApiWithTupleController {
 		[HttpPost]
-		public void Post([NamedTuple](int id, string name) param){}
+		public void Post([FromBody][NamedTuple](int id, string name) param){}
 
 		[HttpGet]
 		public void Get([NamedTuple](int id, string name) param){}
 
 		[HttpPost]
-		public void Post2((int id, string name) param){}
+		public void Post2([FromBody](int id, string name) param){}
 
 		[HttpGet]
 		public void Get2((int id, string name) param){}

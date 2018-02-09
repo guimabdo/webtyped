@@ -12,25 +12,31 @@ namespace WebTyped {
 	public class ParameterResolution {
 		public string Name { get; private set; }
 		public string Signature { get; private set; }
-		public string RelayFormat { get; private set; }
+		public string BodyRelayFormat { get; private set; }
+		public string SearchRelayFormat { get; private set; }
 		public bool FromBody { get; private set; }
 		public bool Ignore { get; private set; }
 		public ParameterResolution(IParameterSymbol parameterSymbol, TypeResolver typeResolver, ResolutionContext context) {
 			var res = typeResolver.Resolve(parameterSymbol.Type, context);
 			this.Name = parameterSymbol.Name;
-			this.RelayFormat = this.Name;
+			this.BodyRelayFormat = this.Name;
+			this.SearchRelayFormat = this.Name;
 			var p = parameterSymbol;
-			var hasNamedTupleAttr = p.GetAttributes().Any(a => a.AttributeClass.Name == nameof(NamedTupleAttribute));
+			var attrs = p.GetAttributes();
+			this.FromBody = attrs.Any(a => a.AttributeClass.Name.StartsWith("FromBody"));
+			var hasNamedTupleAttr = attrs.Any(a => a.AttributeClass.Name == nameof(NamedTupleAttribute));
 			var hasMapFunc = !string.IsNullOrWhiteSpace(res.MapAltToOriginalFunc);
 			string unsupportedNamedTupleMessage = "[UNSUPPORTED - NamedTupleAttribute must be used only for tuple parameters]";
 			string typeName = res.Name;
 			
 			if (hasNamedTupleAttr) {
 				if (!hasMapFunc) {
-					this.RelayFormat = unsupportedNamedTupleMessage;
+					this.BodyRelayFormat = unsupportedNamedTupleMessage;
+					this.SearchRelayFormat = unsupportedNamedTupleMessage;
 					typeName = unsupportedNamedTupleMessage;
 				} else {
-					this.RelayFormat = $"{this.Name}: {res.MapAltToOriginalFunc}({this.Name})";
+					this.BodyRelayFormat = $"{res.MapAltToOriginalFunc}({this.Name})";
+					this.SearchRelayFormat = $"{this.Name}: {this.BodyRelayFormat}";
 					typeName = res.AltName;
 				}
 			}
@@ -182,7 +188,7 @@ namespace WebTyped {
 
 					//[FromBody]
 					if (pr.FromBody) {
-						bodyParam = pr.RelayFormat;
+						bodyParam = pr.BodyRelayFormat;
 						continue;
 					}
 					pendingParameters.Add(pr);
@@ -216,7 +222,7 @@ namespace WebTyped {
 						break;
 					default: break;
 				}
-				var search = pendingParameters.Any() ? $"{{ {string.Join(", ", pendingParameters.Select(pr => pr.RelayFormat))} }}" : "undefined";
+				var search = pendingParameters.Any() ? $"{{ {string.Join(", ", pendingParameters.Select(pr => pr.SearchRelayFormat))} }}" : "undefined";
 				sb.AppendLine(level + 3, $"{search}");
 				sb.AppendLine(level + 2, ");");
 				sb.AppendLine(level + 1, "};");
