@@ -18,6 +18,7 @@ namespace WebTyped {
 
 		public string MapAltToOriginalFunc { get; set; }
 		public bool IsNullable { get; set; }
+		public bool IsTuple { get; set; }
 	}
 
 	public class ResolutionContext {
@@ -102,6 +103,7 @@ namespace WebTyped {
 				var mapParam = "__source";
 				var mapping = string.Join(", ", tupleElements.Select(t => $"{t.tupleField}: {mapParam}.{t.field}"));
 				result.MapAltToOriginalFunc = $"function({mapParam}) {{ return {{ {mapping}  }} }}";
+				result.IsTuple = true;
 				return result;
 			}
 

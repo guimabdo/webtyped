@@ -25,12 +25,12 @@ namespace WebTyped {
 			var attrs = p.GetAttributes();
 			this.FromBody = attrs.Any(a => a.AttributeClass.Name.StartsWith("FromBody"));
 			var hasNamedTupleAttr = attrs.Any(a => a.AttributeClass.Name == nameof(NamedTupleAttribute));
-			var hasMapFunc = !string.IsNullOrWhiteSpace(res.MapAltToOriginalFunc);
+			//var hasMapFunc = !string.IsNullOrWhiteSpace(res.MapAltToOriginalFunc);
 			string unsupportedNamedTupleMessage = "[UNSUPPORTED - NamedTupleAttribute must be used only for tuple parameters]";
 			string typeName = res.Name;
 			
 			if (hasNamedTupleAttr) {
-				if (!hasMapFunc) {
+				if (!res.IsTuple) {
 					this.BodyRelayFormat = unsupportedNamedTupleMessage;
 					this.SearchRelayFormat = unsupportedNamedTupleMessage;
 					typeName = unsupportedNamedTupleMessage;
@@ -132,8 +132,17 @@ namespace WebTyped {
 				if (!m.IsDefinition) { continue; }
 				var mtd = m as IMethodSymbol;
 				if(m.Name == ".ctor") { continue; }
-				var returnType = TypeResolver.Resolve(mtd.ReturnType as INamedTypeSymbol, context).Name;
+				var returnType = TypeResolver.Resolve(mtd.ReturnType as INamedTypeSymbol, context);
+				var returnTypeName = returnType.Name;
 				var mtdAttrs = mtd.GetAttributes();
+				var hasNamedTupleAttr = mtdAttrs.Any(a => a.AttributeClass.Name == nameof(NamedTupleAttribute));
+				if (hasNamedTupleAttr) {
+					if (!returnType.IsTuple) {
+						returnTypeName = "[UNSUPPORTED - NamedTupleAttribute must be used only for tuples]";
+					} else {
+						returnTypeName = returnType.AltName;
+					}
+				}
 				//Not marked actions will accept posts
 				var httpMethod = "Post";
 				string action = "";
@@ -207,8 +216,8 @@ namespace WebTyped {
 					case ServiceMode.Fetch: genericReturnType = "Promise"; break;
 					case ServiceMode.Angular:default: genericReturnType = "Observable"; break;
 				}
-				sb.AppendLine(level + 1, $"{methodName} = ({strParameters}) : {genericReturnType}<{returnType}> => {{");
-				sb.AppendLine(level + 2, $"return this.invoke{httpMethod}<{returnType}>({{");
+				sb.AppendLine(level + 1, $"{methodName} = ({strParameters}) : {genericReturnType}<{returnTypeName}> => {{");
+				sb.AppendLine(level + 2, $"return this.invoke{httpMethod}<{returnTypeName}>({{");
 				sb.AppendLine(level + 4, $"func: this.{methodName},");
 				sb.AppendLine(level + 4, $"parameters: {{ {string.Join(", ", parameterResolutions.Select(p => p.Name))} }}");
 				sb.AppendLine(level + 3, "},");

@@ -57,6 +57,13 @@ namespace Test{
 
 		[HttpGet]
 		public void GetErr([NamedTuple]string param){}
+
+		[HttpGet]
+		[NamedTuple]
+		public (int id, string name) Get3([NamedTuple](int id, string name) param){}
+
+		[HttpGet]
+		public (int id, string name) Get4([NamedTuple](int id, string name) param){}
     }
 }
 ";
