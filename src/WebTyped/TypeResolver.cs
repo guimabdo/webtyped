@@ -10,11 +10,22 @@ using WebTyped.Elements;
 
 namespace WebTyped {
 	public class TypeResolution {
-		public string Name { get; set; }
+		public string OriginalName { get; set; }
 		/// <summary>
 		/// Currently used for named tuples...
 		/// </summary>
 		public string AltName { get; set; }
+
+		public bool UseAltName { get; set; }
+		
+		public string Name { get {
+				if (UseAltName) {
+					if (string.IsNullOrWhiteSpace(AltName)) { return "[This type doesn't have an alternative name. Are you using NamedTupleAttribute without a tuple type?]"; }
+					return AltName;
+				}
+				return OriginalName;
+			}
+		}
 
 		public string MapAltToOriginalFunc { get; set; }
 		public bool IsNullable { get; set; }
@@ -60,22 +71,23 @@ namespace WebTyped {
 				(this.Services as List<Service>).Add(file as Service);
 			}
 		}
-		public TypeResolution Resolve(ITypeSymbol typeSymbol, ResolutionContext context) {
+		public TypeResolution Resolve(ITypeSymbol typeSymbol, ResolutionContext context, bool useTupleAltNames = false) {
 			var result = new TypeResolution();
 			result.IsNullable = IsNullable(typeSymbol);
+			//External types
 			if (TypeFiles.TryGetValue(typeSymbol, out var tsType)) {
-				result.Name = tsType.FullName;
+				result.OriginalName = tsType.FullName;
 				if(tsType is TsModelBase) {
 					var tsModel = tsType as TsModelBase;
 					if(tsModel.ExternalType != null) {
 						var externalModule = tsModel.ExternalType.Value.module;
-						var externalName = tsModel.ExternalType.Value.name ?? result.Name;
+						var externalName = tsModel.ExternalType.Value.name ?? result.OriginalName;
 						if (string.IsNullOrWhiteSpace(externalModule)) {
-							result.Name = externalName;
+							result.OriginalName = externalName;
 						}
 						else {
 							var alias = context.GetAliasByModule(externalModule);
-							result.Name = $"{alias}.{externalName}";
+							result.OriginalName = $"{alias}.{externalName}";
 						}
 					}
 				}
@@ -91,19 +103,20 @@ namespace WebTyped {
 					.Select(te => new {
 						field = (Options.KeepPropsCase ? te.Name : te.Name.ToCamelCase()),
 						tupleField = (Options.KeepPropsCase ? te.CorrespondingTupleField.Name : te.CorrespondingTupleField.Name.ToCamelCase()),
-						type = Resolve(te.Type as INamedTypeSymbol, context).Name
+						type = Resolve(te.Type as INamedTypeSymbol, context).OriginalName
 					});
 				
 				var tupleProps = tupleElements
 					.Select(te => $"/** field:{te.field} */{te.tupleField}: {te.type}");
 				var tupleAltProps = tupleElements
 					.Select(te => $"/** tuple field:{te.tupleField} */{te.field}: {te.type}");
-				result.Name = $"{{{string.Join(", ", tupleProps)}}}";
+				result.OriginalName = $"{{{string.Join(", ", tupleProps)}}}";
 				result.AltName = $"{{{string.Join(", ", tupleAltProps)}}}";
 				var mapParam = "__source";
 				var mapping = string.Join(", ", tupleElements.Select(t => $"{t.tupleField}: {mapParam}.{t.field}"));
 				result.MapAltToOriginalFunc = $"function({mapParam}) {{ return {{ {mapping}  }} }}";
 				result.IsTuple = true;
+				result.UseAltName = useTupleAltNames;
 				return result;
 			}
 
@@ -128,10 +141,10 @@ namespace WebTyped {
 				parent = parent.ContainingType;
 			}
 			//Change type to ts type
-			var tsTypeName = ToTsTypeName(type, context);
+			var tsTypeName = ToTsTypeName(type, context, useTupleAltNames);
 			//If contains "{" or "}" then it was converted to anonymous type, so no need to do anything else.
 			if (tsTypeName.Contains("{")) {
-				result.Name = tsTypeName;
+				result.OriginalName = tsTypeName;
 				return result;
 			}
 			//if (tsTypeName == "any") {
@@ -142,9 +155,9 @@ namespace WebTyped {
 			//Generic
 			if (type.IsGenericType) {
 				if (string.IsNullOrEmpty(tsTypeName)) {
-					tsTypeName = Resolve(type.TypeArguments[0], context).Name;
+					tsTypeName = Resolve(type.TypeArguments[0], context, useTupleAltNames).Name;
 				} else {
-					genericPart = $"<{string.Join(", ", type.TypeArguments.Select(t => Resolve(t as INamedTypeSymbol, context).Name))}>";
+					genericPart = $"<{string.Join(", ", type.TypeArguments.Select(t => Resolve(t as INamedTypeSymbol, context, useTupleAltNames).Name))}>";
 				}
 			}
 			//genericPart = genericPart.Replace("*", "");
@@ -159,14 +172,14 @@ namespace WebTyped {
 			if(tsTypeName == "Array" && string.IsNullOrWhiteSpace(genericPart)) {
 				genericPart = "<any>";
 			}
-			result.Name = $"{tsTypeName}{genericPart}";
+			result.OriginalName = $"{tsTypeName}{genericPart}";
 			return result;
 		}
 		public bool IsNullable(ITypeSymbol t) {
 			return (t as INamedTypeSymbol).ConstructedFrom.ToString() == "System.Nullable<T>";
 		}
 
-		string ToTsTypeName(INamedTypeSymbol original, ResolutionContext context) {
+		string ToTsTypeName(INamedTypeSymbol original, ResolutionContext context, bool useTupleAltNames = false) {
 			if (IsNullable(original)) { return ""; }
 			switch (original.SpecialType) {
 				case SpecialType.System_Boolean:
@@ -221,8 +234,8 @@ namespace WebTyped {
 				case "System.Threading.Tasks.Task<TResult>":
 					return "";
 				case "System.Collections.Generic.KeyValuePair<TKey, TValue>":
-					var keyType = Resolve(original.TypeArguments[0], context).Name;
-					var valType = Resolve(original.TypeArguments[1], context).Name;
+					var keyType = Resolve(original.TypeArguments[0], context, useTupleAltNames).Name;
+					var valType = Resolve(original.TypeArguments[1], context, useTupleAltNames).Name;
 					return Options.KeepPropsCase ?
 					$"{{ Key: {keyType}, Value: {valType} }}"
 					: $"{{ key: {keyType}, value: {valType} }}";

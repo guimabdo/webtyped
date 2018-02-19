@@ -17,14 +17,15 @@ namespace WebTyped {
 		public bool FromBody { get; private set; }
 		public bool Ignore { get; private set; }
 		public ParameterResolution(IParameterSymbol parameterSymbol, TypeResolver typeResolver, ResolutionContext context) {
-			var res = typeResolver.Resolve(parameterSymbol.Type, context);
+			var p = parameterSymbol;
+			var attrs = p.GetAttributes();
+			var hasNamedTupleAttr = attrs.Any(a => a.AttributeClass.Name == nameof(NamedTupleAttribute));
+			var res = typeResolver.Resolve(parameterSymbol.Type, context, hasNamedTupleAttr);
+
 			this.Name = parameterSymbol.Name;
 			this.BodyRelayFormat = this.Name;
 			this.SearchRelayFormat = this.Name;
-			var p = parameterSymbol;
-			var attrs = p.GetAttributes();
 			this.FromBody = attrs.Any(a => a.AttributeClass.Name.StartsWith("FromBody"));
-			var hasNamedTupleAttr = attrs.Any(a => a.AttributeClass.Name == nameof(NamedTupleAttribute));
 			//var hasMapFunc = !string.IsNullOrWhiteSpace(res.MapAltToOriginalFunc);
 			string unsupportedNamedTupleMessage = "[UNSUPPORTED - NamedTupleAttribute must be used only for tuple parameters]";
 			string typeName = res.Name;
@@ -33,11 +34,11 @@ namespace WebTyped {
 				if (!res.IsTuple) {
 					this.BodyRelayFormat = unsupportedNamedTupleMessage;
 					this.SearchRelayFormat = unsupportedNamedTupleMessage;
-					typeName = unsupportedNamedTupleMessage;
+					//typeName = unsupportedNamedTupleMessage;
 				} else {
 					this.BodyRelayFormat = $"{res.MapAltToOriginalFunc}({this.Name})";
 					this.SearchRelayFormat = $"{this.Name}: {this.BodyRelayFormat}";
-					typeName = res.AltName;
+					//typeName = res.AltName;
 				}
 			}
 			this.Signature = $"{p.Name}{(p.IsOptional ? "?" : "")}: {typeName}" + (res.IsNullable ? " | null" : "");
@@ -132,17 +133,18 @@ namespace WebTyped {
 				if (!m.IsDefinition) { continue; }
 				var mtd = m as IMethodSymbol;
 				if(m.Name == ".ctor") { continue; }
-				var returnType = TypeResolver.Resolve(mtd.ReturnType as INamedTypeSymbol, context);
-				var returnTypeName = returnType.Name;
+				
 				var mtdAttrs = mtd.GetAttributes();
 				var hasNamedTupleAttr = mtdAttrs.Any(a => a.AttributeClass.Name == nameof(NamedTupleAttribute));
-				if (hasNamedTupleAttr) {
-					if (!returnType.IsTuple) {
-						returnTypeName = "[UNSUPPORTED - NamedTupleAttribute must be used only for tuples]";
-					} else {
-						returnTypeName = returnType.AltName;
-					}
-				}
+				var returnType = TypeResolver.Resolve(mtd.ReturnType as INamedTypeSymbol, context, hasNamedTupleAttr);
+				var returnTypeName = returnType.Name;
+				//if (hasNamedTupleAttr) {
+				//	if (!returnType.IsTuple) {
+				//		returnTypeName = "[UNSUPPORTED - NamedTupleAttribute must be used only for tuples]";
+				//	} else {
+				//		returnTypeName = returnType.AltName;
+				//	}
+				//}
 				//Not marked actions will accept posts
 				var httpMethod = "Post";
 				string action = "";

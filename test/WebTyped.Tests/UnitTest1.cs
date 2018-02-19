@@ -35,6 +35,7 @@ namespace WebTyped.Tests {
 @"
 using System;
 using WebTyped.Annotations;
+using System.Threading.Tasks;
 namespace Test{
 	public class ModelWithTuples {
 		public (int, string) Tuple1 { get; set; }
@@ -62,8 +63,17 @@ namespace Test{
 		[NamedTuple]
 		public (int id, string name) Get3([NamedTuple](int id, string name) param){}
 
+		
 		[HttpGet]
 		public (int id, string name) Get4([NamedTuple](int id, string name) param){}
+
+		[HttpGet]
+		[NamedTuple]
+		public async Task<(int id, string name)> Get5([NamedTuple](int id, string name) param){}
+
+		[HttpGet]
+		[NamedTuple]
+		public object GetErr2(){}
     }
 }
 ";
