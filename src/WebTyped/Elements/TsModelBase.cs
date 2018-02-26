@@ -33,7 +33,10 @@ namespace WebTyped.Elements {
 
 				//Module will be Namespace.{parent classes}
 				//var moduleName = Options.TruncateNamespace(TypeSymbol.ContainingNamespace);
-				var moduleName = TypeSymbol.ContainingNamespace.ToString();
+				var moduleName = "";
+				if (!TypeSymbol.ContainingNamespace.IsGlobalNamespace) {
+					moduleName = TypeSymbol.ContainingNamespace.ToString();
+				}
 				var parents = new List<string>();
 				while (parent != null) {
 					parents.Add(parent.Name);

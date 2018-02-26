@@ -71,7 +71,10 @@ namespace WebTyped {
 			TypeSymbol = controllerType;
 			ControllerName = controllerType.Name.Substring(0, controllerType.Name.Length - "Controller".Length);
 			TypeResolver = typeResolver;
-			Module = controllerType.ContainingNamespace.ToString().Replace(".Controllers", ".Services");
+			Module = "";
+			if (!controllerType.ContainingNamespace.IsGlobalNamespace) {
+				Module = controllerType.ContainingNamespace.ToString().Replace(".Controllers", ".Services");
+			}
 			Module = options.AdjustModule(Module);
 			FilenameWithoutExtenstion = $"{ControllerName.ToCamelCase()}.service";
 			Options = options;

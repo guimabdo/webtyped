@@ -30,6 +30,11 @@ namespace WebTyped {
 		public string MapAltToOriginalFunc { get; set; }
 		public bool IsNullable { get; set; }
 		public bool IsTuple { get; set; }
+		public bool IsAny {
+			get {
+				return this.Name == "any" || this.Name.StartsWith("any/*");
+			}
+		}
 	}
 
 	public class ResolutionContext {
@@ -94,6 +99,18 @@ namespace WebTyped {
 				return result;
 			}
 
+			//Array
+			if(typeSymbol is IArrayTypeSymbol) {
+				var arrTypeSymbol = typeSymbol as IArrayTypeSymbol;
+				if (arrTypeSymbol.ElementType.SpecialType == SpecialType.System_Byte) {
+					result.OriginalName = "string";
+				} else {
+					var elementTypeRes = Resolve(arrTypeSymbol.ElementType, context, useTupleAltNames);
+					result.OriginalName = $"Array<{elementTypeRes.Name}>";
+				}
+				return result;
+			}
+
 			var type = typeSymbol as INamedTypeSymbol;
 			//tuples
 			if (type.IsTupleType) {
@@ -120,7 +137,7 @@ namespace WebTyped {
 				return result;
 			}
 
-			string name = type.Name;
+			//string name = type.Name;
 			var members = type.GetTypeMembers();
 			string typeName = type.Name;
 			//In case of nested types
@@ -176,7 +193,7 @@ namespace WebTyped {
 			return result;
 		}
 		public bool IsNullable(ITypeSymbol t) {
-			return (t as INamedTypeSymbol).ConstructedFrom.ToString() == "System.Nullable<T>";
+			return (t as INamedTypeSymbol)?.ConstructedFrom?.ToString() == "System.Nullable<T>";
 		}
 
 		string ToTsTypeName(INamedTypeSymbol original, ResolutionContext context, bool useTupleAltNames = false) {

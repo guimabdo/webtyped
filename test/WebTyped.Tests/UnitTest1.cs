@@ -86,6 +86,53 @@ namespace Test{
 		}
 
 		[TestMethod]
+		public async Task UnknowInheritanceTest() {
+			var cs = @"public class Model: Interface {}";
+			var generator = new Generator(
+		new string[] { cs },
+		new Options(null, false, ServiceMode.Angular, new string[0], "", false)
+	);
+			var outputs = await generator.GenerateOutputsAsync();
+		}
+
+
+		[TestMethod]
+		public async Task ArrayResolutionTest() {
+			var cs =
+@"
+using System;
+using System.Threading.Tasks;
+[Route(""api/[controller]"")]
+public class MyController {
+	[HttpGet]
+	public async Task<int[]> GetArray(){ return null; }
+}";
+			var generator = new Generator(
+		new string[] { cs },
+		new Options(null, false, ServiceMode.Angular, new string[0], "", false)
+	);
+			var outputs = await generator.GenerateOutputsAsync();
+		}
+
+		[TestMethod]
+		public async Task ByteArrayResolutionTest() {
+			var cs =
+@"
+using System;
+using System.Threading.Tasks;
+[Route(""api/[controller]"")]
+public class MyController {
+	[HttpGet]
+	public async Task<byte[]> GetArray(){ return null; }
+}";
+			var generator = new Generator(
+		new string[] { cs },
+		new Options(null, false, ServiceMode.Angular, new string[0], "", false)
+	);
+			var outputs = await generator.GenerateOutputsAsync();
+		}
+
+		[TestMethod]
 		public async Task SeilaTest() {
 			var cs =
 @"

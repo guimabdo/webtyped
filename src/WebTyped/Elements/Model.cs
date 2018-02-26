@@ -31,7 +31,15 @@ namespace WebTyped {
 			string inheritance = "";
 			var context = new ResolutionContext();
 			if (TypeSymbol.BaseType != null && TypeSymbol.BaseType.SpecialType != SpecialType.System_Object) {
-				inheritance = $"extends {TypeResolver.Resolve(TypeSymbol.BaseType, context).Name} ";
+				var inheritanceTypeResolution = TypeResolver.Resolve(TypeSymbol.BaseType, context);
+				if (inheritanceTypeResolution.IsAny) {
+					if (inheritanceTypeResolution.Name.Contains("/*")) {
+						inheritance = $"/*extends {inheritanceTypeResolution.Name.Replace("any/*", "").Replace("*/", "")}*/";
+					}
+					
+				} else {
+					inheritance = $"extends {inheritanceTypeResolution.Name} ";
+				}
 			}
 			
 			sb.AppendLine(level, $"{(hasModule ? "" : "declare ")}interface {TypeSymbol.Name} {inheritance}{{");

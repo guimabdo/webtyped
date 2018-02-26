@@ -11,6 +11,7 @@ namespace WebTyped {
 		}
 
 		public static string ToCamelCase(this string str) {
+			if (string.IsNullOrWhiteSpace(str)) { return str; }
 			return str[0].ToString().ToLower() + str.Substring(1);
 		}
 	}
