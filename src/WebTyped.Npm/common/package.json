@@ -6,6 +6,7 @@
     "name": "guimabdo"
   },
   "files": [
-    "dist"
+    "*.js",
+    "*.d.ts"
   ]
 }

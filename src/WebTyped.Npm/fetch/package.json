@@ -15,6 +15,7 @@
     "@types/jquery-param": "1.0.2"
   },
   "files": [
-    "dist"
+    "*.js",
+    "*.d.ts"
   ]
 }

@@ -33,7 +33,6 @@
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "outDir": "dist",
     "declaration": true,
     "lib": [
       "es2015",
