@@ -35,4 +35,12 @@
         return result;
 
     }
+
+    public static resolveQueryParametersString(obj: any): string{
+        var params = WebTypedUtils.resolveQueryParameters(obj);
+        var result = "";
+        return params
+            .map(p => `${p.path}=${p.val}`)
+            .join('&');
+    }
 }

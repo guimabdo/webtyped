@@ -1,4 +1,4 @@
-﻿import { WebTypedCallInfo, WebTypedEventEmitter } from '@guimabdo/webtyped-common';
+﻿import { WebTypedCallInfo, WebTypedEventEmitter, WebTypedUtils } from '@guimabdo/webtyped-common';
 let param = require('jquery-param');
 export class WebTypedClient {
     //Global setting
@@ -36,7 +36,7 @@ export class WebTypedClient {
             } else {
                 url += '&';
             }
-            url += param(search);
+            url += WebTypedUtils.resolveQueryParametersString(search); //$.param(search);
         }
         var req = fetch(url, {
             body: body ? JSON.stringify(body) : undefined,

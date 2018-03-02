@@ -1,4 +1,4 @@
-﻿import { WebTypedEventEmitter, WebTypedCallInfo } from '@guimabdo/webtyped-common';
+﻿import { WebTypedEventEmitter, WebTypedCallInfo, WebTypedUtils } from '@guimabdo/webtyped-common';
 import * as $ from 'jquery';
 //???
 //class FakeXhr<T> extends Promise<T> {
@@ -56,7 +56,7 @@ export class WebTypedClient {
             } else {
                 url += '&';
             }
-            url += $.param(search);
+            url += WebTypedUtils.resolveQueryParametersString(search); //$.param(search);
         }
         var jqXhr = $.ajax({
             url: url,
