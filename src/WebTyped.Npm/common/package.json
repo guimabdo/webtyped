@@ -4,5 +4,8 @@
   "description": "WebTyped",
   "author": {
     "name": "guimabdo"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }

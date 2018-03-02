@@ -9,24 +9,31 @@
   //  "noImplicitThis": true,
   //  "suppressImplicitAnyIndexErrors": true,
   //  "moduleResolution": "node",
+  //  "module": "es2015",
   //  "experimentalDecorators": true,
   //  "target": "es5",
   //  "outDir": "../",
   //  "lib": [ "es6", "dom" ]
   //},
-  //"formatCodeOptions": {
-  //  "indentSize": 2,
-  //  "tabSize": 2
-  //},
-
-  //"include": [
-  //  "src/**/*"
+  //"files": [
+  //  "jquery.d.ts",
+  //  "index.ts"
   //]
+  //"compilerOptions": {
+  //  "target": "es5",
+  //  "experimentalDecorators": true,
+  //  "emitDecoratorMetadata": true,
+  //  "lib": [
+  //    "es2015",
+  //    "dom"
+  //  ]
+  //}
   "compilerOptions": {
     "target": "es5",
+    "moduleResolution": "node",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "outDir": "../",
+    "outDir": "../dist",
     "declaration": true,
     "lib": [
       "es2015",
@@ -34,7 +41,4 @@
     ]
   },
   "files": [ "index.ts" ]
-  //"include": [
-  //  "**/*"
-  //]
 }

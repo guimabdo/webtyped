@@ -6,11 +6,15 @@
     "name": "guimabdo"
   },
   "dependencies": {
-    "jquery-param": "0.2.0",
+    "jquery-param": "0.2.0"
+  },
+  "peerDependencies": {
     "@guimabdo/webtyped-common": "latest"
   },
-  "peerDependencies": {},
   "devDependencies": {
     "@types/jquery-param": "1.0.2"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }

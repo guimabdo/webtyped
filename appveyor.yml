@@ -31,10 +31,10 @@ before_build:
 build_script:
   - cmd: dotnet publish ./src/WebTyped -c Release -o ../WebTyped.Npm/generator/program
   - cmd: dotnet pack ./src/WebTyped.Annotations -c Release
-  - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/common/src
-  - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/fetch/src
-  - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/jquery/src
-  - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/angular/src
+  - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/common
+  - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/fetch
+  - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/jquery
+  - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/angular
 after_build:
 test: off
 artifacts:
