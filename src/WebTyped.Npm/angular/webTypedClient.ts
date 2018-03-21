@@ -92,10 +92,8 @@ export class WebTypedClient {
     }
     private invoke<T>(info: WebTypedCallInfo<T>, action: string,
         httpMethod: string, body?: any, search?: any): Observable<T> {
-        var baseUrl = this.baseUrl || "";
         var httpClient = this.httpClient;
-        if (baseUrl.endsWith('/')) { baseUrl = baseUrl.substr(0, baseUrl.length - 1); }
-        var url = `${baseUrl}/${this.api}/${action}`;
+        var url = WebTypedUtils.resolveActionUrl(this.baseUrl, this.api, action);
 
         //var fData = "FormData";
         //var isFormData = body && typeof (body) === fData;

@@ -43,4 +43,10 @@
             .map(p => `${p.path}=${p.val}`)
             .join('&');
     }
+
+    public static resolveActionUrl(baseUrl: string, api: string, action: string) {
+        if (!baseUrl) { baseUrl = ""; }
+        if (baseUrl && baseUrl[baseUrl.length - 1] == '/') { baseUrl = baseUrl.substr(0, baseUrl.length - 1); }
+        return `${baseUrl}/${api}/${action}`;
+    }
 }

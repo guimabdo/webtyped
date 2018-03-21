@@ -27,9 +27,7 @@ export class WebTypedClient {
     private invoke<T>(info: WebTypedCallInfo<T>, action: string,
         httpMethod: string, body?: any, search?: any): Promise<T> {
         if (typeof (fetch) === 'undefined') { return Promise.resolve<T>(null); }
-        var baseUrl = this.baseUrl;
-        if (baseUrl.endsWith('/')) { baseUrl = baseUrl.substr(0, baseUrl.length - 1); }
-        var url = `${baseUrl}/${this.api}/${action}`;
+        var url = WebTypedUtils.resolveActionUrl(this.baseUrl, this.api, action);
         if (search) {
             if (url.indexOf('?') < 0) {
                 url += '?';

@@ -47,9 +47,7 @@ export class WebTypedClient {
         //    return <JQuery.jqXHR<T>>anyFake;
         //};
         
-        var baseUrl = this.baseUrl;
-        if (baseUrl.endsWith('/')) { baseUrl = baseUrl.substr(0, baseUrl.length - 1); }
-        var url = `${baseUrl}/${this.api}/${action}`;
+        var url = WebTypedUtils.resolveActionUrl(this.baseUrl, this.api, action);
         if (search) {
             if (url.indexOf('?') < 0) {
                 url += '?';
