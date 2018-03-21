@@ -58,6 +58,7 @@ export class WebTypedClient {
         }
         var jqXhr = $.ajax({
             url: url,
+            cache: false, //api should not be cached. IE caches it by default
             dataType: 'json',
             contentType: 'application/json',
             data: body ? JSON.stringify(body) : undefined,
