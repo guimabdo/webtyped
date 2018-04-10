@@ -26,12 +26,12 @@ namespace WebTyped {
 			cmd.HelpOption("-?|-h|--help");
 
 			cmd.Command("generate", target => {
-				var sourceFiles = target.Option("-sf | --sourceFiles", "C# source files (glob supported)", CommandOptionType.MultipleValue);
-				var outDir = target.Option("-od | --outDir", "", CommandOptionType.SingleValue);
+				var sourceFiles = target.Option("-s | --sourceFiles", "C# source files (glob supported)", CommandOptionType.MultipleValue);
+				var outDir = target.Option("-o | --outDir", "", CommandOptionType.SingleValue);
 				var trims = target.Option("-t | --trim", "These module names will be removed when generating ts code", CommandOptionType.MultipleValue);
 				var clear = target.Option("-c | --clear", "Clears folder", CommandOptionType.NoValue);
-				var serviceMode = target.Option("-sm | --serviceMode", "Http connection fmwork (angular, jquery, fetch)", CommandOptionType.SingleValue);
-				var baseModule = target.Option("-bm | --baseModule", "Base module for your types", CommandOptionType.SingleValue);
+				var serviceMode = target.Option("-S | --serviceMode", "Http connection fmwork (angular, jquery, fetch)", CommandOptionType.SingleValue);
+				var baseModule = target.Option("-b | --baseModule", "Base module for your types", CommandOptionType.SingleValue);
 				var keepPropsCase = target.Option("--keepPropsCase", "Keep properties case", CommandOptionType.NoValue);
 
 				target.HelpOption("-?|-h|--help");

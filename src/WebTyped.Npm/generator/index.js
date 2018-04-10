@@ -3,12 +3,12 @@ var glob = require('glob');
 var generate = function (options, callback) {
     var cmd =
         `dotnet "${__dirname}/program/WebTyped.dll" generate ` +
-        `${options.sourceFiles.map(sf => "-sf " + sf).join(" ")} ` +
-        `-od ${options.outDir} ` +
+        `${options.sourceFiles.map(sf => "-s " + sf).join(" ")} ` +
+        `-o ${options.outDir} ` +
         `${(options.trim ? options.trim.map(t => "-t " + t).join(" ") : "")}` + 
 (options.clear ? " -c" : "") + " " +
-(options.serviceMode ? `-sm ${options.serviceMode}` : "") + " " +
-(options.baseModule ? `-bm ${options.baseModule}` : "") + " " +
+(options.serviceMode ? `-S ${options.serviceMode}` : "") + " " +
+(options.baseModule ? `-b ${options.baseModule}` : "") + " " +
         (options.keepPropsCase ? " --keepPropsCase" : "");
     var e = exec(cmd, err => {
         if (callback) {
