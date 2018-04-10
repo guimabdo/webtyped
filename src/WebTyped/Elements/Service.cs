@@ -197,6 +197,7 @@ namespace WebTyped {
 				foreach(var pr in parameterResolutions) {
 					//[FromRoute]
 					if (action.Contains($"{{{pr.Name}}}")) {
+						action = action.Replace($"{{{pr.Name}}}", $"{{encodeURIComponent({pr.Name})}}");
 						continue;
 					}
 

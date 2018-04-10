@@ -43,47 +43,6 @@ export class WebTypedClient {
         }
         return params;
     }
-    //private SetValue(path: string, val: any, params: HttpParams) {
-    //    if (val === undefined) { return params; }
-    //    if (val === null) { return params.set(path, ""); }
-    //    if (Array.isArray(val)) {
-    //        val.forEach((item, index) => {
-    //            params = this.SetValue(`${path}[${index}]`, item, params);
-    //        });
-    //        return params;
-    //    }
-    //    if (typeof val === "object") {
-    //        return this.GenerateHttpParams(val, params, path);
-    //    }
-    //    return params.set(path, val);
-    //}
-    //private GenerateHttpParams(obj: any, params?: HttpParams, parentField?: string): HttpParams {
-      
-    //    if (!params) { params = new HttpParams(); }
-    //    for (let field in obj) {
-    //        var val = obj[field];
-    //        var pathElements = [];
-    //        if (parentField) { pathElements.push(parentField); }
-    //        pathElements.push(field);
-    //        var path = pathElements.join('.');
-    //        params = this.SetValue(path, val, params);
-
-    //        //if (val === undefined) { continue; }
-    //        //if (val === null) { params = params.set(path, ""); continue; }
-    //        //if (Array.isArray(val)) {
-    //        //    val.forEach((item, index) => {
-                    
-    //        //    });
-    //        //    continue;
-    //        //}
-    //        //if (typeof val === "object") {
-    //        //    params = this.GenerateHttpParams(val, params, path);
-    //        //    continue;
-    //        //}
-    //        //params = params.set(path, val);
-    //    }
-    //    return params;
-    //}
     private generateHttpParams(obj: any): HttpParams {
         var params = WebTypedUtils.resolveQueryParameters(obj);
         var httpParams = new HttpParams();
