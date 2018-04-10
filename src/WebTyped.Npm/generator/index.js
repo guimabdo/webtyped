@@ -5,10 +5,10 @@ var generate = function (options, callback) {
         `dotnet "${__dirname}/program/WebTyped.dll" generate ` +
         `${options.sourceFiles.map(sf => "-s " + sf).join(" ")} ` +
         `-o ${options.outDir} ` +
-        `${(options.trim ? options.trim.map(t => "-t " + t).join(" ") : "")}` + 
-(options.clear ? " -c" : "") + " " +
-(options.serviceMode ? `-S ${options.serviceMode}` : "") + " " +
-(options.baseModule ? `-b ${options.baseModule}` : "") + " " +
+        `${(options.trim ? options.trim.map(t => "-t " + t).join(" ") : "")}` +
+        (options.clear ? " -c" : "") + " " +
+        (options.serviceMode ? `-S ${options.serviceMode}` : "") + " " +
+        (options.baseModule ? `-b ${options.baseModule}` : "") + " " +
         (options.keepPropsCase ? " --keepPropsCase" : "");
     var e = exec(cmd, err => {
         if (callback) {
@@ -46,18 +46,25 @@ WebTypedPlugin.prototype.apply = function (compiler) {
         });
     }
     runGenerate();
-    compiler.plugin("invalid", function (fileName, changeTime) {
+    var invalidCallback = function (fileName, changeTime) {
         if (currentFiles.some(f => f == fileName)) {
             console.log(fileName + " changed");
             runGenerate();
         }
-    });
+    };
     var currentFiles = [];
-    compiler.plugin("after-compile", function (compilation, callback) {
+    var afterCompileCallback = function (compilation, callback) {
         currentFiles = getFiles();
         currentFiles.forEach(f => compilation.fileDependencies.unshift(f));
         callback();
-    });
+    };
+    if ('hooks' in compiler) {//New version of webpack
+        compiler.hooks.invalid.tap({ name: "webtyped-plugin" }, invalidCallback);
+        compiler.hooks.afterCompile.tap({ name: "webtyped-plugin" }, afterCompileCallback);
+    } else {//Old
+        compiler.plugin("invalid", invalidCallback);
+        compiler.plugin("after-compile", afterCompileCallback);
+    }
 };
 
 module.exports = {
