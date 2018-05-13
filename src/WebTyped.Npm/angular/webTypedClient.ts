@@ -1,6 +1,7 @@
 ﻿import { HttpClient, HttpParams } from '@angular/common/http';
 import { WebTypedEventEmitterService } from './';
 import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/operator/do';	
 import { WebTypedCallInfo, WebTypedUtils } from '@guimabdo/webtyped-common';
 export class WebTypedClient {
 

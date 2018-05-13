@@ -2,6 +2,7 @@
 import { WebTypedCallInfo } from '@guimabdo/webtyped-common';
 import { Subject } from 'rxjs/Subject';
 import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/operator/filter';
 @Injectable()
 export class WebTypedEventEmitterService {
     private _eventBus: Subject<WebTypedCallInfo<any>> = new Subject<WebTypedCallInfo<any>>();
