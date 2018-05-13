@@ -1,6 +1,7 @@
 ﻿import { Injectable } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
 import { WebTypedCallInfo } from '@guimabdo/webtyped-common';
+import { Subject } from 'rxjs/Subject';
+import { Observable } from 'rxjs/Observable';
 @Injectable()
 export class WebTypedEventEmitterService {
     private _eventBus: Subject<WebTypedCallInfo<any>> = new Subject<WebTypedCallInfo<any>>();
