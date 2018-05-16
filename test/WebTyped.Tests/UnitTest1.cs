@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using WebTyped.Annotations;
@@ -25,7 +26,7 @@ namespace WebTyped.Tests {
 				compilation.GetTypeByMetadataName(typeof(int).FullName),
 				compilation.GetTypeByMetadataName(typeof(string).FullName)
 			);
-			var name = tr.Resolve(typeSymbol, new ResolutionContext());
+			var name = tr.Resolve(typeSymbol, new ResolutionContext()).Name;
 			Assert.AreEqual(name, "{ key: number, value: string }");
 		}
 
@@ -132,51 +133,75 @@ public class MyController {
 			var outputs = await generator.GenerateOutputsAsync();
 		}
 
-
 		[TestMethod]
-		public async Task ByteArrayResolutionTest() {
-			var cs =
-@"
-using System;
-using System.Threading.Tasks;
-[Route(""api/[controller]"")]
-public class MyController {
-	[HttpGet]
-	public async Task<byte[]> GetArray(){ return null; }
+		public async Task GenericClassTest() {
+var cs = @"public class GenericClass<T>{ 
+	public T Id { get; set; } 
 }";
 			var generator = new Generator(
 		new string[] { cs },
 		new Options(null, false, ServiceMode.Angular, new string[0], "", false)
 	);
 			var outputs = await generator.GenerateOutputsAsync();
+			Assert.IsTrue(outputs.First().Value.Contains(
+@"declare interface GenericClass<T> {
+	id: T;
+}
+"
+));
 		}
-
 
 		[TestMethod]
-		public async Task SeilaTest() {
-			var cs =
-@"
-using System;
-using WebTyped.Annotations;
-namespace Test{
-	[ClientType]
-	public class SeilaTestClass {
-	}
-	
-	public class Seila2TestClass {
-		public SeilaTestClass Prop { get; set; }
-	}
+		public async Task GenericAndInheritedClassWithSameNameTest() {
+			var cs = @"public class GenericClass<T>{ 
+	public T Id { get; set; } 
 }
+
+public class GenericClass : GenericClass<int>{}
+
 ";
-
 			var generator = new Generator(
-				new string[] { cs },
-				new Options(null, false, ServiceMode.Angular, new string[0], "", false)
-			);
-
+		new string[] { cs },
+		new Options(null, false, ServiceMode.Angular, new string[0], "", false)
+	);
 			var outputs = await generator.GenerateOutputsAsync();
-			//await generator.WriteFilesAsync();
+			Assert.IsTrue(outputs[@".\typings\genericClass.d.ts"] ==
+@"declare interface GenericClass extends GenericClass<number> {
+}
+");
+
+			Assert.IsTrue(outputs[@".\typings\genericClass_of_T.d.ts"] ==
+@"declare interface GenericClass<T> {
+	id: T;
+}
+");
 		}
+
+		//		[TestMethod]
+		//		public async Task SeilaTest() {
+		//			var cs =
+		//@"
+		//using System;
+		//using WebTyped.Annotations;
+		//namespace Test{
+		//	[ClientType]
+		//	public class SeilaTestClass {
+		//	}
+
+		//	public class Seila2TestClass {
+		//		public SeilaTestClass Prop { get; set; }
+		//	}
+		//}
+		//";
+
+		//			var generator = new Generator(
+		//				new string[] { cs },
+		//				new Options(null, false, ServiceMode.Angular, new string[0], "", false)
+		//			);
+
+		//			var outputs = await generator.GenerateOutputsAsync();
+		//			//await generator.WriteFilesAsync();
+		//		}
 
 
 		//[TestMethod]

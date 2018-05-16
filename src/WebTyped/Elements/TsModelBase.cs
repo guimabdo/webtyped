@@ -23,7 +23,7 @@ namespace WebTyped.Elements {
 			}
 		}
 
-	
+
 		public string Module {
 			get {
 				var parent = TypeSymbol.ContainingType;
@@ -64,23 +64,32 @@ namespace WebTyped.Elements {
 		}
 
 
-		string FullClassName {
-			get {
-				if (string.IsNullOrEmpty(Module)) { return TypeSymbol.Name; }
-				return $"{Module}.{TypeSymbol.Name}";
-			}
-		}
+		//string FullClassName {
+		//	get {
+		//		if (string.IsNullOrEmpty(Module)) { return TypeSymbol.Name; }
+		//		return $"{Module}.{TypeSymbol.Name}";
+		//	}
+		//}
 
 		string FilenameWithoutExtenstion {
 			get {
-				if (string.IsNullOrEmpty(Module)) { return $"{TypeSymbol.Name.ToCamelCase()}.d"; }
-				return $"{Module}.{TypeSymbol.Name.ToCamelCase()}.d";
+				var fileNameCore = TypeSymbol.Name.ToCamelCase();
+				if (TypeSymbol.TypeArguments.Any()) {
+					fileNameCore += $"_of_{string.Join('_', TypeSymbol.TypeArguments.Select(ta => ta.Name))}";
+				}
+				if (string.IsNullOrEmpty(Module)) { return $"{fileNameCore}.d"; }
+				return $"{Module}.{fileNameCore}.d";
 			}
 		}
 
 		protected string Filename {
 			get {
 				return $"{FilenameWithoutExtenstion}.ts";
+				//if (this.TypeSymbol.TypeArguments.Any()) {
+				//return $"{FilenameWithoutExtenstion}`.ts";
+				//} else {
+				//	return $"{FilenameWithoutExtenstion}.ts";
+				//}
 			}
 		}
 

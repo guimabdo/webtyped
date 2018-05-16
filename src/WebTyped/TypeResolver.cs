@@ -77,14 +77,26 @@ namespace WebTyped {
 			}
 		}
 		public TypeResolution Resolve(ITypeSymbol typeSymbol, ResolutionContext context, bool useTupleAltNames = false) {
+			var type = typeSymbol as INamedTypeSymbol;
+
 			var result = new TypeResolution();
+			//Generic part of a generic class
+			if (typeSymbol is ITypeParameterSymbol) {
+				result.OriginalName = typeSymbol.Name;
+				return result;
+			}
+
 			result.IsNullable = IsNullable(typeSymbol);
-			//External types
-			if (TypeFiles.TryGetValue(typeSymbol, out var tsType)) {
+			
+			var tsType = TypeFiles.ContainsKey(typeSymbol) ? TypeFiles[typeSymbol]
+				//When inheriting from another generic model
+				: TypeFiles.ContainsKey(typeSymbol.OriginalDefinition) ? TypeFiles[typeSymbol.OriginalDefinition] : null;
+			if (tsType != null) {
 				result.OriginalName = tsType.FullName;
 				if(tsType is TsModelBase) {
 					var tsModel = tsType as TsModelBase;
-					if(tsModel.ExternalType != null) {
+					//External types
+					if (tsModel.ExternalType != null) {
 						var externalModule = tsModel.ExternalType.Value.module;
 						var externalName = tsModel.ExternalType.Value.name ?? result.OriginalName;
 						if (string.IsNullOrWhiteSpace(externalModule)) {
@@ -95,6 +107,11 @@ namespace WebTyped {
 							result.OriginalName = $"{alias}.{externalName}";
 						}
 					}
+				}
+				//When inheriting from another generic model
+				if (type.IsGenericType) {
+					string gp = GetGenericPart(type, result.OriginalName, context, useTupleAltNames);
+					result.OriginalName = $"{result.OriginalName}{gp}";
 				}
 				return result;
 			}
@@ -110,8 +127,6 @@ namespace WebTyped {
 				}
 				return result;
 			}
-
-			var type = typeSymbol as INamedTypeSymbol;
 			//tuples
 			if (type.IsTupleType) {
 				//var tupleProps = type.TupleElements
@@ -168,6 +183,12 @@ namespace WebTyped {
 			//	return $"any/* {type.ToString()} */";
 			//}
 
+			string genericPart = GetGenericPart(type, tsTypeName, context, useTupleAltNames);
+			result.OriginalName = $"{tsTypeName}{genericPart}";
+			return result;
+		}
+
+		public string GetGenericPart(INamedTypeSymbol type, string tsTypeName, ResolutionContext context, bool useTupleAltNames) {
 			string genericPart = "";
 			//Generic
 			if (type.IsGenericType) {
@@ -186,11 +207,10 @@ namespace WebTyped {
 				}
 				//return $"{tsTypeName}{(string.IsNullOrEmpty(genericPart) ? "" : $"")}";
 			}
-			if(tsTypeName == "Array" && string.IsNullOrWhiteSpace(genericPart)) {
+			if (tsTypeName == "Array" && string.IsNullOrWhiteSpace(genericPart)) {
 				genericPart = "<any>";
 			}
-			result.OriginalName = $"{tsTypeName}{genericPart}";
-			return result;
+			return genericPart;
 		}
 		public bool IsNullable(ITypeSymbol t) {
 			return (t as INamedTypeSymbol)?.ConstructedFrom?.ToString() == "System.Nullable<T>";

@@ -41,8 +41,13 @@ namespace WebTyped {
 					inheritance = $"extends {inheritanceTypeResolution.Name} ";
 				}
 			}
-			
-			sb.AppendLine(level, $"{(hasModule ? "" : "declare ")}interface {TypeSymbol.Name} {inheritance}{{");
+
+			string genericArguments = "";
+			if (TypeSymbol.TypeArguments.Any()) {
+				genericArguments = $"<{string.Join(", ", TypeSymbol.TypeArguments.Select(t => t.Name))}>";
+			}
+
+			sb.AppendLine(level, $"{(hasModule ? "" : "declare ")}interface {TypeSymbol.Name}{genericArguments} {inheritance}{{");
 			foreach (var m in TypeSymbol.GetMembers()) {
 				if (m.Kind == SymbolKind.NamedType) {
 					subClasses.Add(m as INamedTypeSymbol);
