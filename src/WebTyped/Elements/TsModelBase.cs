@@ -14,7 +14,18 @@ namespace WebTyped.Elements {
 		public Options Options { get; private set; }
 		//public string ClassName { get; set; }
 
-		public string ClassName { get { return TypeSymbol.Name; } }
+		public string ClassName { get {
+				if (TypeSymbol.TypeArguments.Any()) {
+					//if (TypeSymbol.TypeArguments.Any()) {
+					//	// fileNameCore += $"_of_{string.Join('_', TypeSymbol.TypeArguments.Select(ta => ta.Name))}";
+					//	fileNameCore += $"Of{TypeSymbol.TypeArguments.Count()}";
+					//}
+					return $"{TypeSymbol.Name}Of{TypeSymbol.TypeArguments.Count()}";
+				} else {
+					return TypeSymbol.Name;
+				}
+			}
+		}
 
 		public string FullName {
 			get {
@@ -73,12 +84,13 @@ namespace WebTyped.Elements {
 
 		string FilenameWithoutExtenstion {
 			get {
-				var fileNameCore = TypeSymbol.Name.ToCamelCase();
-				if (TypeSymbol.TypeArguments.Any()) {
-					fileNameCore += $"_of_{string.Join('_', TypeSymbol.TypeArguments.Select(ta => ta.Name))}";
-				}
-				if (string.IsNullOrEmpty(Module)) { return $"{fileNameCore}.d"; }
-				return $"{Module}.{fileNameCore}.d";
+				var fileNamePart = ClassName.ToCamelCase();
+				//if (TypeSymbol.TypeArguments.Any()) {
+				//	// fileNameCore += $"_of_{string.Join('_', TypeSymbol.TypeArguments.Select(ta => ta.Name))}";
+				//	fileNameCore += $"Of{TypeSymbol.TypeArguments.Count()}";
+				//}
+				if (string.IsNullOrEmpty(Module)) { return $"{fileNamePart}.d"; }
+				return $"{Module}.{fileNamePart}.d";
 			}
 		}
 

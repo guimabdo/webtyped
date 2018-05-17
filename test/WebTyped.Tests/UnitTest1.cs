@@ -144,7 +144,7 @@ var cs = @"public class GenericClass<T>{
 	);
 			var outputs = await generator.GenerateOutputsAsync();
 			Assert.IsTrue(outputs.First().Value.Contains(
-@"declare interface GenericClass<T> {
+@"declare interface GenericClassOf1<T> {
 	id: T;
 }
 "
@@ -166,12 +166,12 @@ public class GenericClass : GenericClass<int>{}
 	);
 			var outputs = await generator.GenerateOutputsAsync();
 			Assert.IsTrue(outputs[@".\typings\genericClass.d.ts"] ==
-@"declare interface GenericClass extends GenericClass<number> {
+@"declare interface GenericClass extends GenericClassOf1<number> {
 }
 ");
 
-			Assert.IsTrue(outputs[@".\typings\genericClass_of_T.d.ts"] ==
-@"declare interface GenericClass<T> {
+			Assert.IsTrue(outputs[@".\typings\genericClassOf1.d.ts"] ==
+@"declare interface GenericClassOf1<T> {
 	id: T;
 }
 ");

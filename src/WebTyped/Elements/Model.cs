@@ -47,7 +47,8 @@ namespace WebTyped {
 				genericArguments = $"<{string.Join(", ", TypeSymbol.TypeArguments.Select(t => t.Name))}>";
 			}
 
-			sb.AppendLine(level, $"{(hasModule ? "" : "declare ")}interface {TypeSymbol.Name}{genericArguments} {inheritance}{{");
+			// sb.AppendLine(level, $"{(hasModule ? "" : "declare ")}interface {TypeSymbol.Name}{genericArguments} {inheritance}{{");
+			sb.AppendLine(level, $"{(hasModule ? "" : "declare ")}interface {ClassName}{genericArguments} {inheritance}{{");
 			foreach (var m in TypeSymbol.GetMembers()) {
 				if (m.Kind == SymbolKind.NamedType) {
 					subClasses.Add(m as INamedTypeSymbol);
