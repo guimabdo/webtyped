@@ -30,6 +30,167 @@ namespace WebTyped.Tests {
 			Assert.AreEqual(name, "{ key: number, value: string }");
 		}
 
+
+		[TestMethod]
+		public async Task UnknowInheritanceTest() {
+			var cs = @"public class Model: Interface {}";
+			var generator = new Generator(
+		new string[] { cs },
+		new Options(null, false, ServiceMode.Angular, new string[0], "", false)
+	);
+			var outputs = await generator.GenerateOutputsAsync();
+			Assert.AreEqual(
+@"declare interface Model /*extends Interface*/{
+}
+",
+				outputs[@".\typings\model.d.ts"]);
+		}
+
+
+		[TestMethod]
+		public async Task ArrayResolutionTest() {
+			var cs =
+@"
+using System;
+using System.Threading.Tasks;
+[Route(""api/[controller]"")]
+public class MyController {
+	[HttpGet]
+	public async Task<int[]> GetArray(){ return null; }
+}";
+			var generator = new Generator(
+		new string[] { cs },
+		new Options(null, false, ServiceMode.Angular, new string[0], "", false)
+	);
+			var outputs = await generator.GenerateOutputsAsync();
+			Assert.AreEqual(
+				@"import { Injectable, Inject, forwardRef, Optional } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { WebTypedClient, WebTypedEventEmitterService } from '@guimabdo/webtyped-angular';
+import { Observable } from 'rxjs/Observable';
+@Injectable()
+export class MyService extends WebTypedClient {
+	constructor(@Optional() @Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebTypedEventEmitterService)) eventEmitter: WebTypedEventEmitterService) {
+		super(baseUrl, 'api/my', httpClient, eventEmitter);
+	}
+	getArray = () : Observable<Array<number>> => {
+		return this.invokeGet<Array<number>>({
+				func: this.getArray,
+				parameters: {  }
+			},
+			``,
+			undefined
+		);
+	};
+}
+",
+				outputs[@".\my.service.ts"]);
+		}
+
+		[TestMethod]
+		public async Task ByteArrayResolutionTest() {
+			var cs =
+@"
+using System;
+using System.Threading.Tasks;
+[Route(""api/[controller]"")]
+public class MyController {
+	[HttpGet]
+	public async Task<byte[]> GetArray(){ return null; }
+}";
+			var generator = new Generator(
+		new string[] { cs },
+		new Options(null, false, ServiceMode.Angular, new string[0], "", false)
+	);
+			var outputs = await generator.GenerateOutputsAsync();
+			Assert.AreEqual(
+				@"import { Injectable, Inject, forwardRef, Optional } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { WebTypedClient, WebTypedEventEmitterService } from '@guimabdo/webtyped-angular';
+import { Observable } from 'rxjs/Observable';
+@Injectable()
+export class MyService extends WebTypedClient {
+	constructor(@Optional() @Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebTypedEventEmitterService)) eventEmitter: WebTypedEventEmitterService) {
+		super(baseUrl, 'api/my', httpClient, eventEmitter);
+	}
+	getArray = () : Observable<string> => {
+		return this.invokeGet<string>({
+				func: this.getArray,
+				parameters: {  }
+			},
+			``,
+			undefined
+		);
+	};
+}
+",
+				outputs[@".\my.service.ts"]);
+		}
+
+		[TestMethod]
+		public async Task GenericClassTest() {
+			var cs = @"public class GenericClass<T>{ 
+	public T Id { get; set; } 
+}";
+			var generator = new Generator(
+		new string[] { cs },
+		new Options(null, false, ServiceMode.Angular, new string[0], "", false)
+	);
+			var outputs = await generator.GenerateOutputsAsync();
+			Assert.IsTrue(outputs.First().Value.Contains(
+@"declare interface GenericClassOf1<T> {
+	id: T;
+}
+"
+));
+		}
+
+		[TestMethod]
+		public async Task GenericAndInheritedClassWithSameNameTest() {
+			var cs = @"public class GenericClass<T>{ 
+	public T Id { get; set; } 
+}
+
+public class GenericClass : GenericClass<int>{}
+
+";
+			var generator = new Generator(
+		new string[] { cs },
+		new Options(null, false, ServiceMode.Angular, new string[0], "", false)
+	);
+			var outputs = await generator.GenerateOutputsAsync();
+			Assert.IsTrue(outputs[@".\typings\genericClass.d.ts"] ==
+@"declare interface GenericClass extends GenericClassOf1<number> {
+}
+");
+
+			Assert.IsTrue(outputs[@".\typings\genericClassOf1.d.ts"] ==
+@"declare interface GenericClassOf1<T> {
+	id: T;
+}
+");
+		}
+
+		//[TestMethod]
+		//public void TestMethod1() {
+		//	var folder = Directory.GetCurrentDirectory();
+		//	var result = Program.Main(new[] {
+		//		"generate",
+		//		"--sourceFiles", "../../../../WebTyped.Example.Web/Controllers/**/*.cs",
+		//		"--sourceFiles", "../../../../WebTyped.Example.Web/Models/**/*.cs",
+		//		"--sourceFiles", "../../../../WebTyped.Example.Web/OtherModels/**/*.cs",
+		//		"--outDir", "../../../../WebTyped.Example.Web/ClientApp/app/webApiUnitTest/",
+		//		"--trim", "WebTyped_Example_Web.Services",
+		//		"--trim", "WebTyped.Example.Web",
+		//		"--trim", "WebTyped.Example.Web.Models",
+		//		"--baseModule", "UnitTest",
+		//		"--clear"
+		//		//"--controllers", "../../../UnitTest1.cs",
+		//		//"--models", "../../../UnitTest1.cs",
+		//	});
+		//	Assert.AreEqual(0, result);
+		//}
+
 		[TestMethod]
 		public async Task TupleTest() {
 			var cs =
@@ -86,142 +247,5 @@ namespace Test{
 			var outputs = await generator.GenerateOutputsAsync();
 		}
 
-		[TestMethod]
-		public async Task UnknowInheritanceTest() {
-			var cs = @"public class Model: Interface {}";
-			var generator = new Generator(
-		new string[] { cs },
-		new Options(null, false, ServiceMode.Angular, new string[0], "", false)
-	);
-			var outputs = await generator.GenerateOutputsAsync();
-		}
-
-
-		[TestMethod]
-		public async Task ArrayResolutionTest() {
-			var cs =
-@"
-using System;
-using System.Threading.Tasks;
-[Route(""api/[controller]"")]
-public class MyController {
-	[HttpGet]
-	public async Task<int[]> GetArray(){ return null; }
-}";
-			var generator = new Generator(
-		new string[] { cs },
-		new Options(null, false, ServiceMode.Angular, new string[0], "", false)
-	);
-			var outputs = await generator.GenerateOutputsAsync();
-		}
-
-		[TestMethod]
-		public async Task ByteArrayResolutionTest() {
-			var cs =
-@"
-using System;
-using System.Threading.Tasks;
-[Route(""api/[controller]"")]
-public class MyController {
-	[HttpGet]
-	public async Task<byte[]> GetArray(){ return null; }
-}";
-			var generator = new Generator(
-		new string[] { cs },
-		new Options(null, false, ServiceMode.Angular, new string[0], "", false)
-	);
-			var outputs = await generator.GenerateOutputsAsync();
-		}
-
-		[TestMethod]
-		public async Task GenericClassTest() {
-var cs = @"public class GenericClass<T>{ 
-	public T Id { get; set; } 
-}";
-			var generator = new Generator(
-		new string[] { cs },
-		new Options(null, false, ServiceMode.Angular, new string[0], "", false)
-	);
-			var outputs = await generator.GenerateOutputsAsync();
-			Assert.IsTrue(outputs.First().Value.Contains(
-@"declare interface GenericClassOf1<T> {
-	id: T;
-}
-"
-));
-		}
-
-		[TestMethod]
-		public async Task GenericAndInheritedClassWithSameNameTest() {
-			var cs = @"public class GenericClass<T>{ 
-	public T Id { get; set; } 
-}
-
-public class GenericClass : GenericClass<int>{}
-
-";
-			var generator = new Generator(
-		new string[] { cs },
-		new Options(null, false, ServiceMode.Angular, new string[0], "", false)
-	);
-			var outputs = await generator.GenerateOutputsAsync();
-			Assert.IsTrue(outputs[@".\typings\genericClass.d.ts"] ==
-@"declare interface GenericClass extends GenericClassOf1<number> {
-}
-");
-
-			Assert.IsTrue(outputs[@".\typings\genericClassOf1.d.ts"] ==
-@"declare interface GenericClassOf1<T> {
-	id: T;
-}
-");
-		}
-
-		//		[TestMethod]
-		//		public async Task SeilaTest() {
-		//			var cs =
-		//@"
-		//using System;
-		//using WebTyped.Annotations;
-		//namespace Test{
-		//	[ClientType]
-		//	public class SeilaTestClass {
-		//	}
-
-		//	public class Seila2TestClass {
-		//		public SeilaTestClass Prop { get; set; }
-		//	}
-		//}
-		//";
-
-		//			var generator = new Generator(
-		//				new string[] { cs },
-		//				new Options(null, false, ServiceMode.Angular, new string[0], "", false)
-		//			);
-
-		//			var outputs = await generator.GenerateOutputsAsync();
-		//			//await generator.WriteFilesAsync();
-		//		}
-
-
-		//[TestMethod]
-		//public void TestMethod1() {
-		//	var folder = Directory.GetCurrentDirectory();
-		//	var result = Program.Main(new[] {
-		//		"generate",
-		//		"--sourceFiles", "../../../../WebTyped.Example.Web/Controllers/**/*.cs",
-		//		"--sourceFiles", "../../../../WebTyped.Example.Web/Models/**/*.cs",
-		//		"--sourceFiles", "../../../../WebTyped.Example.Web/OtherModels/**/*.cs",
-		//		"--outDir", "../../../../WebTyped.Example.Web/ClientApp/app/webApiUnitTest/",
-		//		"--trim", "WebTyped_Example_Web.Services",
-		//		"--trim", "WebTyped.Example.Web",
-		//		"--trim", "WebTyped.Example.Web.Models",
-		//		"--baseModule", "UnitTest",
-		//		"--clear"
-		//		//"--controllers", "../../../UnitTest1.cs",
-		//		//"--models", "../../../UnitTest1.cs",
-		//	});
-		//	Assert.AreEqual(0, result);
-		//}
 	}
 }

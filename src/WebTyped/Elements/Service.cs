@@ -114,12 +114,12 @@ namespace WebTyped {
 			switch (Options.ServiceMode) {
 				case ServiceMode.Angular:
 					sb.AppendLine(level, $"	constructor(@Optional() @Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebTypedEventEmitterService)) eventEmitter: WebTypedEventEmitterService) {{");
-					sb.AppendLine(level, $@"		super(baseUrl, ""{path}"", httpClient, eventEmitter);");
+					sb.AppendLine(level, $@"		super(baseUrl, '{path}', httpClient, eventEmitter);");
 					break;
 				case ServiceMode.Fetch:
 				case ServiceMode.Jquery:
 					sb.AppendLine(level, $@"	constructor(baseUrl: string = WebTypedClient.baseUrl) {{");
-					sb.AppendLine(level, $@"		super(baseUrl, ""{path}"");");
+					sb.AppendLine(level, $@"		super(baseUrl, '{path}');");
 					break;
 			}
 			sb.AppendLine(level, "	}");

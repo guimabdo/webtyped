@@ -110,8 +110,8 @@ namespace WebTyped {
 				}
 				//When inheriting from another generic model
 				if (type.IsGenericType) {
-					string gp = GetGenericPart(type, result.OriginalName, context, useTupleAltNames);
-					result.OriginalName = $"{result.OriginalName}{gp}";
+					var gp_ = GetGenericPart(type, result.OriginalName, context, useTupleAltNames);
+					result.OriginalName = $"{result.OriginalName}{gp_.genericPart}";
 				}
 				return result;
 			}
@@ -183,12 +183,12 @@ namespace WebTyped {
 			//	return $"any/* {type.ToString()} */";
 			//}
 
-			string genericPart = GetGenericPart(type, tsTypeName, context, useTupleAltNames);
-			result.OriginalName = $"{tsTypeName}{genericPart}";
+			var gp = GetGenericPart(type, tsTypeName, context, useTupleAltNames);
+			result.OriginalName = $"{gp.modifiedTsTypeName}{gp.genericPart}";
 			return result;
 		}
 
-		public string GetGenericPart(INamedTypeSymbol type, string tsTypeName, ResolutionContext context, bool useTupleAltNames) {
+		public (string genericPart, string modifiedTsTypeName) GetGenericPart(INamedTypeSymbol type, string tsTypeName, ResolutionContext context, bool useTupleAltNames) {
 			string genericPart = "";
 			//Generic
 			if (type.IsGenericType) {
@@ -210,7 +210,7 @@ namespace WebTyped {
 			if (tsTypeName == "Array" && string.IsNullOrWhiteSpace(genericPart)) {
 				genericPart = "<any>";
 			}
-			return genericPart;
+			return (genericPart, tsTypeName);
 		}
 		public bool IsNullable(ITypeSymbol t) {
 			return (t as INamedTypeSymbol)?.ConstructedFrom?.ToString() == "System.Nullable<T>";
