@@ -60,8 +60,23 @@ export class SomeComponent {
 ## WebTyped.Annotations
  [![Latest version](https://img.shields.io/nuget/v/WebTyped.Annotations.svg)](https://www.nuget.org/packages/WebTyped.Annotations/)
 
-```C#
+Attributes for changing services/models generator behaviour.
 
+### ClientTypeAttribute
+
+Use this attribute for mapping a Server Model to an existing Client Type so it won't be transpiled by the generator. 
+- typeName: correspondent client type name, or empty if it has the same name as the server type.
+- module: type module, leave it empty if the type is globally visible.
+
+Generated API services will know how to resolve the type.
+
+example:
+```C#
+[WebTyped.Annotations.ClientType(module: "primeng/components/common/selectitem")]
+public class SelectItem { 
+    public string Label { get; set; }
+    public long Value { get; set; }
+}
 ```
 
 
