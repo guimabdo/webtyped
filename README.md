@@ -79,6 +79,28 @@ public class SelectItem {
 }
 ```
 
+### NamedTupleAttribute
+
+Sometimes your application have lots of multiparameted webapis. Instead of creating a Model for each webapi method, you may want to use Named Tuples like this:
+
+```C#
+[HttpPost("")]
+public void Save([FromBody](name: string, birthdate: DateTime, somethingElse: number) parameters) {[
+    ...
+}
+```
+
+This will be transpiled to the client accordingly to .NET compiled tuple field names (Item1, Item2, Item3, ...), otherwise deserialization will not work when server receives the data. This will result in a non-friendly usage in client:
+
+```typescript
+myService.save({ item1: "John", item2: "2010-12-01", item3: 42});
+```
+
+Decorating the method parameter with NamedTuple attribute makes the generator create the client function parameter using the original field names. This function will change the parameter field names (to item1, item2...) before sending it to the server. So the usage becomes:
+
+```typescript
+myService.save({ name: "John", birthdate: "2010-12-01", somethingElse: 42});
+```
 
 ## Requirements
 
