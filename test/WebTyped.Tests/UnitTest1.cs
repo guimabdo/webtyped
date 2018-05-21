@@ -220,22 +220,9 @@ namespace Test{
 
 		[HttpGet]
 		public void GetErr([NamedTuple]string param){}
-
-		[HttpGet]
-		[NamedTuple]
-		public (int id, string name) Get3([NamedTuple](int id, string name) param){}
-
-		
+			
 		[HttpGet]
 		public (int id, string name) Get4([NamedTuple](int id, string name) param){}
-
-		[HttpGet]
-		[NamedTuple]
-		public async Task<(int id, string name)> Get5([NamedTuple](int id, string name) param){}
-
-		[HttpGet]
-		[NamedTuple]
-		public object GetErr2(){}
     }
 }
 ";
@@ -245,6 +232,86 @@ namespace Test{
 				new Options(null, false, ServiceMode.Angular, new string[0], "", false)
 			);
 			var outputs = await generator.GenerateOutputsAsync();
+
+			Assert.AreEqual(
+				@"declare module Test {
+	interface ModelWithTuples {
+		tuple1: {/** field:item1 */item1: number, /** field:item2 */item2: string};
+		tuple2: {/** field:id */item1: number, /** field:name */item2: string};
+	}
+}
+",
+				outputs[@".\typings\Test.modelWithTuples.d.ts"]);
+
+			Assert.AreEqual(
+			@"import { Injectable, Inject, forwardRef, Optional } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { WebTypedClient, WebTypedEventEmitterService } from '@guimabdo/webtyped-angular';
+import { Observable } from 'rxjs/Observable';
+@Injectable()
+export class ApiWithTupleService extends WebTypedClient {
+	constructor(@Optional() @Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebTypedEventEmitterService)) eventEmitter: WebTypedEventEmitterService) {
+		super(baseUrl, 'api/apiWithTuple', httpClient, eventEmitter);
+	}
+	post = (param: {/** tuple field:item1 */id: number, /** tuple field:item2 */name: string}) : Observable<void> => {
+		return this.invokePost<void>({
+				func: this.post,
+				parameters: { param }
+			},
+			``,
+			function(__source) { return { item1: __source.id, item2: __source.name  } }(param),
+			undefined
+		);
+	};
+	get = (param: {/** tuple field:item1 */id: number, /** tuple field:item2 */name: string}) : Observable<void> => {
+		return this.invokeGet<void>({
+				func: this.get,
+				parameters: { param }
+			},
+			``,
+			{ param: function(__source) { return { item1: __source.id, item2: __source.name  } }(param) }
+		);
+	};
+	post2 = (param: {/** field:id */item1: number, /** field:name */item2: string}) : Observable<void> => {
+		return this.invokePost<void>({
+				func: this.post2,
+				parameters: { param }
+			},
+			``,
+			param,
+			undefined
+		);
+	};
+	get2 = (param: {/** field:id */item1: number, /** field:name */item2: string}) : Observable<void> => {
+		return this.invokeGet<void>({
+				func: this.get2,
+				parameters: { param }
+			},
+			``,
+			{ param }
+		);
+	};
+	getErr = (param: string) : Observable<void> => {
+		return this.invokeGet<void>({
+				func: this.getErr,
+				parameters: { param }
+			},
+			``,
+			{ [UNSUPPORTED - NamedTupleAttribute must be used only for tuple parameters] }
+		);
+	};
+	get4 = (param: {/** tuple field:item1 */id: number, /** tuple field:item2 */name: string}) : Observable<{/** field:id */item1: number, /** field:name */item2: string}> => {
+		return this.invokeGet<{/** field:id */item1: number, /** field:name */item2: string}>({
+				func: this.get4,
+				parameters: { param }
+			},
+			``,
+			{ param: function(__source) { return { item1: __source.id, item2: __source.name  } }(param) }
+		);
+	};
+}
+",
+			outputs[@".\test\apiWithTuple.service.ts"]);
 		}
 
 	}
