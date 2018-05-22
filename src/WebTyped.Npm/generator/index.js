@@ -55,7 +55,16 @@ WebTypedPlugin.prototype.apply = function (compiler) {
     var currentFiles = [];
     var afterCompileCallback = function (compilation, callback) {
         currentFiles = getFiles();
-        currentFiles.forEach(f => compilation.fileDependencies.unshift(f));
+		if (currentFiles.length) {
+			if ('add' in compilation.fileDependencies) {//webpack 4
+				currentFiles.forEach(f => compilation.fileDependencies.add(f));
+			} else {
+				currentFiles.forEach(f => compilation.fileDependencies.unshift(f));
+			}
+		}
+		if (typeof callback === "function") {
+			callback();
+		}
         callback();
     };
     if ('hooks' in compiler) {//New version of webpack
