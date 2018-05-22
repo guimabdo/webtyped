@@ -65,7 +65,6 @@ WebTypedPlugin.prototype.apply = function (compiler) {
 		if (typeof callback === "function") {
 			callback();
 		}
-        callback();
     };
     if ('hooks' in compiler) {//New version of webpack
         compiler.hooks.invalid.tap({ name: "webtyped-plugin" }, invalidCallback);
