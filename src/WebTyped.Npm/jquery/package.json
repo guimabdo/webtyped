@@ -1,17 +1,22 @@
 {
-  "name": "@guimabdo/webtyped-jquery",
-  "version": "0.0.0",
-  "description": "WebTyped Jquery",
-  "author": {
-    "name": "guimabdo"
-  },
-  "peerDependencies": {
-    "jquery": "^3.2.1",
-    "@guimabdo/webtyped-common": "latest"
-  },
-  "dependencies": {},
-  "files": [
-    "*.js",
-    "*.d.ts"
-  ]
+	"name": "@guimabdo/webtyped-jquery",
+	"version": "0.0.0",
+	"description": "WebTyped Jquery",
+	"author": {
+		"name": "guimabdo"
+	},
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/guimabdo/WebTyped.git"
+	},
+	"peerDependencies": {
+		"jquery": "^3.2.1",
+		"@guimabdo/webtyped-common": "latest"
+	},
+	"dependencies": {},
+	"files": [
+		"*.js",
+		"*.d.ts"
+	]
 }

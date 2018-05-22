@@ -1,13 +1,18 @@
 {
-  "name": "@guimabdo/webtyped-generator",
-  "version": "0.0.0",
-  "description": "WebTyped",
-  "main": "./index.js",
-  "types": "./index.d.ts",
-  "author": {
-    "name": "guimabdo"
-  },
-  "dependencies": {
-    "glob": "7.1.2"
-  }
+	"name": "@guimabdo/webtyped-generator",
+	"version": "0.0.0",
+	"description": "WebTyped",
+	"main": "./index.js",
+	"types": "./index.d.ts",
+	"author": {
+		"name": "guimabdo"
+	},
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/guimabdo/WebTyped.git"
+	},
+	"dependencies": {
+		"glob": "7.1.2"
+	}
 }

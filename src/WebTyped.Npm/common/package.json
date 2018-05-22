@@ -1,12 +1,17 @@
 {
-  "name": "@guimabdo/webtyped-common",
-  "version": "0.0.0",
-  "description": "WebTyped",
-  "author": {
-    "name": "guimabdo"
-  },
-  "files": [
-    "*.js",
-    "*.d.ts"
-  ]
+	"name": "@guimabdo/webtyped-common",
+	"version": "0.0.0",
+	"description": "WebTyped",
+	"author": {
+		"name": "guimabdo"
+	},
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/guimabdo/WebTyped.git"
+	},
+	"files": [
+		"*.js",
+		"*.d.ts"
+	]
 }
