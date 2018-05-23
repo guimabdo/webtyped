@@ -57,6 +57,18 @@ export class SomeComponent {
 	constructor(myService: MyService){}
 }
 ```
+## Options
+
+| Option  | Type | Default | Description |
+| ------------- | ------------- | ------------- | ------------- |
+| sourceFiles  | string[]  | - | dotnet Controllers/Models files (glob patterns supported)
+| outDir  | string  | - | output dir for generated typescript files
+| trim | string[] | [] | optional list of client namespaces that will be trimmed for usage simplification
+| clear | boolean | false | delete typescript files that are not part of the current generation
+| serviceMode | "fetch" or "jquery" or "angular" | "angular" | -
+| baseModule | string | "" | Root module for the generated client types
+| keepPropsCase | boolean | false | True if client types fields must have same casing of the server classes. False for camelcase fields.
+
 
 ## Requirements
 
