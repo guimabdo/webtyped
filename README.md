@@ -1,5 +1,5 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/github/guimabdo/webtyped?svg=true)](https://ci.appveyor.com/project/guimabdo/webtyped) [![Latest version](https://img.shields.io/npm/v/@guimabdo/webtyped-common.svg)](https://www.npmjs.com/search?q=@guimabdo/webtyped)
-# WebTyped
+[![Build status](https://ci.appveyor.com/api/projects/status/github/guimabdo/webtyped?svg=true)](https://ci.appveyor.com/project/guimabdo/webtyped)
+# WebTyped [![Latest version](https://img.shields.io/npm/v/@guimabdo/webtyped-common.svg)](https://www.npmjs.com/search?q=@guimabdo/webtyped)
 
  WebTyped is a tool for generating strongly typed TypeScript code from your http://ASP.NET or http://ASP.NET/core Web Apis.
 
@@ -57,8 +57,24 @@ export class SomeComponent {
 	constructor(myService: MyService){}
 }
 ```
-## WebTyped.Annotations
- [![Latest version](https://img.shields.io/nuget/v/WebTyped.Annotations.svg)](https://www.nuget.org/packages/WebTyped.Annotations/)
+## Options
+
+| Option  | Type | Default | Description |
+| ------------- | ------------- | ------------- | ------------- |
+| sourceFiles  | string[]  | - | dotnet Controllers/Models files (glob patterns supported)
+| outDir  | string  | - | output dir for generated typescript files
+| trim | string[] | [] | optional list of client namespaces that will be trimmed for usage simplification
+| clear | boolean | false | delete typescript files that are not part of the current generation
+| serviceMode | "fetch" or "jquery" or "angular" | "angular" | technology for generated client services http calls
+| baseModule | string | "" | Root module for the generated client types
+| keepPropsCase | boolean | false | True if client types fields must have same casing of the server classes. False for camelcase fields.
+
+
+## Requirements
+
+netcore 2.0 on dev machine
+
+# WebTyped.Annotations [![Latest version](https://img.shields.io/nuget/v/WebTyped.Annotations.svg)](https://www.nuget.org/packages/WebTyped.Annotations/)
 
 Attributes for changing services/models generator behaviour.
 
@@ -102,6 +118,3 @@ Decorating the method parameter with NamedTuple attribute makes the generator cr
 myService.save({ name: "John", birthdate: "2010-12-01", somethingElse: 42});
 ```
 
-## Requirements
-
-netcore 2.0 on dev machine
