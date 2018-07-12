@@ -1,7 +1,7 @@
 ﻿import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/map';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 @Injectable()
 export class WebTypedInterceptor implements HttpInterceptor {
     constructor() { }
@@ -20,32 +20,27 @@ export class WebTypedInterceptor implements HttpInterceptor {
             responseType: 'text',
             body: body,
             headers: headers
-        });
-       
-        return next.handle(clonedRequest)
-            .map((event: HttpEvent<any>) => {
-                //Manage response so void and "string" responses wont produces parse exception
-                if (event instanceof HttpResponse) {
-                    var body: any;
-                    try {
-                        //(Accepting json strings)
-                        body = JSON.parse(event.body);
-                    } catch (err) {
-                        //For actions that returns a string or empty(for void)
-                        //asp.net will send the string without quotes
-                        //and parse will fail. (Unless you use attr [Produces("application/json")])
-                        body = event.body;
-                    }
-                    
-                    return event.clone({
-                        body: body,
-                    });
-                }
-                return event;
-            })
-            //.catch((error: HttpErrorResponse) => {
-            //    const parsedError = Object.assign({}, error, { error: JSON.parse(error.error) });
-            //    return Observable.throw(new HttpErrorResponse(parsedError));
-            //});
+		});
+		var handle: Observable<HttpEvent<any>> = next.handle(clonedRequest);
+		return handle.pipe(map((event: HttpEvent<any>) => {
+			//Manage response so void and "string" responses wont produces parse exception
+			if (event instanceof HttpResponse) {
+				var body: any;
+				try {
+					//(Accepting json strings)
+					body = JSON.parse(event.body);
+				} catch (err) {
+					//For actions that returns a string or empty(for void)
+					//asp.net will send the string without quotes
+					//and parse will fail. (Unless you use attr [Produces("application/json")])
+					body = event.body;
+				}
+
+				return event.clone({
+					body: body,
+				});
+			}
+			return event;
+		}));
     }
 }

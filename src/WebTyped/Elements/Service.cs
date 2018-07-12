@@ -96,7 +96,7 @@ namespace WebTyped {
 					sb.AppendLine("import { Injectable, Inject, forwardRef, Optional } from '@angular/core';");
 					sb.AppendLine("import { HttpClient } from '@angular/common/http';");
 					sb.AppendLine("import { WebTypedClient, WebTypedEventEmitterService } from '@guimabdo/webtyped-angular';");
-					sb.AppendLine("import { Observable } from 'rxjs/Observable';");
+					sb.AppendLine("import { Observable } from 'rxjs';");
 					break;
 			}
 
