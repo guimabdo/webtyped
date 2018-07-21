@@ -37,7 +37,8 @@ let myService = new MyService(); //Generated from MyController.cs
 myService.get().then(result => console.log(result));
 ```
 
-### Angular? (4.3.0+) Import the generated module and inject services when needed:
+### Angular? (6+) Import the generated module and inject services when needed:
+`For Angular < 6 use v0.20.2`
 
 app.module.ts
 
