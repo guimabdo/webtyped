@@ -1,18 +1,5 @@
 ﻿import { WebTypedEventEmitter, WebTypedCallInfo, WebTypedUtils } from '@guimabdo/webtyped-common';
 import * as $ from 'jquery';
-//???
-//class FakeXhr<T> extends Promise<T> {
-//    state: () => "pending" | "resolved" | "rejected" = () => "pending";
-//    statusCode = () => 0;
-//    always = () => this;
-//    fail = () => this;
-//    done = () => this;
-//    progress = () => this;
-//    promise = () => this;
-//    constructor() {
-//        super((res, rej) => res(null));
-//    }
-//}
 var any$ = <any>$;
 any$.webtyped = new WebTypedEventEmitter();
 export class WebTypedClient {
@@ -24,29 +11,23 @@ export class WebTypedClient {
         this.baseUrl = this.baseUrl || "/";
         this.api = this.api || "";
     }
-    invokeGet<T>(info: WebTypedCallInfo<T>, action: string, search?: any): JQuery.jqXHR<T> {
+	invokeGet<TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>, action: string, search?: any): JQuery.jqXHR<TResult> {
         return this.invoke(info, action, 'get', null, search);
     }
-    invokePatch<T>(info: WebTypedCallInfo<T>, action: string, body?: any, search?: any): JQuery.jqXHR<T> {
+	invokePatch<TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>, action: string, body?: any, search?: any): JQuery.jqXHR<TResult> {
         return this.invoke(info, action, 'patch', body, search);
     }
-    invokePost<T>(info: WebTypedCallInfo<T>, action: string, body?: any, search?: any): JQuery.jqXHR<T> {
+	invokePost<TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>, action: string, body?: any, search?: any): JQuery.jqXHR<TResult> {
         return this.invoke(info, action, 'post', body, search);
     }
-    invokePut<T>(info: WebTypedCallInfo<T>, action: string, body?: any, search?: any): JQuery.jqXHR<T> {
+	invokePut<TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>, action: string, body?: any, search?: any): JQuery.jqXHR<TResult> {
         return this.invoke(info, action, 'put', body, search);
     }
-    invokeDelete<T>(info: WebTypedCallInfo<T>, action: string, search?: any): JQuery.jqXHR<T> {
+	invokeDelete<TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>, action: string, search?: any): JQuery.jqXHR<TResult> {
         return this.invoke(info, action, 'delete', null, search);
     }
-    private invoke<T>(info: WebTypedCallInfo<T>, action: string,
-        httpMethod: string, body?: any, search?: any): JQuery.jqXHR<T> {
-        //???
-        //if (typeof ($.ajax) === 'undefined') {
-        //    var anyFake: any = new FakeXhr<T>();
-        //    return <JQuery.jqXHR<T>>anyFake;
-        //};
-        
+	private invoke<TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>, action: string,
+		httpMethod: string, body?: any, search?: any): JQuery.jqXHR<TResult> {
         var url = WebTypedUtils.resolveActionUrl(this.baseUrl, this.api, action);
         if (search) {
             if (url.indexOf('?') < 0) {

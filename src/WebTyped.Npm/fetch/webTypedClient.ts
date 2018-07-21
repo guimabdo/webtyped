@@ -9,24 +9,24 @@ export class WebTypedClient {
         this.baseUrl = this.baseUrl || "/";
         this.api = this.api || "";
     }
-    invokeGet<T>(info: WebTypedCallInfo<T>, action: string, search?: any): Promise<T> {
+	invokeGet<TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>, action: string, search?: any): Promise<TResult> {
         return this.invoke(info, action, 'get', null, search);
     }
-    invokePatch<T>(info: WebTypedCallInfo<T>, action: string, body?: any, search?: any): Promise<T> {
+	invokePatch<TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>, action: string, body?: any, search?: any): Promise<TResult> {
         return this.invoke(info, action, 'patch', body, search);
     }
-    invokePost<T>(info: WebTypedCallInfo<T>, action: string, body?: any, search?: any): Promise<T> {
+	invokePost<TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>, action: string, body?: any, search?: any): Promise<TResult> {
         return this.invoke(info, action, 'post', body, search);
     }
-    invokePut<T>(info: WebTypedCallInfo<T>, action: string, body?: any, search?: any): Promise<T> {
+	invokePut<TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>, action: string, body?: any, search?: any): Promise<TResult> {
         return this.invoke(info, action, 'put', body, search);
     }
-    invokeDelete<T>(info: WebTypedCallInfo<T>, action: string, search?: any): Promise<T> {
+	invokeDelete<TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>, action: string, search?: any): Promise<TResult> {
         return this.invoke(info, action, 'delete', null, search);
     }
-    private invoke<T>(info: WebTypedCallInfo<T>, action: string,
-        httpMethod: string, body?: any, search?: any): Promise<T> {
-        if (typeof (fetch) === 'undefined') { return Promise.resolve<T>(null); }
+	private invoke<TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>, action: string,
+		httpMethod: string, body?: any, search?: any): Promise<TResult> {
+		if (typeof (fetch) === 'undefined') { return Promise.resolve<TResult>(null); }
         var url = WebTypedUtils.resolveActionUrl(this.baseUrl, this.api, action);
         if (search) {
             if (url.indexOf('?') < 0) {
@@ -43,7 +43,7 @@ export class WebTypedClient {
                 'Content-Type': 'application/json'
             })
         });
-        var promise = new Promise<T>((resolve, reject) => {
+		var promise = new Promise<TResult>((resolve, reject) => {
             req.then(r => {
                 var data = r.json();
                 resolve(data);

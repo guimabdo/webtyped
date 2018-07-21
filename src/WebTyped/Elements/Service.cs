@@ -84,6 +84,7 @@ namespace WebTyped {
 		public (string file, string content) GenerateOutput() {
 			var sb = new StringBuilder();
 			var context = new ResolutionContext();
+			sb.AppendLine("import { WebTypedFunction } from '@guimabdo/webtyped-common';");
 			switch (Options.ServiceMode) {
 				case ServiceMode.Jquery:
 					sb.AppendLine("import { WebTypedClient } from '@guimabdo/webtyped-jquery';");
@@ -224,7 +225,7 @@ namespace WebTyped {
 					case ServiceMode.Fetch: genericReturnType = "Promise"; break;
 					case ServiceMode.Angular:default: genericReturnType = "Observable"; break;
 				}
-				sb.AppendLine(level + 1, $"{methodName} = ({strParameters}) : {genericReturnType}<{returnTypeName}> => {{");
+				sb.AppendLine(level + 1, $"{methodName}: WebTypedFunction<{{{strParameters}}}, {returnTypeName}> = ({strParameters}) : {genericReturnType}<{returnTypeName}> => {{");
 				sb.AppendLine(level + 2, $"return this.invoke{httpMethod}<{returnTypeName}>({{");
 				sb.AppendLine(level + 4, $"func: this.{methodName},");
 				sb.AppendLine(level + 4, $"parameters: {{ {string.Join(", ", parameterResolutions.Select(p => p.Name))} }}");

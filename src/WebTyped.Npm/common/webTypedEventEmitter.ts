@@ -1,10 +1,12 @@
 ﻿import { WebTypedCallInfo } from './webTypedCallInfo';
+import { WebTypedFunction } from './webTypedFunction';
 export class WebTypedEventEmitter {
     private static single = new WebTypedEventEmitter();
     private methods: Array<Function> = [];
-    private callbacks: Array<Array<(info: WebTypedCallInfo<any>) => any>> = [];
+    private callbacks: Array<Array<(info: WebTypedCallInfo<any, any>) => any>> = [];
     constructor() { }
-    on = (f: Function, callback: (info: WebTypedCallInfo<any>) => any): WebTypedEventEmitter => {
+	on = <TParameters, TResult>(f: WebTypedFunction<TParameters, TResult>,
+		callback: (info: WebTypedCallInfo<TParameters, TResult>) => any): WebTypedEventEmitter => {
         var index = this.methods.indexOf(f);
         if (index < 0) {
             index = this.methods.length;
@@ -13,11 +15,11 @@ export class WebTypedEventEmitter {
         }
         this.callbacks[index].push(callback);
         return this;
-    };
-    static on = (f: Function, callback: (info: WebTypedCallInfo<any>) => any): WebTypedEventEmitter => {
+	};
+	static on = <TParameters, TResult>(f: WebTypedFunction<TParameters, TResult>, callback: (info: WebTypedCallInfo<TParameters, TResult>) => any): WebTypedEventEmitter => {
         return WebTypedEventEmitter.single.on(f, callback);
     };
-    off = (f: Function, callback: (info: WebTypedCallInfo<any>) => any): WebTypedEventEmitter => {
+	off = <TParameters, TResult>(f: WebTypedFunction<TParameters, TResult>, callback: (info: WebTypedCallInfo<TParameters, TResult>) => any): WebTypedEventEmitter => {
         var index = this.methods.indexOf(f);
         if (index >= 0) {
             var callbackIndex = this.callbacks[index].indexOf(callback);
@@ -27,10 +29,10 @@ export class WebTypedEventEmitter {
         }
         return this;
     };
-    static off = (f: Function, callback: (info: WebTypedCallInfo<any>) => any): WebTypedEventEmitter => {
+	static off = <TParameters, TResult>(f: WebTypedFunction<TParameters, TResult>, callback: (info: WebTypedCallInfo<TParameters, TResult>) => any): WebTypedEventEmitter => {
         return WebTypedEventEmitter.single.off(f, callback);
     };
-    private emit = (info: WebTypedCallInfo<any>): void => {
+	private emit = <TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>): void => {
         var index = this.methods.indexOf(info.func);
         if (index >= 0) {
             this.callbacks[index].forEach(c => { c(info); });

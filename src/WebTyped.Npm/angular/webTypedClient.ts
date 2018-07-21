@@ -11,19 +11,19 @@ export class WebTypedClient {
 		private httpClient: HttpClient,
 		private eventEmitter: WebTypedEventEmitterService) { }
 
-	invokeGet<T>(info: WebTypedCallInfo<T>, action: string, search?: any): Observable<T> {
+	invokeGet<TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>, action: string, search?: any): Observable<TResult> {
 		return this.invoke(info, action, 'get', null, search);
 	}
-	invokePatch<T>(info: WebTypedCallInfo<T>, action: string, body?: any, search?: any): Observable<T> {
+	invokePatch<TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>, action: string, body?: any, search?: any): Observable<TResult> {
 		return this.invoke(info, action, 'patch', body, search);
 	}
-	invokePost<T>(info: WebTypedCallInfo<T>, action: string, body?: any, search?: any): Observable<T> {
+	invokePost<TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>, action: string, body?: any, search?: any): Observable<TResult> {
 		return this.invoke(info, action, 'post', body, search);
 	}
-	invokePut<T>(info: WebTypedCallInfo<T>, action: string, body?: any, search?: any): Observable<T> {
+	invokePut<TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>, action: string, body?: any, search?: any): Observable<TResult> {
 		return this.invoke(info, action, 'put', body, search);
 	}
-	invokeDelete<T>(info: WebTypedCallInfo<T>, action: string, search?: any): Observable<T> {
+	invokeDelete<TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>, action: string, search?: any): Observable<TResult> {
 		return this.invoke(info, action, 'delete', null, search);
 	}
 	private addObjectToQueryParams(params: HttpParams, val: any, parentName: string): HttpParams {
@@ -50,8 +50,8 @@ export class WebTypedClient {
 		params.forEach(r => httpParams = httpParams.set(r.path, r.val));
 		return httpParams;
 	}
-	private invoke<T>(info: WebTypedCallInfo<T>, action: string,
-		httpMethod: string, body?: any, search?: any): Observable<T> {
+	private invoke<TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>, action: string,
+		httpMethod: string, body?: any, search?: any): Observable<TResult> {
 		var httpClient = this.httpClient;
 		var url = WebTypedUtils.resolveActionUrl(this.baseUrl, this.api, action);
 
@@ -77,23 +77,23 @@ export class WebTypedClient {
 			options.params = this.generateHttpParams(search);
 		}
 
-		var httpObservable: Observable<T>;
+		var httpObservable: Observable<TResult>;
 		switch (httpMethod) {
 			case 'get':
-				httpObservable = httpClient.get<T>(url, options);
+				httpObservable = httpClient.get<TResult>(url, options);
 				break;
 			case 'put':
-				httpObservable = httpClient.put<T>(url, body, options);
+				httpObservable = httpClient.put<TResult>(url, body, options);
 				break;
 			case 'patch':
-				httpObservable = httpClient.patch<T>(url, body, options);
+				httpObservable = httpClient.patch<TResult>(url, body, options);
 				break;
 			case 'delete':
-				httpObservable = httpClient.delete<T>(url, options);
+				httpObservable = httpClient.delete<TResult>(url, options);
 				break;
 			case 'post':
 			default:
-				httpObservable = httpClient.post<T>(url, body, options);
+				httpObservable = httpClient.post<TResult>(url, body, options);
 				break;
 		}
 
