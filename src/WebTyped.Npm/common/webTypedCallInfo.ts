@@ -3,5 +3,6 @@
 export interface WebTypedCallInfo<TParameters, TResult> {
 	func: WebTypedFunction<TParameters, TResult>,
 	parameters: TParameters,
-    result?: TResult;
+	result?: TResult;
+	kind: string;
 }
