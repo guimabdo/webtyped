@@ -229,10 +229,11 @@ namespace WebTyped {
 					case ServiceMode.Angular:default: genericReturnType = "Observable"; break;
 				}
 
-				typeAliases.Add($"{methodName}Parameters = {{{strParameters}}};");
-				typeAliases.Add($"{methodName}CallInfo = WebTypedCallInfo<{methodName}Parameters, {returnTypeName}>;");
+				var upperMethodName = methodName[0].ToString().ToUpper() + methodName.Substring(1);
+				typeAliases.Add($"{upperMethodName}Parameters = {{{strParameters}}}");
+				typeAliases.Add($"{upperMethodName}CallInfo = WebTypedCallInfo<{upperMethodName}Parameters, {returnTypeName}>");
 
-				sb.AppendLine(level + 1, $"{methodName}: WebTypedFunction<{ClassName}.{methodName}Parameters, {returnTypeName}> = ({strParameters}) : {genericReturnType}<{returnTypeName}> => {{");
+				sb.AppendLine(level + 1, $"{methodName}: WebTypedFunction<{ClassName}.{upperMethodName}Parameters, {returnTypeName}> = ({strParameters}) : {genericReturnType}<{returnTypeName}> => {{");
 				sb.AppendLine(level + 2, $"return this.invoke{httpMethod}({{");
 				sb.AppendLine(level + 4, $"func: this.{methodName},");
 				sb.AppendLine(level + 4, $"parameters: {{ {string.Join(", ", parameterResolutions.Select(p => p.Name))} }}");
