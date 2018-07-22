@@ -230,8 +230,8 @@ namespace WebTyped {
 				}
 
 				var upperMethodName = methodName[0].ToString().ToUpper() + methodName.Substring(1);
-				typeAliases.Add($"{upperMethodName}Parameters = {{{strParameters}}}");
-				typeAliases.Add($"{upperMethodName}CallInfo = WebTypedCallInfo<{upperMethodName}Parameters, {returnTypeName}>");
+				typeAliases.Add($"export type {upperMethodName}Parameters = {{{strParameters}, kind: '{upperMethodName}' }};");
+				typeAliases.Add($"export inteface {upperMethodName}CallInfo extends WebTypedCallInfo<{upperMethodName}Parameters, {returnTypeName}> {{ kind: '{upperMethodName}' }}");
 
 				sb.AppendLine(level + 1, $"{methodName}: WebTypedFunction<{ClassName}.{upperMethodName}Parameters, {returnTypeName}> = ({strParameters}) : {genericReturnType}<{returnTypeName}> => {{");
 				sb.AppendLine(level + 2, $"return this.invoke{httpMethod}({{");
@@ -255,7 +255,7 @@ namespace WebTyped {
 			}
 			sb.AppendLine(level, "}");
 			sb.AppendLine(level, $"export namespace {ClassName} {{");
-			typeAliases.ForEach(ta => sb.AppendLine(level + 1, $"export type {ta};"));
+			typeAliases.ForEach(ta => sb.AppendLine(level + 1, ta));
 			sb.AppendLine(level, "}");
 			sb.Insert(0, context.GetImportsText());
 			//if (!string.IsNullOrEmpty(Module)) {
