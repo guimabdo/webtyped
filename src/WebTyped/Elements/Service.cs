@@ -230,14 +230,14 @@ namespace WebTyped {
 				}
 
 				var upperMethodName = methodName[0].ToString().ToUpper() + methodName.Substring(1);
-				typeAliases.Add($"export type {upperMethodName}Parameters = {{{strParameters}, kind: '{upperMethodName}' }};");
+				typeAliases.Add($"export type {upperMethodName}Parameters = {{{strParameters}, _wtKind: '{upperMethodName}' }};");
 				typeAliases.Add($"export interface {upperMethodName}CallInfo extends WebTypedCallInfo<{upperMethodName}Parameters, {returnTypeName}> {{ kind: '{upperMethodName}' }}");
 
 				sb.AppendLine(level + 1, $"{methodName}: WebTypedFunction<{ClassName}.{upperMethodName}Parameters, {returnTypeName}> = ({strParameters}) : {genericReturnType}<{returnTypeName}> => {{");
 				sb.AppendLine(level + 2, $"return this.invoke{httpMethod}({{");
 				sb.AppendLine(level + 4, $"kind: '{upperMethodName}',");
 				sb.AppendLine(level + 4, $"func: this.{methodName},");
-				sb.AppendLine(level + 4, $"parameters: {{ {string.Join(", ", parameterResolutions.Select(p => p.Name))} }}");
+				sb.AppendLine(level + 4, $"parameters: {{ {string.Join(", ", parameterResolutions.Select(p => p.Name))}, _wtKind: {upperMethodName} }}");
 				sb.AppendLine(level + 3, "},");
 				sb.AppendLine(level + 3, $"`{action}`,");
 				//Body
