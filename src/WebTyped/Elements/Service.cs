@@ -84,7 +84,7 @@ namespace WebTyped {
 		public (string file, string content) GenerateOutput() {
 			var sb = new StringBuilder();
 			var context = new ResolutionContext();
-			sb.AppendLine("import { WebTypedFunction } from '@guimabdo/webtyped-common';");
+			sb.AppendLine("import { WebTypedFunction, WebTypedCallInfo } from '@guimabdo/webtyped-common';");
 			switch (Options.ServiceMode) {
 				case ServiceMode.Jquery:
 					sb.AppendLine("import { WebTypedClient } from '@guimabdo/webtyped-jquery';");
@@ -125,6 +125,9 @@ namespace WebTyped {
 			}
 			sb.AppendLine(level, "	}");
 			var existingMethods = new Dictionary<string, int>();
+
+			List<string> typeAliases = new List<string>();
+
 			foreach (var m in TypeSymbol.GetMembers()) {
 				if (m.Kind == SymbolKind.NamedType) {
 					//subClasses.Add(m as INamedTypeSymbol);
@@ -225,7 +228,11 @@ namespace WebTyped {
 					case ServiceMode.Fetch: genericReturnType = "Promise"; break;
 					case ServiceMode.Angular:default: genericReturnType = "Observable"; break;
 				}
-				sb.AppendLine(level + 1, $"{methodName}: WebTypedFunction<{{{strParameters}}}, {returnTypeName}> = ({strParameters}) : {genericReturnType}<{returnTypeName}> => {{");
+
+				typeAliases.Add($"{methodName}Parameters = {{{strParameters}}};");
+				typeAliases.Add($"{methodName}CallInfo = WebTypedCallInfo<{methodName}Parameters>;");
+
+				sb.AppendLine(level + 1, $"{methodName}: WebTypedFunction<{ClassName}.{methodName}Parameters, {returnTypeName}> = ({strParameters}) : {genericReturnType}<{returnTypeName}> => {{");
 				sb.AppendLine(level + 2, $"return this.invoke{httpMethod}({{");
 				sb.AppendLine(level + 4, $"func: this.{methodName},");
 				sb.AppendLine(level + 4, $"parameters: {{ {string.Join(", ", parameterResolutions.Select(p => p.Name))} }}");
@@ -245,6 +252,9 @@ namespace WebTyped {
 				sb.AppendLine(level + 2, ");");
 				sb.AppendLine(level + 1, "};");
 			}
+			sb.AppendLine(level, "}");
+			sb.AppendLine(level, $"export namespace {ClassName} {{");
+			typeAliases.ForEach(ta => sb.AppendLine(level + 1, $"export {ta};"));
 			sb.AppendLine(level, "}");
 			sb.Insert(0, context.GetImportsText());
 			//if (!string.IsNullOrEmpty(Module)) {
