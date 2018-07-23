@@ -45,7 +45,7 @@ namespace WebTyped.Elements
 			//return file;
 		}
 
-		public static bool IsEnum(INamedTypeSymbol t) {
+		public static bool IsEnum(ITypeSymbol t) {
 			if (t.BaseType?.SpecialType != SpecialType.System_Enum) { return false; }
 			return true;
 		}

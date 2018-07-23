@@ -17,6 +17,7 @@ namespace WebTyped {
 		public string AltName { get; set; }
 
 		public bool UseAltName { get; set; }
+		public ITsFile TsType { get; set; }
 		
 		public string Name { get {
 				if (UseAltName) {
@@ -92,6 +93,7 @@ namespace WebTyped {
 				//When inheriting from another generic model
 				: TypeFiles.ContainsKey(typeSymbol.OriginalDefinition) ? TypeFiles[typeSymbol.OriginalDefinition] : null;
 			if (tsType != null) {
+				result.TsType = tsType;
 				result.OriginalName = tsType.FullName;
 				if(tsType is TsModelBase) {
 					var tsModel = tsType as TsModelBase;

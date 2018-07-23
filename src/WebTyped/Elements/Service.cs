@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WebTyped.Annotations;
+using WebTyped.Elements;
 
 namespace WebTyped {
 	public class ParameterResolution {
@@ -41,6 +42,21 @@ namespace WebTyped {
 					//typeName = res.AltName;
 				}
 			}
+
+			if (TsEnum.IsEnum(p.Type)) {
+				if (res.TsType != null && res.TsType is TsEnum) {
+					var enumNames = string
+						.Join(
+							" | ", 
+							p.Type.GetMembers()
+							.Where(m => m.Kind == SymbolKind.Field)
+							.Select(m => $"'{m.Name}'"));
+					if (!string.IsNullOrEmpty(enumNames)) {
+						typeName = $"{typeName} | {enumNames}";
+					}
+				}
+			}
+
 			this.Signature = $"{p.Name}{(p.IsOptional ? "?" : "")}: {typeName}" + (res.IsNullable ? " | null" : "");
 			this.Ignore = p.GetAttributes().Any(a => a.AttributeClass.Name == "FromServices");
 		}

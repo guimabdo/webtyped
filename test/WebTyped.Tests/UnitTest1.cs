@@ -46,6 +46,30 @@ namespace WebTyped.Tests {
 				outputs[@".\typings\model.d.ts"]);
 		}
 
+		[TestMethod]
+		public async Task EnumSignatureTest() {
+			var cs =
+@"
+using System;
+using System.Threading.Tasks;
+[Route(""api/[controller]"")]
+public class MyController {
+	[HttpPost]
+	public async Task SomeMethod([FromBody]TestEnum val){ return null; }
+}
+
+public enum TestEnum{
+	Cat = 1,
+	Dog = 2
+}
+";
+			var generator = new Generator(
+	new string[] { cs },
+	new Options(null, false, ServiceMode.Angular, new string[0], "", false)
+);
+			var outputs = await generator.GenerateOutputsAsync();
+		}
+
 
 		[TestMethod]
 		public async Task ArrayResolutionTest() {
