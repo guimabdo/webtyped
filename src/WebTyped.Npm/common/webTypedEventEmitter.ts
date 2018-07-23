@@ -19,7 +19,7 @@ export class WebTypedEventEmitter {
 	static on = <TParameters, TResult>(f: WebTypedFunction<TParameters, TResult>, callback: (info: WebTypedCallInfo<TParameters, TResult>) => any): WebTypedEventEmitter => {
         return WebTypedEventEmitter.single.on(f, callback);
 	};
-	off = <TParameters, TResult>(f: Function, callback: (info: WebTypedCallInfo<TParameters, TResult>) => any): WebTypedEventEmitter => {
+	off = <TParameters, TResult>(f: WebTypedFunction<TParameters, TResult>, callback: (info: WebTypedCallInfo<TParameters, TResult>) => any): WebTypedEventEmitter => {
         var index = this.methods.indexOf(f);
         if (index >= 0) {
             var callbackIndex = this.callbacks[index].indexOf(callback);
@@ -29,7 +29,7 @@ export class WebTypedEventEmitter {
         }
         return this;
 	};
-	static off = <TParameters, TResult>(f: Function, callback: (info: WebTypedCallInfo<TParameters, TResult>) => any): WebTypedEventEmitter => {
+	static off = <TParameters, TResult>(f: WebTypedFunction<TParameters, TResult>, callback: (info: WebTypedCallInfo<TParameters, TResult>) => any): WebTypedEventEmitter => {
         return WebTypedEventEmitter.single.off(f, callback);
     };
 	private emit = <TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>): void => {
