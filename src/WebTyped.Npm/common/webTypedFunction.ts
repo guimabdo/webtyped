@@ -1,1 +1,0 @@
-﻿export interface WebTypedFunction<TParameters, TResult> extends Function { }

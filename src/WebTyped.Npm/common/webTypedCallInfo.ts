@@ -1,7 +1,5 @@
-﻿import { WebTypedFunction } from "./webTypedFunction";
-
-export interface WebTypedCallInfo<TParameters, TResult> {
-	func: WebTypedFunction<TParameters, TResult>,
+﻿export interface WebTypedCallInfo<TParameters, TResult> {
+	func: Function,
 	parameters: TParameters,
 	result?: TResult;
 	kind: string;

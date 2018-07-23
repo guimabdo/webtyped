@@ -84,7 +84,7 @@ namespace WebTyped {
 		public (string file, string content) GenerateOutput() {
 			var sb = new StringBuilder();
 			var context = new ResolutionContext();
-			sb.AppendLine("import { WebTypedFunction, WebTypedCallInfo } from '@guimabdo/webtyped-common';");
+			sb.AppendLine("import { WebTypedCallInfo } from '@guimabdo/webtyped-common';");
 			switch (Options.ServiceMode) {
 				case ServiceMode.Jquery:
 					sb.AppendLine("import { WebTypedClient } from '@guimabdo/webtyped-jquery';");
@@ -233,7 +233,7 @@ namespace WebTyped {
 				typeAliases.Add($"export type {upperMethodName}Parameters = {{{strParameters}{(parameterResolutions.Any() ? ", " : "")}_wtKind: '{upperMethodName}' }};");
 				typeAliases.Add($"export interface {upperMethodName}CallInfo extends WebTypedCallInfo<{upperMethodName}Parameters, {returnTypeName}> {{ kind: '{upperMethodName}' }}");
 
-				sb.AppendLine(level + 1, $"{methodName}: WebTypedFunction<{ClassName}.{upperMethodName}Parameters, {returnTypeName}> = ({strParameters}) : {genericReturnType}<{returnTypeName}> => {{");
+				sb.AppendLine(level + 1, $"{methodName} = ({strParameters}) : {genericReturnType}<{returnTypeName}> => {{");
 				sb.AppendLine(level + 2, $"return this.invoke{httpMethod}({{");
 				sb.AppendLine(level + 4, $"kind: '{upperMethodName}',");
 				sb.AppendLine(level + 4, $"func: this.{methodName},");
