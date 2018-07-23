@@ -1,10 +1,11 @@
 ﻿import { WebTypedCallInfo } from './webTypedCallInfo';
+import { WebTypedFunction } from './webTypedFunction';
 export class WebTypedEventEmitter {
-    private static single = new WebTypedEventEmitter();
-    private methods: Array<Function> = [];
+	private static single = new WebTypedEventEmitter();
+	private methods: Array<WebTypedFunction<any,any>> = [];
     private callbacks: Array<Array<(info: WebTypedCallInfo<any, any>) => any>> = [];
 	constructor() { }
-	on = <TParameters, TResult>(f: Function,
+	on = <TParameters, TResult>(f: WebTypedFunction<TParameters, TResult>,
 		callback: (info: WebTypedCallInfo<TParameters, TResult>) => any): WebTypedEventEmitter => {
         var index = this.methods.indexOf(f);
         if (index < 0) {
@@ -15,7 +16,7 @@ export class WebTypedEventEmitter {
         this.callbacks[index].push(callback);
         return this;
 	};
-	static on = <TParameters, TResult>(f: Function, callback: (info: WebTypedCallInfo<TParameters, TResult>) => any): WebTypedEventEmitter => {
+	static on = <TParameters, TResult>(f: WebTypedFunction<TParameters, TResult>, callback: (info: WebTypedCallInfo<TParameters, TResult>) => any): WebTypedEventEmitter => {
         return WebTypedEventEmitter.single.on(f, callback);
 	};
 	off = <TParameters, TResult>(f: Function, callback: (info: WebTypedCallInfo<TParameters, TResult>) => any): WebTypedEventEmitter => {
