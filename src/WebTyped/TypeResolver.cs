@@ -262,6 +262,8 @@ namespace WebTyped {
 				//case nameof(Int64):
 				//	return "number";
 				//case nameof(IEnumerable):
+				case "System.DateTimeOffset":
+					return "string";
 				case "System.Collections.Generic.IList<T>":
 				case "System.Collections.Generic.List<T>":
 				case "System.Collections.Generic.IEnumerable<T>":

@@ -247,7 +247,7 @@ namespace WebTyped {
 
 				var upperMethodName = methodName[0].ToString().ToUpper() + methodName.Substring(1);
 				typeAliases.Add($"export type {upperMethodName}Parameters = {{{strParameters}{(parameterResolutions.Any() ? ", " : "")}_wtKind: '{upperMethodName}' }};");
-				typeAliases.Add($"export interface {upperMethodName}CallInfo extends WebTypedCallInfo<{upperMethodName}Parameters, {returnTypeName}> {{ kind: '{upperMethodName}' }}");
+				typeAliases.Add($"export interface {upperMethodName}CallInfo extends WebTypedCallInfo<{upperMethodName}Parameters, {returnTypeName}> {{ kind: '{upperMethodName}'; }}");
 				typeAliases.Add($"export type {upperMethodName}FunctionBase = ({strParameters}) => {genericReturnType}<{returnTypeName}>;");
 				typeAliases.Add($"export interface {upperMethodName}Function extends WebTypedFunction<{upperMethodName}Parameters, {returnTypeName}>, {upperMethodName}FunctionBase {{}}");
 

@@ -15,6 +15,25 @@ namespace WebTyped.Tests {
 	[TestClass]
 	public class UnitTest1 {
 		[TestMethod]
+		public async Task DateTimeOffsetShouldBeStringTest() {
+			var cs = @"
+using System;
+public class Model { 
+	public DateTimeOffset DateAt { get; set; }
+}";
+			var generator = new Generator(
+	new string[] { cs },
+	new Options(null, false, ServiceMode.Angular, new string[0], "", false)
+);
+			var outputs = await generator.GenerateOutputsAsync();
+			Assert.AreEqual(
+@"declare interface Model {
+	dateAt: string;
+}
+", outputs[@".\typings\model.d.ts"]);
+		}
+
+		[TestMethod]
 		public void KeyValuePairToTsTest() {
 			var tr = new TypeResolver(new Options("", false, ServiceMode.Angular, new string[0], "", false));
 			var kvpType = typeof(KeyValuePair<,>);
