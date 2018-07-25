@@ -40,6 +40,8 @@ myService.get().then(result => console.log(result));
 ### Angular? (6+) Import the generated module and inject services when needed:
 `For Angular < 6 use v0.20.2`
 
+`If you're using angular cli, don't worry about extracting webpack.config.js since the plugin does not need to be in the same webpack.config.js of angular.`
+
 app.module.ts
 
 ```typescript
