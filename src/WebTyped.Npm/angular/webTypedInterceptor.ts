@@ -13,8 +13,11 @@ export class WebTypedInterceptor implements HttpInterceptor {
             body = JSON.stringify(body);
         }
         //Force always application/json (otherwise contenttype will be text/plain for strings)
-        var headers = req.headers;
-        headers = headers.set("Content-Type", "application/json");
+		var headers = req.headers;
+		var currentContentType = headers.get("Content-Type");
+		if (!currentContentType) {
+			headers = headers.set("Content-Type", "application/json");
+		}
 
         var clonedRequest = req.clone({
             responseType: 'text',
