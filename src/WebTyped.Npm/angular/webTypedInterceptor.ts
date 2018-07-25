@@ -7,15 +7,17 @@ export class WebTypedInterceptor implements HttpInterceptor {
     constructor() { }
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        var body = req.body;
+		var body = req.body;
+		var bodyType = (typeof body);
         //Stringify strings
-        if ((typeof body) === "string") {
+		if (bodyType === "string") {
             body = JSON.stringify(body);
         }
         //Force always application/json (otherwise contenttype will be text/plain for strings)
 		var headers = req.headers;
 		var currentContentType = headers.get("Content-Type");
-		if (!currentContentType) {
+		const fData: any = 'FormData';
+		if (!currentContentType && bodyType !== fData) {
 			headers = headers.set("Content-Type", "application/json");
 		}
 
