@@ -4,9 +4,9 @@ branches:
   only:
   - master
 environment:
-    - NPM_TAG: 'latest'
-    - WT_VERSION: '{version}'
-    - matrix:
+    matrix:
+        - NPM_TAG: 'latest'
+        - WT_VERSION: '{version}'
         - nodejs_version: LTS
 configuration:
   - Release
@@ -75,12 +75,11 @@ for:
     branches:
         only:
             - master
-    environment:
-        NPM_TAG: 'latest'
   -
     branches:
         only:
             - dev
     environment:
-        - NPM_TAG: 'dev'
-        - WT_VERSION: '{version}-dev.{build}'
+        matrix:
+            - NPM_TAG: 'latest'
+            - WT_VERSION: '{version}'
