@@ -1,4 +1,4 @@
-version: '0.24.0'
+version: '0.25.0'
 image: Visual Studio 2017
 branches:
   only:
@@ -75,4 +75,4 @@ for:
     branches:
         only:
             - dev
-    version: '0.24.0-dev.{build}'
+    version: '{version}-{branch}.{build}'
