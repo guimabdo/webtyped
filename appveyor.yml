@@ -16,7 +16,8 @@ dotnet_csproj:
 init:
   # Good practise, because Windows line endings are different from Unix/Linux ones
   - cmd: git config --global core.autocrlf true
-  # Install scripts. (runs after repo cloning)
+  # If not branch master, changes version format
+  - ps: IF ($env:APPVEYOR_REPO_BRANCH -ne "master") {Update-AppveyorBuild -Version "$env:APPVEYOR_BUILD_VERSION-$env:APPVEYOR_REPO_BRANCH.$env:APPVEYOR_BUILD_NUMBER"} 
 install:
   - ps: Install-Product node $env:nodejs_version
   - npm install
@@ -70,9 +71,3 @@ after_deploy:
   - npm version %APPVEYOR_BUILD_VERSION% -m 'v%APPVEYOR_BUILD_VERSION%'
   - npm publish --tag %NPM_TAG%
   - cd ../../../
-for: 
-  -
-    branches:
-        only:
-            - dev
-    version: '{version}-{branch}.{build}'
