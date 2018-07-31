@@ -4,10 +4,10 @@ branches:
   only:
   - master
 environment:
+    NPM_TAG: 'latest'
+    WT_VERSION: '{version}'
     matrix:
         - nodejs_version: LTS
-        NPM_TAG: 'latest'
-        WT_VERSION: '{version}'
 configuration:
   - Release
 dotnet_csproj:
@@ -77,6 +77,5 @@ for:
         only:
             - dev
     environment:
-        matrix:
-            - NPM_TAG: 'dev'
-            WT_VERSION: '{version}-dev.{build}'
+        NPM_TAG: 'dev'
+        WT_VERSION: '{version}-dev.{build}'
