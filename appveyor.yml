@@ -5,9 +5,9 @@ branches:
   - master
 environment:
     matrix:
-        - NPM_TAG: 'latest'
-        - WT_VERSION: '{version}'
         - nodejs_version: LTS
+        NPM_TAG: 'latest'
+        WT_VERSION: '{version}'
 configuration:
   - Release
 dotnet_csproj:
@@ -30,6 +30,7 @@ before_build:
   - cmd: dotnet restore ./src/WebTyped/WebTyped.csproj --verbosity m
   - node --version
   - npm --version
+  - ECHO %WT_VERSION%
 build_script:
   - cmd: dotnet publish ./src/WebTyped -c Release -o ../WebTyped.Npm/generator/program
   - cmd: dotnet pack ./src/WebTyped.Annotations -c Release
@@ -74,12 +75,8 @@ for:
   -
     branches:
         only:
-            - master
-  -
-    branches:
-        only:
             - dev
     environment:
         matrix:
-            - NPM_TAG: 'latest'
-            - WT_VERSION: '{version}'
+            - NPM_TAG: 'dev'
+            WT_VERSION: '{version}-dev.{build}'
