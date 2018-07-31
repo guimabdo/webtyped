@@ -4,9 +4,9 @@ branches:
   only:
   - master
 environment:
-    NPM_TAG: 'latest'
-    WT_VERSION: '{version}'
-    matrix:
+    - NPM_TAG: 'latest'
+    - WT_VERSION: '{version}'
+    - matrix:
         - nodejs_version: LTS
 configuration:
   - Release
