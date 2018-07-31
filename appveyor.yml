@@ -70,7 +70,7 @@ after_deploy:
   - npm version %WT_VERSION% -m 'v%WT_VERSION%'
   - npm publish --tag %NPM_TAG%
   - cd ../../../
-  for: 
+for: 
   -
     branches:
         only:
@@ -82,5 +82,5 @@ after_deploy:
         only:
             - dev
     environment:
-        NPM_TAG: 'dev'
-        WT_VERSION: '{version}-dev.{build}'
+        - NPM_TAG: 'dev'
+        - WT_VERSION: '{version}-dev.{build}'
