@@ -6,6 +6,8 @@ branches:
 environment:
     NPM_TAG: 'latest'
     WT_VERSION: '{version}'
+    matrix:
+        - nodejs_version: LTS
 configuration:
   - Release
 dotnet_csproj:
@@ -17,9 +19,6 @@ init:
   # Good practise, because Windows line endings are different from Unix/Linux ones
   - cmd: git config --global core.autocrlf true
   # Install scripts. (runs after repo cloning)
-environment:
-  matrix:
-    - nodejs_version: LTS
 install:
   - ps: Install-Product node $env:nodejs_version
   - npm install
