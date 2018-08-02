@@ -49,7 +49,7 @@ let myService = new MyService(); //Generated from MyController.cs
 myService.get().then(result => console.log(result));
 ```
 
-### Angular? (6+) Import the generated module and inject services when needed:
+### Angular(6+) Import the generated module and inject services when needed:
 
 app.module.ts
 
