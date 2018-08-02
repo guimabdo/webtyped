@@ -25,43 +25,88 @@ namespace WebTyped.Cli {
 			}
 
 			if (args.Any() && args[0] == "watch") {
-				Console.WriteLine($" \u001b[1;35m WebTyped is watching\u001b[0m");
-				var config = await ReadConfigAsync();
-				var matcher = new Matcher();
-				foreach (var val in config.Files) {
-					matcher.AddInclude(val);
-				}
-				var csFiles = matcher.GetResultsInFullPath(Directory.GetCurrentDirectory());
-				var directories = csFiles.Select(cs => Path.GetDirectoryName(cs)).Distinct();
-				var observables = new List<IObservable<EventPattern<FileSystemEventArgs>>>();
-				foreach (var d in directories) {
-					var watcher = new FileSystemWatcher(d) {
-						EnableRaisingEvents = true,
-						IncludeSubdirectories = true
-					};
-					var obs = Observable
+				IDisposable subscriber = null;
+				//Watch config file
+				var configWatcher = new FileSystemWatcher("./", CONFIG_FILE_NAME) {
+					EnableRaisingEvents = true,
+					IncludeSubdirectories = false,
+				};
+				var configObservables = new List<IObservable<EventPattern<FileSystemEventArgs>>>();
+				configObservables.Add(Observable
 						.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
-							h => watcher.Changed += h,
-							h => watcher.Changed -= h);
-					observables.Add(obs);
-					obs = Observable
+							h => configWatcher.Changed += h,
+							h => configWatcher.Changed -= h));
+				configObservables.Add(Observable
 						.FromEventPattern<RenamedEventHandler, FileSystemEventArgs>(
-							h => watcher.Renamed += h,
-							h => watcher.Renamed -= h);
-					observables.Add(obs);
-				}
-				Observable.Merge(observables)
-					.Where(e => {
-						var files = GetFilePathsAsync().Result;
-						return files.Contains(e.EventArgs.FullPath);
-					})
+							h => configWatcher.Renamed += h,
+							h => configWatcher.Renamed -= h));
+				Observable.Merge(configObservables)
+					.StartWith(new List<EventPattern<FileSystemEventArgs>>() { null })
 					.Throttle(new TimeSpan(0, 0, 1))
 					.Subscribe(async e => {
-						Console.WriteLine($"{e.EventArgs.FullPath} changed");
-						await Execute();
-					});
+						if (e == null) {
+							Console.WriteLine($" \u001b[1;35m WebTyped is watching\u001b[0m");
+						} else {
+							Console.WriteLine($"Config file has changed");
+							Console.WriteLine($" \u001b[1;35m Config file has changed\u001b[0m");
+						}
 
-				await Execute();
+						if(subscriber != null) {
+							subscriber.Dispose();
+						}
+						Config config;
+						try {
+							config = await ReadConfigAsync();
+						} catch(Exception ex) {
+							Console.WriteLine(" \u001b[31mCould not read config file: \u001b[0m" + ex.Message);
+							return;
+						}
+						if(config == null) {
+							Console.WriteLine(" \u001b[31mCould not read config file\u001b[0m");
+							return;
+						}
+						var matcher = new Matcher();
+						foreach (var val in config.Files) {
+							matcher.AddInclude(val);
+						}
+						var csFiles = matcher.GetResultsInFullPath(Directory.GetCurrentDirectory());
+						var directories = csFiles.Select(cs => Path.GetDirectoryName(cs)).Distinct();
+						var observables = new List<IObservable<EventPattern<FileSystemEventArgs>>>();
+						foreach (var d in directories) {
+							var watcher = new FileSystemWatcher(d) {
+								EnableRaisingEvents = true,
+								IncludeSubdirectories = true
+							};
+							var obs = Observable
+								.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
+									h => watcher.Changed += h,
+									h => watcher.Changed -= h);
+							observables.Add(obs);
+							obs = Observable
+								.FromEventPattern<RenamedEventHandler, FileSystemEventArgs>(
+									h => watcher.Renamed += h,
+									h => watcher.Renamed -= h);
+							observables.Add(obs);
+						}
+						subscriber = Observable.Merge(observables)
+							.Where(e2 => {
+								var files = GetFilePathsAsync().Result;
+								return files.Contains(e2.EventArgs.FullPath);
+							})
+							.StartWith(new List<EventPattern<FileSystemEventArgs>>() { null })
+							.Throttle(new TimeSpan(0, 0, 1))
+							.Subscribe(async e2 => {
+								if (e2 == null) {
+									Console.WriteLine($"Watch - first execution");
+								} else {
+									Console.WriteLine($"File(s) has changed");
+								}
+								await Execute();
+							});
+
+					});
+				
+				//await Execute();
 				while (true) { }
 			}
 
@@ -101,7 +146,7 @@ namespace WebTyped.Cli {
 
 
 			Console.WriteLine();
-			Console.WriteLine($" \u001b[1;36mStarting WebTyped with these configs:\u001b[0m");
+			Console.WriteLine($" \u001b[1;36mWebTyped is processing files. Configs:\u001b[0m");
 			config.GetType().GetProperties().ToList().ForEach(p => {
 				var val = p.GetValue(config);
 				Console.Write($"  \u001b[1;33m{p.Name}:");
