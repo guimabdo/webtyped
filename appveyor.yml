@@ -34,19 +34,19 @@ build_script:
   - dotnet pack ./src/WebTyped.Annotations -c Release
   - cd ./src/WebTyped.Npm/common 
   - npm install
-  - tsc
+  - node node_modules/typescript/bin/tsc
   - cd ../fetch
   - npm install
-  - tsc
+  - node node_modules/typescript/bin/tsc
   - cd ../jquery
   - npm install
-  - tsc
+  - node node_modules/typescript/bin/tsc
   - cd ../angular
   - npm install
-  - tsc
+  - node node_modules/typescript/bin/tsc
   - cd ../angular4
   - npm install
-  - tsc
+  - node node_modules/typescript/bin/tsc
   - cd ../../../
 after_build:
 test: off
