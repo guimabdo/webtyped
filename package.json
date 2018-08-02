@@ -2,11 +2,5 @@
   "name": "WebTyped_Global_Dev",
   "private": true,
   "version": "0.0.0",
-  "devDependencies": {
-    "@guimabdo/webtyped-common": "file:src/WebTyped.Npm/common",
-    "zone.js": "0.8.26",
-    "typescript": "2.9.2",
-    "jquery": "3.2.1",
-    "@types/jquery": "3.2.16"
-  }
+  "devDependencies": {}
 }

@@ -14,6 +14,11 @@
 		"jquery": "^3.2.1",
 		"@guimabdo/webtyped-common": "latest"
 	},
+	"devDependencies": {
+		"@types/jquery": "3.3.5",
+		"@guimabdo/webtyped-common": "latest",
+		"typescript": "3.0.1"
+	},
 	"dependencies": {},
 	"files": [
 		"*.js",

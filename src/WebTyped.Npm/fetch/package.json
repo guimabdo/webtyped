@@ -17,7 +17,10 @@
 		"@guimabdo/webtyped-common": "latest"
 	},
 	"devDependencies": {
-		"@types/jquery-param": "1.0.2"
+		"@types/jquery-param": "1.0.2",
+		"@types/node": "10.5.5",
+		"typescript": "3.0.1",
+		"@guimabdo/webtyped-common": "latest"
 	},
 	"files": [
 		"*.js",

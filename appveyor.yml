@@ -7,7 +7,7 @@ branches:
 environment:
     matrix:
         - nodejs_version: LTS
-configuration:
+configuration:0
   - Release
 dotnet_csproj:
   patch: true
@@ -21,7 +21,6 @@ init:
   - ps: IF ($env:APPVEYOR_REPO_BRANCH -ne "master") {Update-AppveyorBuild -Version "$env:APPVEYOR_BUILD_VERSION-$env:APPVEYOR_REPO_BRANCH.$env:APPVEYOR_BUILD_NUMBER"} 
 install:
   - ps: Install-Product node $env:nodejs_version
-  - npm install
   - npm install @types/node --save-dev
 before_build:
   # Display .NET Core version
@@ -31,16 +30,25 @@ before_build:
   - node --version
   - npm --version
 build_script:
-  - cmd: dotnet publish ./src/WebTyped -c Release -o ../WebTyped.Npm/generator/program
-  - cmd: dotnet publish ./src/WebTyped.Cli -c Release -o ../WebTyped.Npm/cli/program
-  - cmd: dotnet pack ./src/WebTyped.Annotations -c Release
-  - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/common
-  - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/fetch
-  - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/jquery
-  - cmd: npm install --prefix ./src/WebTyped.Npm/angular install ./src/WebTyped.Npm/angular
-  - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/angular
-  - cmd: npm install --prefix ./src/WebTyped.Npm/angular4 install ./src/WebTyped.Npm/angular4
-  - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/angular4
+  - dotnet publish ./src/WebTyped -c Release -o ../WebTyped.Npm/generator/program
+  - dotnet publish ./src/WebTyped.Cli -c Release -o ../WebTyped.Npm/cli/program
+  - dotnet pack ./src/WebTyped.Annotations -c Release
+  - cd ./src/WebTyped.Npm/common 
+  - npm install
+  - tsc
+  - cd ../fetch
+  - npm install
+  - tsc
+  - cd ../jquery
+  - npm install
+  - tsc
+  - cd ../angular
+  - npm install
+  - tsc
+  - cd ../angular4
+  - npm install
+  - tsc
+  - cd ../../../
 after_build:
 test: off
 artifacts:

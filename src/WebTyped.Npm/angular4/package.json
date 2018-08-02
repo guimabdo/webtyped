@@ -19,7 +19,9 @@
 	"devDependencies": {
 		"rxjs": "5.0.1",
 		"@angular/core": "4.3.0",
-		"@angular/common": "4.3.0"
+		"@angular/common": "4.3.0",
+		"@guimabdo/webtyped-common": "latest",
+		"typescript": "2.4.0"
 	},
 	"files": [
 		"*.js",
