@@ -7,7 +7,8 @@
 
 ```
 npm install @guimabdo/webtyped
-npm install @guimabdo/webtyped-[fetch|jquery|angular]
+npm install @guimabdo/webtyped-common
+npm install @guimabdo/webtyped-[fetch|jquery|angular|angular4]
 
 ```
 
@@ -21,7 +22,7 @@ Example:
 		"../Models/**/*.cs"
 	],
 	"outDir": "./webtyped/", //optional, default: "./",
-	"serviceMode": "angular", //optional, default: "fetch", current options: "fetch", "angular" or "jquery"
+	"serviceMode": "angular", //optional, default: "fetch", current options: "fetch", "angular", "angular4" or "jquery"
 	"trims": ["My.Namespace"], //optional
 	"baseModule": "WebApis", //optional
 	"keepPropsCase": false, //options, default: false. May be useful with old versions of Asp.Net WebApi
@@ -49,7 +50,13 @@ let myService = new MyService(); //Generated from MyController.cs
 myService.get().then(result => console.log(result));
 ```
 
-### Angular(6+) Import the generated module and inject services when needed:
+### Angular
+
+webtyped.json
+serviceMode: "angular" for >=6.0.0
+serviceMode: "angular4" for >=4.3.0 <6.0.0
+
+Import the generated module and inject services when needed:
 
 app.module.ts
 
