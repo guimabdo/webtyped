@@ -70,9 +70,11 @@ after_deploy:
   - npm version %APPVEYOR_BUILD_VERSION% -m 'v%APPVEYOR_BUILD_VERSION%'
   - npm publish --tag %NPM_TAG%
   - cd ../angular
+  - npm install
   - npm version %APPVEYOR_BUILD_VERSION% -m 'v%APPVEYOR_BUILD_VERSION%'
   - npm publish --tag %NPM_TAG%
-   - cd ../angular4
+  - cd ../angular4
+  - npm install
   - npm version %APPVEYOR_BUILD_VERSION% -m 'v%APPVEYOR_BUILD_VERSION%'
   - npm publish --tag %NPM_TAG%
   - cd ../generator
