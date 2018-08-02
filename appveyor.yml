@@ -7,7 +7,7 @@ branches:
 environment:
     matrix:
         - nodejs_version: LTS
-configuration:0
+configuration:
   - Release
 dotnet_csproj:
   patch: true
@@ -21,7 +21,6 @@ init:
   - ps: IF ($env:APPVEYOR_REPO_BRANCH -ne "master") {Update-AppveyorBuild -Version "$env:APPVEYOR_BUILD_VERSION-$env:APPVEYOR_REPO_BRANCH.$env:APPVEYOR_BUILD_NUMBER"} 
 install:
   - ps: Install-Product node $env:nodejs_version
-  - npm install @types/node --save-dev
 before_build:
   # Display .NET Core version
   - cmd: dotnet --version
