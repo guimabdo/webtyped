@@ -6,30 +6,42 @@
 ## Quick Start
 
 ```
-npm install @guimabdo/webtyped-generator
+npm install @guimabdo/webtyped
 npm install @guimabdo/webtyped-[fetch|jquery|angular]
 
 ```
 
-webpack.config.js:
+Create a webtyped.json configuration file in your project.
+Example:
 
 ```javascript
-const WebTypedPlugin = require('@guimabdo/webtyped-generator').WebTypedPlugin;
-module.exports = {
-   plugins: [
-		  new WebTypedPlugin({
-			  sourceFiles: [
-				   "./Controllers/Api/**/*.cs",
-				   "./Models/**/*.cs"],
-			  serviceMode: "fetch", //or "jquery", or "angular"
-			  outDir: "./src/webtyped/",
-			  clear: true
-		})
-	  ]
+{
+	"files": [
+		"../Controllers/**/*.cs",
+		"../Models/**/*.cs"
+	],
+	"outDir": "./webtyped/", //optional, default: "./",
+	"serviceMode": "angular", //optional, default: "fetch", current options: "fetch", "angular" or "jquery"
+	"trim": ["My.Namespace"], //optional
+	"baseModule": "WebApis", //optional
+	"keepPropsCase": false, //options, default: false. May be useful with old versions of Asp.Net WebApi
+	"clear": true // delete typescript files that are not part of the current generation
 }
+
 ```
 
-Run webpack and use generated services wherever you want:
+At the command line, run webtyped:
+
+```batchfile
+webtyped
+```
+Or use 'watch' option for generating typescript code and start watching cs files:
+
+```batchfile
+webtyped watch
+```
+
+Use generated services wherever you want:
 
 ```typescript
 import { MyService } from './webtyped/<services-folder>';
@@ -38,9 +50,6 @@ myService.get().then(result => console.log(result));
 ```
 
 ### Angular? (6+) Import the generated module and inject services when needed:
-`For Angular < 6 use v0.20.2`
-
-`If you're using angular cli, don't worry about extracting webpack.config.js since the plugin does not need to be in the same webpack.config.js of angular.`
 
 app.module.ts
 
@@ -60,18 +69,6 @@ export class SomeComponent {
 	constructor(myService: MyService){}
 }
 ```
-## Options
-
-| Option  | Type | Default | Description |
-| ------------- | ------------- | ------------- | ------------- |
-| sourceFiles  | string[]  | - | dotnet Controllers/Models files (glob patterns supported)
-| outDir  | string  | - | output dir for generated typescript files
-| trim | string[] | [] | optional list of client namespaces that will be trimmed for usage simplification
-| clear | boolean | false | delete typescript files that are not part of the current generation
-| serviceMode | "fetch" or "jquery" or "angular" | "angular" | technology for generated client services http calls
-| baseModule | string | "" | Root module for the generated client types
-| keepPropsCase | boolean | false | True if client types fields must have same casing of the server classes. False for camelcase fields.
-
 
 ## Requirements
 
