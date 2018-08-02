@@ -25,8 +25,8 @@ Example:
 	"serviceMode": "angular", //optional, default: "fetch", current options: "fetch", "angular", "angular4" or "jquery"
 	"trims": ["My.Namespace"], //optional
 	"baseModule": "WebApis", //optional
-	"keepPropsCase": false, //options, default: false. May be useful with old versions of Asp.Net WebApi
-	"clear": true // delete typescript files that are not part of the current generation
+	"keepPropsCase": false, //optional, default: false. May be useful with old versions of Asp.Net WebApi
+	"clear": true //optional, default: true. Delete typescript files that are not part of the current generation
 }
 
 ```
