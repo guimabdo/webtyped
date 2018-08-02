@@ -22,7 +22,7 @@ Example:
 	],
 	"outDir": "./webtyped/", //optional, default: "./",
 	"serviceMode": "angular", //optional, default: "fetch", current options: "fetch", "angular" or "jquery"
-	"trim": ["My.Namespace"], //optional
+	"trims": ["My.Namespace"], //optional
 	"baseModule": "WebApis", //optional
 	"keepPropsCase": false, //options, default: false. May be useful with old versions of Asp.Net WebApi
 	"clear": true // delete typescript files that are not part of the current generation
