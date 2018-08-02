@@ -7,7 +7,8 @@ using System.Text;
 
 namespace WebTyped {
 	public enum ServiceMode {
-		Angular, 
+		Angular,
+		Angular4,
 		Jquery,
 		Fetch
 	}
@@ -18,6 +19,10 @@ namespace WebTyped {
 		public IEnumerable<string> ModuleTrims { get; private set; }
 		public string BaseModule { get; private set; }
 		public ServiceMode ServiceMode { get; private set; }
+		public bool IsAngular { get {
+				return ServiceMode == ServiceMode.Angular || ServiceMode == ServiceMode.Angular4;
+			}
+		}
 		public bool KeepPropsCase { get; private set; }
 		public Options(string outDir,
 			bool clear,

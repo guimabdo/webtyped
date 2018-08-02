@@ -15,7 +15,6 @@
     "@angular/platform-server": "6.1.0-rc.0",
     "@angular/router": "6.1.0-rc.0",
     "@guimabdo/webtyped-common": "file:src/WebTyped.Npm/common",
-    "rxjs": "6.2.1",
     "zone.js": "0.8.26",
     "typescript": "2.9.2",
     "jquery": "3.2.1",

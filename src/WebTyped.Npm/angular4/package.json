@@ -1,7 +1,7 @@
 {
-	"name": "@guimabdo/webtyped-angular",
+	"name": "@guimabdo/webtyped-angular4",
 	"version": "0.0.0",
-	"description": "WebTyped Angular",
+	"description": "WebTyped Angular4",
 	"author": {
 		"name": "guimabdo"
 	},
@@ -11,13 +11,13 @@
 		"url": "git+https://github.com/guimabdo/WebTyped.git"
 	},
 	"peerDependencies": {
-		"rxjs": ">=6.0.0",
-		"@angular/core": ">=6.0.0",
-		"@angular/common": ">=6.0.0",
+		"rxjs": ">=5.0.1 <6.0.0",
+		"@angular/core": ">=4.3.0 <6.0.0",
+		"@angular/common": ">=4.3.0 <6.0.0",
 		"@guimabdo/webtyped-common": "latest"
 	},
 	"devDependencies": {
-		"rxjs": "6.0.0"
+		"rxjs": "5.0.1"
 	},
 	"files": [
 		"*.js",

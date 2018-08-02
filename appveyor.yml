@@ -38,6 +38,7 @@ build_script:
   - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/fetch
   - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/jquery
   - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/angular
+  - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/angular4
 after_build:
 test: off
 artifacts:
@@ -56,6 +57,7 @@ after_deploy:
   - ps: '(Get-Content ./src/WebTyped.Npm/fetch/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/fetch/package.json'
   - ps: '(Get-Content ./src/WebTyped.Npm/jquery/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/jquery/package.json'
   - ps: '(Get-Content ./src/WebTyped.Npm/angular/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/angular/package.json'
+  - ps: '(Get-Content ./src/WebTyped.Npm/angular4/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/angular4/package.json'
   - ps: '(Get-Content ./src/WebTyped.Npm/generator/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/generator/package.json'
   - ps: '(Get-Content ./src/WebTyped.Npm/cli/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/cli/package.json'
   - cd ./src/WebTyped.Npm/common 
@@ -68,6 +70,9 @@ after_deploy:
   - npm version %APPVEYOR_BUILD_VERSION% -m 'v%APPVEYOR_BUILD_VERSION%'
   - npm publish --tag %NPM_TAG%
   - cd ../angular
+  - npm version %APPVEYOR_BUILD_VERSION% -m 'v%APPVEYOR_BUILD_VERSION%'
+  - npm publish --tag %NPM_TAG%
+   - cd ../angular4
   - npm version %APPVEYOR_BUILD_VERSION% -m 'v%APPVEYOR_BUILD_VERSION%'
   - npm publish --tag %NPM_TAG%
   - cd ../generator

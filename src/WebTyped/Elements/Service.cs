@@ -109,10 +109,12 @@ namespace WebTyped {
 					sb.AppendLine("import { WebTypedClient } from '@guimabdo/webtyped-fetch';");
 					break;
 				case ServiceMode.Angular:
+				case ServiceMode.Angular4:
 				default:
 					sb.AppendLine("import { Injectable, Inject, forwardRef, Optional } from '@angular/core';");
 					sb.AppendLine("import { HttpClient } from '@angular/common/http';");
-					sb.AppendLine("import { WebTypedClient, WebTypedEventEmitterService } from '@guimabdo/webtyped-angular';");
+					var ngV = Options.ServiceMode == ServiceMode.Angular4 ? "4" : "";
+					sb.AppendLine($"import {{ WebTypedClient, WebTypedEventEmitterService }} from '@guimabdo/webtyped-angular{ngV}';");
 					sb.AppendLine("import { Observable } from 'rxjs';");
 					break;
 			}
@@ -124,12 +126,14 @@ namespace WebTyped {
 			int level = 0;
 			switch (Options.ServiceMode) {
 				case ServiceMode.Angular:
+				case ServiceMode.Angular4:
 					sb.AppendLine(level, "@Injectable()");
 					break;
 			}
 			sb.AppendLine(level, $"export class {ClassName} extends WebTypedClient {{");
 			switch (Options.ServiceMode) {
 				case ServiceMode.Angular:
+				case ServiceMode.Angular4:
 					sb.AppendLine(level, $"	constructor(@Optional() @Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebTypedEventEmitterService)) eventEmitter: WebTypedEventEmitterService) {{");
 					sb.AppendLine(level, $@"		super(baseUrl, '{path}', httpClient, eventEmitter);");
 					break;
@@ -242,7 +246,7 @@ namespace WebTyped {
 				switch (Options.ServiceMode) {
 					case ServiceMode.Jquery: genericReturnType = "JQuery.jqXHR"; break;
 					case ServiceMode.Fetch: genericReturnType = "Promise"; break;
-					case ServiceMode.Angular:default: genericReturnType = "Observable"; break;
+					case ServiceMode.Angular:case ServiceMode.Angular4:default: genericReturnType = "Observable"; break;
 				}
 
 				var upperMethodName = methodName[0].ToString().ToUpper() + methodName.Substring(1);
