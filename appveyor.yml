@@ -37,7 +37,9 @@ build_script:
   - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/common
   - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/fetch
   - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/jquery
+  - cmd: npm install --prefix ./src/WebTyped.Npm/angular install ./src/WebTyped.Npm/angular
   - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/angular
+  - cmd: npm install --prefix ./src/WebTyped.Npm/angular4 install ./src/WebTyped.Npm/angular4
   - cmd: node node_modules/typescript/bin/tsc -p ./src/WebTyped.Npm/angular4
 after_build:
 test: off
@@ -70,11 +72,9 @@ after_deploy:
   - npm version %APPVEYOR_BUILD_VERSION% -m 'v%APPVEYOR_BUILD_VERSION%'
   - npm publish --tag %NPM_TAG%
   - cd ../angular
-  - npm install
   - npm version %APPVEYOR_BUILD_VERSION% -m 'v%APPVEYOR_BUILD_VERSION%'
   - npm publish --tag %NPM_TAG%
   - cd ../angular4
-  - npm install
   - npm version %APPVEYOR_BUILD_VERSION% -m 'v%APPVEYOR_BUILD_VERSION%'
   - npm publish --tag %NPM_TAG%
   - cd ../generator
