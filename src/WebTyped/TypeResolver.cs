@@ -381,7 +381,7 @@ namespace WebTyped {
 				//delete.ToList().ForEach(f => Console.WriteLine(f));
 				//Console.WriteLine($"celete: {string.Join(", ", delete)}");
 				foreach (var f in delete) {
-					var line = File.ReadLines(f).First();
+					var line = File.ReadLines(f).FirstOrDefault();
 					var mark = FileHelper.Mark.Replace(System.Environment.NewLine, "");
 					//Console.WriteLine($"{line} == {FileHelper.Mark} - {line.CompareTo(FileHelper.Mark.Replace(System.Environment.NewLine, ""))}");
 					//if (line.ToUpper().Contains(FileHelper.Mark.ToUpper())) {

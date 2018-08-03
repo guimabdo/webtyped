@@ -1,5 +1,5 @@
-﻿#!/usr/bin/env node
-console.log("HELLO");
+#!/usr/bin/env node
+console.log('WebTyped - v.vDev');
 var exec = require('child_process').exec;
 var cmd = `dotnet "${__dirname}/program/WebTyped.Cli.dll" ${process.argv.splice(2)}`;
 var e = exec(cmd, err => { });
