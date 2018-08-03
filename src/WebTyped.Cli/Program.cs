@@ -138,6 +138,9 @@ namespace WebTyped.Cli {
 				Console.WriteLine("Source files not provided.");
 				return 1;
 			}
+			if(config.OutDir == null) {
+				config.OutDir = "webtyped";
+			}
 			var matcher = new Matcher();
 			foreach (var val in config.Files) {
 				matcher.AddInclude(val);
@@ -178,7 +181,7 @@ namespace WebTyped.Cli {
 					}));
 			}
 			
-			var options = new Options(config.OutDir ?? "webtyped",
+			var options = new Options(config.OutDir,
 				config.Clear,
 				config.ServiceMode,
 				config.Trims ?? new string[0],
