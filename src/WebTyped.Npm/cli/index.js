@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 console.log('WebTyped - v.vDev');
 
 var exec = require('child_process').exec;
