@@ -177,8 +177,8 @@ namespace WebTyped.Cli {
 						trees.TryAdd(csFile, CSharpSyntaxTree.ParseText(tsk.Result));
 					}));
 			}
-
-			var options = new Options(config.OutDir,
+			
+			var options = new Options(config.OutDir ?? "webtyped",
 				config.Clear,
 				config.ServiceMode,
 				config.Trims ?? new string[0],
