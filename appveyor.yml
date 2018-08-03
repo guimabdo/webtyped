@@ -15,8 +15,7 @@ dotnet_csproj:
   version: '{version}'
   package_version: '{version}'
 init:
-  # Good practise, because Windows line endings are different from Unix/Linux ones
-  - cmd: git config --global core.autocrlf true
+  # - cmd: git config --global core.autocrlf true
   # If not branch master, changes version format
   - ps: IF ($env:APPVEYOR_REPO_BRANCH -ne "master") {Update-AppveyorBuild -Version "$env:APPVEYOR_BUILD_VERSION-$env:APPVEYOR_REPO_BRANCH.$env:APPVEYOR_BUILD_NUMBER"} 
 install:
