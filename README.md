@@ -6,7 +6,7 @@
 ## Quick Start
 
 ```
-npm install @guimabdo/webtyped
+npm install @guimabdo/webtyped -g
 npm install @guimabdo/webtyped-common
 npm install @guimabdo/webtyped-[fetch|jquery|angular|angular4]
 
@@ -21,7 +21,7 @@ Example:
 		"../Controllers/**/*.cs",
 		"../Models/**/*.cs"
 	],
-	"outDir": "./webtyped/", //optional, default: "./",
+	"outDir": "./webtyped/", //optional, default: "webtyped",
 	"serviceMode": "angular", //optional, default: "fetch", current options: "fetch", "angular", "angular4" or "jquery"
 	"trims": ["My.Namespace"], //optional
 	"baseModule": "WebApis", //optional
