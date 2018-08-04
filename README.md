@@ -53,8 +53,8 @@ myService.get().then(result => console.log(result));
 ### Angular
 
 webtyped.json
-serviceMode: "angular" for >=6.0.0
-serviceMode: "angular4" for >=4.3.0 <6.0.0
+- serviceMode: "angular" for >=6.0.0
+- serviceMode: "angular4" for >=4.3.0 <6.0.0
 
 Import the generated module and inject services when needed:
 
