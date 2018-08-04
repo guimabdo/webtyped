@@ -20,12 +20,6 @@ namespace WebTyped.Cli {
 		const string CONFIG_FILE_NAME = "webtyped.json";
 		//List<FileSystemWatcher> _watchers = new List<FileSystemWatcher>();
 		static async Task<int> Main(string[] args) {
-
-			if (!File.Exists(CONFIG_FILE_NAME)) {
-				Console.WriteLine($"WebTyped configuration file not found (\u001b[31m{CONFIG_FILE_NAME}\u001b[0m)");
-				return 1;
-			}
-
 			if (args.Any() && args[0] == "watch") {
 				IDisposable subscriber = null;
 
@@ -85,7 +79,8 @@ namespace WebTyped.Cli {
 
 						string lastCheck = "";
 						//Observable.Timeout()
-						subscriber = Observable.Interval(new TimeSpan(0, 0, 1))
+						subscriber = Observable
+						.Interval(new TimeSpan(0, 0, 1))
 						.Subscribe(async t => {
 							var csFiles = matcher.GetResultsInFullPath("./");
 							var sb = new StringBuilder();
@@ -146,7 +141,10 @@ namespace WebTyped.Cli {
 				//await Execute();
 				while (true) { }
 			}
-
+			if (!File.Exists(CONFIG_FILE_NAME)) {
+				Console.WriteLine($"WebTyped configuration file not found (\u001b[31m{CONFIG_FILE_NAME}\u001b[0m)");
+				return 1;
+			}
 			return await Execute();
 		}
 
