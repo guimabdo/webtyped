@@ -1,7 +1,7 @@
-version: '0.25.X'
+version: '0.26.0'
 image: Visual Studio 2017
 only_commits:
-  message: /\[publish\]/
+  message: /\[deploy\]/
 branches:
   only:
   - master
@@ -21,7 +21,22 @@ init:
   # If not branch master, changes version format
   - ps: IF ($env:APPVEYOR_REPO_BRANCH -ne "master") {Update-AppveyorBuild -Version "$env:APPVEYOR_BUILD_VERSION-$env:APPVEYOR_REPO_BRANCH.$env:APPVEYOR_BUILD_NUMBER"} 
 install:
-  - ps: Install-Product node $env:nodejs_version
+  - ps: |
+        $env:DEPLOY_ANNOTATIONS = (
+                                    $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[annotations]")
+                                    -or $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[all]")
+                                  )
+        $env:DEPLOY_CLI = (
+                            $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[cli]")
+                            -or $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[npm]")
+                            -or $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[all]")
+                           )
+        $env:DEPLOY_CLASSES = (
+                                $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[classes]")
+                                -or $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[npm]")
+                                -or $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[all]")
+                               )
+        Install-Product node $env:nodejs_version
 before_build:
   # Display .NET Core version
   - cmd: dotnet --version
@@ -30,66 +45,87 @@ before_build:
   - node --version
   - npm --version
 build_script:
-  - dotnet publish ./src/WebTyped -c Release -o ../WebTyped.Npm/generator/program
-  - dotnet publish ./src/WebTyped.Cli -c Release -o ../WebTyped.Npm/cli/program
-  - dotnet pack ./src/WebTyped.Annotations -c Release
-  - cd ./src/WebTyped.Npm/common 
-  - npm install
-  - node node_modules/typescript/bin/tsc
-  - cd ../fetch
-  - npm install
-  - node node_modules/typescript/bin/tsc
-  - cd ../jquery
-  - npm install
-  - node node_modules/typescript/bin/tsc
-  - cd ../angular
-  - npm install
-  - node node_modules/typescript/bin/tsc
-  - cd ../angular4
-  - npm install
-  - node node_modules/typescript/bin/tsc
-  - cd ../../../
+  ps: |
+  if ($env:DEPLOY_ANNOTATIONS) {
+    dotnet pack ./src/WebTyped.Annotations -c Release
+  }
+  if ($env:DEPLOY_CLI) {
+    dotnet publish ./src/WebTyped -c Release -o ../WebTyped.Npm/generator/program
+    dotnet publish ./src/WebTyped.Cli -c Release -o ../WebTyped.Npm/cli/program
+  }
+  if ($env:DEPLOY_CLASSES) {
+    cd ./src/WebTyped.Npm/common 
+    npm install
+    node node_modules/typescript/bin/tsc
+    cd ../fetch
+    npm install
+    node node_modules/typescript/bin/tsc
+    cd ../jquery
+    npm install
+    node node_modules/typescript/bin/tsc
+    cd ../angular
+    npm install
+    node node_modules/typescript/bin/tsc
+    cd ../angular4
+    npm install
+    node node_modules/typescript/bin/tsc
+    cd ../../../
+  }
 after_build:
 test: off
 artifacts:
 - path: ./src/WebTyped.Annotations/bin/Release/*.nupkg
   name: nupkgAnnotations
+  on:
+    DEPLOY_ANNOTATIONS: true
 deploy:
   provider: NuGet
   api_key: $(nuget_key)
   skip_symbols: false
   artifact: nupkgAnnotations
+  on:
+    DEPLOY_ANNOTATIONS: true
 after_deploy:
-  - ps: IF ($env:APPVEYOR_REPO_BRANCH -ne "master") {$env:NPM_TAG = $env:APPVEYOR_REPO_BRANCH} else {$env:NPM_TAG = "latest"}
-  - ECHO %NPM_TAG%
-  - ps: '"//registry.npmjs.org/:_authToken=$env:npm_token`n" | out-file "$env:userprofile\.npmrc" -Encoding ASCII'
-  - ps: '(Get-Content ./src/WebTyped.Npm/common/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/common/package.json'
-  - ps: '(Get-Content ./src/WebTyped.Npm/fetch/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/fetch/package.json'
-  - ps: '(Get-Content ./src/WebTyped.Npm/jquery/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/jquery/package.json'
-  - ps: '(Get-Content ./src/WebTyped.Npm/angular/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/angular/package.json'
-  - ps: '(Get-Content ./src/WebTyped.Npm/angular4/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/angular4/package.json'
-  - ps: '(Get-Content ./src/WebTyped.Npm/generator/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/generator/package.json'
-  - ps: '(Get-Content ./src/WebTyped.Npm/cli/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/cli/package.json'
-  - ps: '(Get-Content ./README.md) | Set-Content ./src/WebTyped.Npm/cli/README.md'
-  - cd ./src/WebTyped.Npm/common 
-  - npm version %APPVEYOR_BUILD_VERSION% -m 'v%APPVEYOR_BUILD_VERSION%'
-  - npm publish --tag %NPM_TAG%
-  - cd ../fetch
-  - npm version %APPVEYOR_BUILD_VERSION% -m 'v%APPVEYOR_BUILD_VERSION%'
-  - npm publish --tag %NPM_TAG%
-  - cd ../jquery
-  - npm version %APPVEYOR_BUILD_VERSION% -m 'v%APPVEYOR_BUILD_VERSION%'
-  - npm publish --tag %NPM_TAG%
-  - cd ../angular
-  - npm version %APPVEYOR_BUILD_VERSION% -m 'v%APPVEYOR_BUILD_VERSION%'
-  - npm publish --tag %NPM_TAG%
-  - cd ../angular4
-  - npm version %APPVEYOR_BUILD_VERSION% -m 'v%APPVEYOR_BUILD_VERSION%'
-  - npm publish --tag %NPM_TAG%
-  - cd ../generator
-  - npm version %APPVEYOR_BUILD_VERSION% -m 'v%APPVEYOR_BUILD_VERSION%'
-  - npm publish --tag %NPM_TAG%
-  - cd ../cli
-  - npm version %APPVEYOR_BUILD_VERSION% -m 'v%APPVEYOR_BUILD_VERSION%'
-  - npm publish --tag %NPM_TAG%
-  - cd ../../../
+  - ps: |
+  IF ($env:APPVEYOR_REPO_BRANCH -ne "master") {
+    $env:NPM_TAG = $env:APPVEYOR_REPO_BRANCH
+  } else {
+    $env:NPM_TAG = "latest"
+  }
+  ECHO $env:NPM_TAG
+  "//registry.npmjs.org/:_authToken=$env:npm_token`n" | out-file "$env:userprofile\.npmrc" -Encoding ASCII'
+  (Get-Content ./src/WebTyped.Npm/common/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/common/package.json
+  (Get-Content ./src/WebTyped.Npm/fetch/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/fetch/package.json
+  (Get-Content ./src/WebTyped.Npm/jquery/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/jquery/package.json
+  (Get-Content ./src/WebTyped.Npm/angular/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/angular/package.json
+  (Get-Content ./src/WebTyped.Npm/angular4/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/angular4/package.json
+  (Get-Content ./src/WebTyped.Npm/generator/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/generator/package.json
+  (Get-Content ./src/WebTyped.Npm/cli/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/cli/package.json
+  (Get-Content ./README.md) | Set-Content ./src/WebTyped.Npm/cli/README.md
+  if ($env:DEPLOY_CLASSES){
+    cd ./src/WebTyped.Npm/common 
+    npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
+    npm publish --tag $env:NPM_TAG
+    cd ../fetch
+    npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
+    npm publish --tag $env:NPM_TAG
+    cd ../jquery
+    npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
+    npm publish --tag $env:NPM_TAG
+    cd ../angular
+    npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
+    npm publish --tag $env:NPM_TAG
+    cd ../angular4
+    npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
+    npm publish --tag $env:NPM_TAG
+    cd ../../../
+  }
+  if ($env:DEPLOY_CLI){
+    cd ./src/WebTyped.Npm/generator
+    npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
+    npm publish --tag $env:NPM_TAG
+    cd ../cli
+    npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
+    npm publish --tag $env:NPM_TAG
+    cd ../../../
+  }
