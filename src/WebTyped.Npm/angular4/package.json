@@ -5,6 +5,12 @@
 	"author": {
 		"name": "guimabdo"
 	},
+	"keywords": [
+		"TypeScript",
+		"WebTyped",
+		"ASP.NET Web API",
+		"angular4"
+	],
 	"license": "MIT",
 	"repository": {
 		"type": "git",
