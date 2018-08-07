@@ -71,7 +71,6 @@ build_script:
      node node_modules/typescript/bin/tsc
      cd ../../../
     }
-after_build:
 test: off
 artifacts:
 - path: ./src/WebTyped.Annotations/bin/Release/*.nupkg
@@ -83,7 +82,7 @@ deploy:
   artifact: nupkgAnnotations
   on:
     DEPLOY_ANNOTATIONS: true
-after_deploy:
+after_build:
   ps: |
     IF ($env:APPVEYOR_REPO_BRANCH -ne "master") {$env:NPM_TAG = $env:APPVEYOR_REPO_BRANCH} else {$env:NPM_TAG = "latest"}
     ECHO $env:NPM_TAG
