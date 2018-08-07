@@ -27,14 +27,14 @@ install:
                                     $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[all]")
                                   )
         $env:DEPLOY_CLI = (
-                            $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[cli]")
-                            -or $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[npm]")
-                            -or $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[all]")
+                            $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[cli]")-or
+                            $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[npm]")-or
+                            $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[all]")
                            )
         $env:DEPLOY_CLASSES = (
-                                $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[classes]")
-                                -or $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[npm]")
-                                -or $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[all]")
+                                $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[classes]")-or
+                                $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[npm]")-or
+                                $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[all]")
                                )
         Install-Product node $env:nodejs_version
 before_build:
