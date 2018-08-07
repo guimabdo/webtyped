@@ -88,7 +88,7 @@ deploy:
 after_deploy:
   - ps: |
     if ($env:APPVEYOR_REPO_BRANCH -ne "master") {
-      $env:NPM_TAG = $env:APPVEYOR_REPO_BRANCH
+      $env:NPM_TAG = "$env:APPVEYOR_REPO_BRANCH"
     } else {
       $env:NPM_TAG = "latest"
     }
