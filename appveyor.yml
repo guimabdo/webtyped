@@ -1,5 +1,7 @@
-version: '0.25.0'
+version: '0.26.0'
 image: Visual Studio 2017
+only_commits:
+  message: /\[publish\]/
 branches:
   only:
   - master
