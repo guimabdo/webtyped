@@ -23,8 +23,8 @@ init:
 install:
   - ps: |
         $env:DEPLOY_ANNOTATIONS = (
-                                    $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[annotations]")
-                                    -or $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[all]")
+                                    $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[annotations]")-or
+                                    $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[all]")
                                   )
         $env:DEPLOY_CLI = (
                             $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[cli]")
