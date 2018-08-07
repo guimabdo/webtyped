@@ -76,8 +76,6 @@ test: off
 artifacts:
 - path: ./src/WebTyped.Annotations/bin/Release/*.nupkg
   name: nupkgAnnotations
-  on:
-    DEPLOY_ANNOTATIONS: true
 deploy:
   provider: NuGet
   api_key: $(nuget_key)
