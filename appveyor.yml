@@ -87,11 +87,7 @@ deploy:
     DEPLOY_ANNOTATIONS: true
 after_deploy:
   - ps: |
-    if ($env:APPVEYOR_REPO_BRANCH -ne "master") {
-      $env:NPM_TAG = "$env:APPVEYOR_REPO_BRANCH"
-    } else {
-      $env:NPM_TAG = "latest"
-    }
+    if ($env:APPVEYOR_REPO_BRANCH -ne "master") {env:NPM_TAG = $env:APPVEYOR_REPO_BRANCH}else{$env:NPM_TAG = "latest"}
     ECHO $env:NPM_TAG
     "//registry.npmjs.org/:_authToken=$env:npm_token`n" | out-file "$env:userprofile\.npmrc" -Encoding ASCII'
     (Get-Content ./src/WebTyped.Npm/common/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/common/package.json
