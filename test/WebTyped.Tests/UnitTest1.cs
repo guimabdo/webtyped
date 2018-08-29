@@ -235,6 +235,26 @@ public class GenericClass : GenericClass<int>{}
 		//}
 
 		[TestMethod]
+		public async Task ConstTest() {
+			var cs =
+@"
+namespace Test {
+	public static class Consts {
+		public static class SomeModelMetadata {
+			public const string DISPAY_NAME = ""Name of Model"";
+			public const int MAX_LENGTH = 128;
+		}
+    }
+}
+";
+			var generator = new Generator(
+			new string[] { cs },
+			new Options(null, false, ServiceMode.Angular, new string[0], "", false)
+		);
+			var outputs = await generator.GenerateOutputsAsync();
+		}
+
+		[TestMethod]
 		public async Task TupleTest() {
 			var cs =
 @"
