@@ -88,6 +88,8 @@ namespace WebTyped {
 				//Besides, even if this is fixed, I think enums will never be mergeable with interfaces,
 				//so I think it will be always necessary to discriminate with something like $.
 				//$ can't be used in C# classes, so will never happen a conflict.
+				//We transpile C# Consts to TypeScript const enums because this is currently
+				//the only way to inline values. Consts values direclty inside namespaces/modules are not inlined...
 				sb.AppendLine(level, $"{(hasModule ? "" : "declare ")}const enum ${ClassName} {{");
 				List<string> constants = new List<string>();
 				foreach (var m in TypeSymbol.GetMembers()) {
