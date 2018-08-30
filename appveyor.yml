@@ -95,6 +95,8 @@ after_build:
     (Get-Content ./src/WebTyped.Npm/generator/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/generator/package.json
     (Get-Content ./src/WebTyped.Npm/cli/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/cli/package.json
     (Get-Content ./README.md) | Set-Content ./src/WebTyped.Npm/cli/README.md
+    ECHO "DEPLOY_CLASSES"
+    ECHO $env:DEPLOY_CLASSES
     if ($env:DEPLOY_CLASSES = True){
       cd ./src/WebTyped.Npm/common 
       npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
@@ -113,6 +115,8 @@ after_build:
       npm publish --tag $env:NPM_TAG
       cd ../../../
     }
+    ECHO "DEPLOY_CLI"
+    ECHO $env:DEPLOY_CLI
     if ($env:DEPLOY_CLI = True){
       cd ./src/WebTyped.Npm/generator
       npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
