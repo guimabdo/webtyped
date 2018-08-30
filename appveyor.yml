@@ -55,7 +55,7 @@ build_script:
     }
     if ($env:DEPLOY_CLASSES) {
       ECHO "DEPLOY_CLASSES"
-      ECHO $env:NPM_TAG
+      ECHO $env:DEPLOY_CLASSES
 
     }
 test: off
@@ -84,7 +84,7 @@ after_build:
     (Get-Content ./README.md) | Set-Content ./src/WebTyped.Npm/cli/README.md
     if ($env:DEPLOY_CLASSES){
        ECHO "DEPLOY_CLASSES"
-       ECHO $env:NPM_TAG
+       ECHO $env:DEPLOY_CLASSES
 
     }
     if ($env:DEPLOY_CLI){
