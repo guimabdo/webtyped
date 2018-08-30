@@ -46,14 +46,14 @@ before_build:
   - npm --version
 build_script:
   ps: |
-    if ($env:DEPLOY_ANNOTATIONS) {
+    if ($env:DEPLOY_ANNOTATIONS = True) {
      dotnet pack ./src/WebTyped.Annotations -c Release
     }
-    if ($env:DEPLOY_CLI) {
+    if ($env:DEPLOY_CLI = True) {
      dotnet publish ./src/WebTyped -c Release -o ../WebTyped.Npm/generator/program
      dotnet publish ./src/WebTyped.Cli -c Release -o ../WebTyped.Npm/cli/program
     }
-    if ($env:DEPLOY_CLASSES) {
+    if ($env:DEPLOY_CLASSES = True) {
       ECHO "DEPLOY_CLASSES"
       ECHO $env:DEPLOY_CLASSES
 
@@ -82,12 +82,12 @@ after_build:
     (Get-Content ./src/WebTyped.Npm/generator/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/generator/package.json
     (Get-Content ./src/WebTyped.Npm/cli/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/cli/package.json
     (Get-Content ./README.md) | Set-Content ./src/WebTyped.Npm/cli/README.md
-    if ($env:DEPLOY_CLASSES){
+    if ($env:DEPLOY_CLASSES = True){
        ECHO "DEPLOY_CLASSES"
        ECHO $env:DEPLOY_CLASSES
 
     }
-    if ($env:DEPLOY_CLI){
+    if ($env:DEPLOY_CLI = True){
       cd ./src/WebTyped.Npm/generator
       npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
       npm publish --tag $env:NPM_TAG
