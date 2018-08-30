@@ -116,7 +116,7 @@ after_build:
       cd ../../../
     }
     ECHO "DEPLOY_CLI"
-    ECHO "$env:DEPLOY_CLI""
+    ECHO "$env:DEPLOY_CLI"
     if ($env:DEPLOY_CLI = True){
       cd ./src/WebTyped.Npm/generator
       npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
