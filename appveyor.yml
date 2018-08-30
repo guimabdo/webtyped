@@ -56,7 +56,7 @@ build_script:
     if ($env:DEPLOY_CLASSES) {
       ECHO "DEPLOY_CLASSES"
       ECHO $env:NPM_TAG
-#     cd ./src/WebTyped.Npm/common 
+<#     cd ./src/WebTyped.Npm/common 
 #     npm install
 #     node node_modules/typescript/bin/tsc
 #     cd ../fetch
@@ -71,7 +71,7 @@ build_script:
 #     cd ../angular4
 #     npm install
 #     node node_modules/typescript/bin/tsc
-#     cd ../../../
+#     cd ../../../ #>
     }
 test: off
 artifacts:
@@ -100,22 +100,22 @@ after_build:
     if ($env:DEPLOY_CLASSES){
        ECHO "DEPLOY_CLASSES"
        ECHO $env:NPM_TAG
-#      cd ./src/WebTyped.Npm/common 
-#      npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
-#      npm publish --tag $env:NPM_TAG
-#      cd ../fetch
-#      npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
-#      npm publish --tag $env:NPM_TAG
-#      cd ../jquery
-#      npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
-#      npm publish --tag $env:NPM_TAG
-#      cd ../angular
-#      npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
-#      npm publish --tag $env:NPM_TAG
-#      cd ../angular4
-#      npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
-#      npm publish --tag $env:NPM_TAG
-#      cd ../../../
+<#      cd ./src/WebTyped.Npm/common 
+     npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
+     npm publish --tag $env:NPM_TAG
+     cd ../fetch
+     npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
+     npm publish --tag $env:NPM_TAG
+     cd ../jquery
+     npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
+     npm publish --tag $env:NPM_TAG
+     cd ../angular
+     npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
+     npm publish --tag $env:NPM_TAG
+     cd ../angular4
+     npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
+     npm publish --tag $env:NPM_TAG
+      cd ../../../ #>
     }
     if ($env:DEPLOY_CLI){
       cd ./src/WebTyped.Npm/generator
