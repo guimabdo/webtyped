@@ -10,6 +10,7 @@ using WebTyped.Annotations;
 using WebTyped.Elements;
 
 namespace WebTyped {
+	
 	public class Model : TsModelBase {
 		public Model(INamedTypeSymbol modelType, TypeResolver typeResolver, Options options) : base(modelType, typeResolver, options) { }
 
@@ -81,7 +82,13 @@ namespace WebTyped {
 			//Static part
 			if (hasConsts) {
 				//string modulePart = hasModule ? $"{Module}." : "";
-				sb.AppendLine(level, $"{(hasModule ? "" : "declare ")} enum {ClassName} {{");
+				//https://github.com/Microsoft/TypeScript/issues/17372
+				//Currently we can't merge namespaces and const enums.
+				//This is supposed to be a bug.
+				//Besides, even if this is fixed, I think enums will never be mergeable with interfaces,
+				//so I think it will be always necessary to discriminate with something like $.
+				//$ can't be used in C# classes, so will never happen a conflict.
+				sb.AppendLine(level, $"{(hasModule ? "" : "declare ")}const enum ${ClassName} {{");
 				List<string> constants = new List<string>();
 				foreach (var m in TypeSymbol.GetMembers()) {
 					var fieldSymbol = (m as IFieldSymbol);
