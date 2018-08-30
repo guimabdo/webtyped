@@ -50,10 +50,10 @@ before_build:
   - npm --version
 build_script:
   ps: |
-  ECHO "STEP:BUILD"
-        ECHO "Annotations" $env:DEPLOY_ANNOTATIONS
-        ECHO "Cli" $env:DEPLOY_CLI
-        ECHO "Classes" $env:DEPLOY_CLASSES
+    ECHO "STEP:BUILD"
+    ECHO "Annotations" $env:DEPLOY_ANNOTATIONS
+    ECHO "Cli" $env:DEPLOY_CLI
+    ECHO "Classes" $env:DEPLOY_CLASSES
     if ($env:DEPLOY_ANNOTATIONS -eq True) {
      dotnet pack ./src/WebTyped.Annotations -c Release
     }
@@ -93,9 +93,9 @@ deploy:
 after_build:
   ps: |
     ECHO "STEP:AFTER_BUILD"
-        ECHO "Annotations" $env:DEPLOY_ANNOTATIONS
-        ECHO "Cli" $env:DEPLOY_CLI
-        ECHO "Classes" $env:DEPLOY_CLASSES
+    ECHO "Annotations" $env:DEPLOY_ANNOTATIONS
+    ECHO "Cli" $env:DEPLOY_CLI
+    ECHO "Classes" $env:DEPLOY_CLASSES
     IF ($env:APPVEYOR_REPO_BRANCH -ne "master") {$env:NPM_TAG = $env:APPVEYOR_REPO_BRANCH} else {$env:NPM_TAG = "latest"}
     ECHO $env:NPM_TAG
     "//registry.npmjs.org/:_authToken=$env:npm_token`n" | out-file "$env:userprofile\.npmrc" -Encoding ASCII
