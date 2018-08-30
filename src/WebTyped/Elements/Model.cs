@@ -82,16 +82,25 @@ namespace WebTyped {
 			if (hasConsts) {
 				//string modulePart = hasModule ? $"{Module}." : "";
 				sb.AppendLine(level, $"{(hasModule ? "" : "declare ")}const enum {ClassName} {{");
-
+				List<string> constants = new List<string>();
 				foreach (var m in TypeSymbol.GetMembers()) {
 					var fieldSymbol = (m as IFieldSymbol);
 					if (fieldSymbol != null && fieldSymbol.IsConst) {
 						//Consts names should not be changed, they are commonly uppercased both in client and server...
 						// var name = Options.KeepPropsCase ? m.Name : m.Name.ToCamelCase();
 						var name = m.Name;
-						sb.AppendLine(level + 1, $"{name} = {JsonConvert.SerializeObject(fieldSymbol.ConstantValue)};");
+						constants.Add($"{name} = {JsonConvert.SerializeObject(fieldSymbol.ConstantValue)}");
+						//sb.AppendLine(level + 1, $"{name} = {JsonConvert.SerializeObject(fieldSymbol.ConstantValue)};");
 					}
 				}
+				
+				sb.AppendLine(
+					level + 1, 
+					string.Join(
+						$",{System.Environment.NewLine}{new StringBuilder().Append('\t', level + 1)}", 
+						constants
+					)
+				);
 
 				sb.AppendLine(level, "}");
 			}
