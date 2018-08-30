@@ -36,6 +36,7 @@ install:
                                 $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[npm]")-or
                                 $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[all]")
                                )
+        ECHO "STEP:INSTALL"
         ECHO "Annotations" $env:DEPLOY_ANNOTATIONS
         ECHO "Cli" $env:DEPLOY_CLI
         ECHO "Classes" $env:DEPLOY_CLASSES
@@ -49,14 +50,18 @@ before_build:
   - npm --version
 build_script:
   ps: |
-    if ($env:DEPLOY_ANNOTATIONS = True) {
+  ECHO "STEP:BUILD"
+        ECHO "Annotations" $env:DEPLOY_ANNOTATIONS
+        ECHO "Cli" $env:DEPLOY_CLI
+        ECHO "Classes" $env:DEPLOY_CLASSES
+    if ($env:DEPLOY_ANNOTATIONS -eq True) {
      dotnet pack ./src/WebTyped.Annotations -c Release
     }
-    if ($env:DEPLOY_CLI = True) {
+    if ($env:DEPLOY_CLI -eq True) {
      dotnet publish ./src/WebTyped -c Release -o ../WebTyped.Npm/generator/program
      dotnet publish ./src/WebTyped.Cli -c Release -o ../WebTyped.Npm/cli/program
     }
-    if ($env:DEPLOY_CLASSES = True) {
+    if ($env:DEPLOY_CLASSES -eq True) {
      cd ./src/WebTyped.Npm/common 
      npm install
      node node_modules/typescript/bin/tsc
@@ -87,6 +92,10 @@ deploy:
     DEPLOY_ANNOTATIONS: true
 after_build:
   ps: |
+    ECHO "STEP:AFTER_BUILD"
+        ECHO "Annotations" $env:DEPLOY_ANNOTATIONS
+        ECHO "Cli" $env:DEPLOY_CLI
+        ECHO "Classes" $env:DEPLOY_CLASSES
     IF ($env:APPVEYOR_REPO_BRANCH -ne "master") {$env:NPM_TAG = $env:APPVEYOR_REPO_BRANCH} else {$env:NPM_TAG = "latest"}
     ECHO $env:NPM_TAG
     "//registry.npmjs.org/:_authToken=$env:npm_token`n" | out-file "$env:userprofile\.npmrc" -Encoding ASCII
@@ -98,9 +107,7 @@ after_build:
     (Get-Content ./src/WebTyped.Npm/generator/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/generator/package.json
     (Get-Content ./src/WebTyped.Npm/cli/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/cli/package.json
     (Get-Content ./README.md) | Set-Content ./src/WebTyped.Npm/cli/README.md
-    ECHO "DEPLOY_CLASSES"
-    ECHO "$env:DEPLOY_CLASSES"
-    if ($env:DEPLOY_CLASSES = True){
+    if ($env:DEPLOY_CLASSES -eq True){
       cd ./src/WebTyped.Npm/common 
       npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
       npm publish --tag $env:NPM_TAG
@@ -118,9 +125,7 @@ after_build:
       npm publish --tag $env:NPM_TAG
       cd ../../../
     }
-    ECHO "DEPLOY_CLI"
-    ECHO "$env:DEPLOY_CLI"
-    if ($env:DEPLOY_CLI = True){
+    if ($env:DEPLOY_CLI -eq True){
       cd ./src/WebTyped.Npm/generator
       npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
       npm publish --tag $env:NPM_TAG
