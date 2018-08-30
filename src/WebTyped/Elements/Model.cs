@@ -23,12 +23,13 @@ namespace WebTyped {
 			var sb = new StringBuilder();
 			var hasModule = !string.IsNullOrEmpty(Module);
 			var context = new ResolutionContext();
+			var level = 0;
+			if (hasModule) {
+				sb.AppendLine($"declare module {Module} {{");
+				level++;
+			}
 			if (!TypeSymbol.IsStatic) {
-				var level = 0;
-				if (hasModule) {
-					sb.AppendLine($"declare module {Module} {{");
-					level++;
-				}
+				
 				string inheritance = "";
 
 				if (TypeSymbol.BaseType != null && TypeSymbol.BaseType.SpecialType != SpecialType.System_Object) {
@@ -69,10 +70,7 @@ namespace WebTyped {
 					sb.AppendLine(level + 1, $"{name}{(isNullable ? "?" : "")}: {TypeResolver.Resolve(prop.Type, context).Name};");
 				}
 				sb.AppendLine(level, "}");
-				if (!string.IsNullOrEmpty(Module)) {
-					sb.AppendLine("}");
-				}
-
+				level--;
 				if (hasConsts) {
 					sb.AppendLine();
 				}
@@ -82,17 +80,23 @@ namespace WebTyped {
 
 			//Static part
 			if (hasConsts) {
-				string modulePart = hasModule ? $"{Module}." : "";
-				sb.AppendLine($"declare module {modulePart}{ClassName} {{");
+				//string modulePart = hasModule ? $"{Module}." : "";
+				sb.AppendLine(level, $"{(hasModule ? "" : "declare ")}const enum {ClassName} {{");
+
 				foreach (var m in TypeSymbol.GetMembers()) {
 					var fieldSymbol = (m as IFieldSymbol);
 					if (fieldSymbol != null && fieldSymbol.IsConst) {
 						//Consts names should not be changed, they are commonly uppercased both in client and server...
 						// var name = Options.KeepPropsCase ? m.Name : m.Name.ToCamelCase();
 						var name = m.Name;
-						sb.AppendLine(1, $"const {name} = {JsonConvert.SerializeObject(fieldSymbol.ConstantValue)};");
+						sb.AppendLine(level + 1, $"{name} = {JsonConvert.SerializeObject(fieldSymbol.ConstantValue)};");
 					}
 				}
+
+				sb.AppendLine(level, "}");
+			}
+
+			if (hasModule) {
 				sb.AppendLine("}");
 			}
 
