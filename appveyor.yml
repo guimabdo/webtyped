@@ -54,14 +54,14 @@ build_script:
     ECHO "Annotations" $env:DEPLOY_ANNOTATIONS
     ECHO "Cli" $env:DEPLOY_CLI
     ECHO "Classes" $env:DEPLOY_CLASSES
-    if ($env:DEPLOY_ANNOTATIONS -eq True) {
+    if ($env:DEPLOY_ANNOTATIONS -eq $true) {
      dotnet pack ./src/WebTyped.Annotations -c Release
     }
-    if ($env:DEPLOY_CLI -eq True) {
+    if ($env:DEPLOY_CLI -eq $true) {
      dotnet publish ./src/WebTyped -c Release -o ../WebTyped.Npm/generator/program
      dotnet publish ./src/WebTyped.Cli -c Release -o ../WebTyped.Npm/cli/program
     }
-    if ($env:DEPLOY_CLASSES -eq True) {
+    if ($env:DEPLOY_CLASSES -eq $true) {
      cd ./src/WebTyped.Npm/common 
      npm install
      node node_modules/typescript/bin/tsc
@@ -107,7 +107,7 @@ after_build:
     (Get-Content ./src/WebTyped.Npm/generator/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/generator/package.json
     (Get-Content ./src/WebTyped.Npm/cli/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/cli/package.json
     (Get-Content ./README.md) | Set-Content ./src/WebTyped.Npm/cli/README.md
-    if ($env:DEPLOY_CLASSES -eq True){
+    if ($env:DEPLOY_CLASSES -eq $true){
       cd ./src/WebTyped.Npm/common 
       npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
       npm publish --tag $env:NPM_TAG
@@ -125,7 +125,7 @@ after_build:
       npm publish --tag $env:NPM_TAG
       cd ../../../
     }
-    if ($env:DEPLOY_CLI -eq True){
+    if ($env:DEPLOY_CLI -eq $true){
       cd ./src/WebTyped.Npm/generator
       npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
       npm publish --tag $env:NPM_TAG
