@@ -81,7 +81,7 @@ namespace WebTyped {
 			//Static part
 			if (hasConsts) {
 				//string modulePart = hasModule ? $"{Module}." : "";
-				sb.AppendLine(level, $"{(hasModule ? "" : "declare ")}const enum {ClassName} {{");
+				sb.AppendLine(level, $"{(hasModule ? "" : "declare ")} enum {ClassName} {{");
 				List<string> constants = new List<string>();
 				foreach (var m in TypeSymbol.GetMembers()) {
 					var fieldSymbol = (m as IFieldSymbol);

@@ -240,9 +240,16 @@ public class GenericClass : GenericClass<int>{}
 @"
 namespace Test {
 	public static class Consts {
-		public static class SomeModelMetadata {
-			public const string DISPAY_NAME = ""Name of Model"";
-			public const int MAX_LENGTH = 128;
+		public static class SomeModelMetadata{
+			public static class SomeField1 {
+				public const string DISPAY_NAME = ""Name of Field"";
+				public const int MAX_LENGTH = 128;
+			}
+
+			public static class SomeField2 {
+				public const string DISPAY_NAME = ""Name of Field"";
+				public const int MAX_LENGTH = 128;
+			}
 		}
     }
 }
