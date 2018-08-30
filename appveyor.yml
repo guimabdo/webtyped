@@ -36,6 +36,9 @@ install:
                                 $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[npm]")-or
                                 $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[all]")
                                )
+        ECHO "Annotations" $env:DEPLOY_ANNOTATIONS
+        ECHO "Cli" $env:DEPLOY_CLI
+        ECHO "Classes" $env:DEPLOY_CLASSES
         Install-Product node $env:nodejs_version
 before_build:
   # Display .NET Core version
