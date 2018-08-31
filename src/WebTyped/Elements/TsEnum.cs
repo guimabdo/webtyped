@@ -37,29 +37,7 @@ namespace WebTyped.Elements
 				sb.AppendLine("}");
 			}
 
-			//$wt.names and $wt.keys... Make this optional? 
-			bool shouldGenerateKeysAndNames = true;
-			if (shouldGenerateKeysAndNames) {
-				sb.AppendLine();
-
-				#region keys
-				sb.AppendLine("//// If you need type lookup");
-				string interfaceName;
-				if (hasModule) {
-					var splitted = Module.Split('.').ToList();
-					var last = splitted.Last();
-					splitted.RemoveAt(splitted.Count - 1);
-					sb.AppendLine($"declare namespace $wt.types{(splitted.Any() ? "." + string.Join('.', splitted) : "")} {{");
-					interfaceName = $"{last}";
-				} else {
-					sb.AppendLine($"declare namespace $wt {{");
-					interfaceName = "types";
-				}
-				sb.AppendLine(1, $@"interface {interfaceName} {{ {ClassName} }}");
-				sb.AppendLine("}");
-				#endregion
-			}
-
+			AppendKeysAndNames(sb);
 
 			//File.WriteAllText(Path.Combine(Options.ModelsDir, Filename), sb.ToString());
 			string file = Path.Combine(Options.TypingsDir, Filename);
