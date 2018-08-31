@@ -10,7 +10,7 @@ using WebTyped.Annotations;
 using WebTyped.Elements;
 
 namespace WebTyped {
-	
+
 	public class Model : TsModelBase {
 		public Model(INamedTypeSymbol modelType, TypeResolver typeResolver, Options options) : base(modelType, typeResolver, options) { }
 
@@ -30,7 +30,7 @@ namespace WebTyped {
 				level++;
 			}
 			if (!TypeSymbol.IsStatic) {
-				
+
 				string inheritance = "";
 
 				if (TypeSymbol.BaseType != null && TypeSymbol.BaseType.SpecialType != SpecialType.System_Object) {
@@ -71,7 +71,7 @@ namespace WebTyped {
 					sb.AppendLine(level + 1, $"{name}{(isNullable ? "?" : "")}: {TypeResolver.Resolve(prop.Type, context).Name};");
 				}
 				sb.AppendLine(level, "}");
-				level--;
+
 				if (hasConsts) {
 					sb.AppendLine();
 				}
@@ -102,11 +102,11 @@ namespace WebTyped {
 						//sb.AppendLine(level + 1, $"{name} = {JsonConvert.SerializeObject(fieldSymbol.ConstantValue)};");
 					}
 				}
-				
+
 				sb.AppendLine(
-					level + 1, 
+					level + 1,
 					string.Join(
-						$",{System.Environment.NewLine}{new StringBuilder().Append('\t', level + 1)}", 
+						$",{System.Environment.NewLine}{new StringBuilder().Append('\t', level + 1)}",
 						constants
 					)
 				);
@@ -117,6 +117,62 @@ namespace WebTyped {
 			if (hasModule) {
 				sb.AppendLine("}");
 			}
+			level--;
+			//$wt.names and $wt.keys... Make this optional? 
+			bool shouldGenerateKeysAndNames = true;
+			if (shouldGenerateKeysAndNames) {
+				sb.AppendLine();
+
+				#region names
+				sb.AppendLine("//// If you need some kind of 'nameof':");
+				//Name of the type
+				string constName;
+				if (hasModule) {
+					var splitted = Module.Split('.').ToList();
+					var last = splitted.Last();
+					splitted.RemoveAt(splitted.Count - 1);
+					sb.AppendLine($"declare namespace $wt.names{(splitted.Any() ? "." + string.Join('.', splitted) : "")} {{");
+					constName = $"${last}";
+				} else {
+					sb.AppendLine($"declare namespace $wt {{");
+					constName = "$names";
+				}
+				sb.AppendLine(1, $@"const enum {constName} {{ {ClassName} = ""{ClassName}""; }}");
+				sb.AppendLine("}");
+
+				//Members names
+				sb.AppendLine();
+
+				sb.AppendLine($"declare namespace $wt.names{(hasModule ? ("." + Module) : "")} {{");
+				sb.AppendLine(1, $@"const enum ${ClassName} {{");
+				foreach (var m in TypeSymbol.GetMembers()) {
+					if (m.Kind != SymbolKind.Field && m.Kind != SymbolKind.Property) {
+						continue;
+					}
+					sb.AppendLine(2, $@"{m.Name} = ""{m.Name}"";");
+				}
+				sb.AppendLine(1, "}");
+				sb.AppendLine("}");
+				#endregion
+
+				#region keys
+				sb.AppendLine("//// If you need type lookup");
+				string interfaceName;
+				if (hasModule) {
+					var splitted = Module.Split('.').ToList();
+					var last = splitted.Last();
+					splitted.RemoveAt(splitted.Count - 1);
+					sb.AppendLine($"declare namespace $wt.types{(splitted.Any() ? "." + string.Join('.', splitted) : "")} {{");
+					interfaceName = $"${last}";
+				} else {
+					sb.AppendLine($"declare namespace $wt {{");
+					interfaceName = "$types";
+				}
+				sb.AppendLine(1, $@"interface {interfaceName} {{ {ClassName} }}");
+				sb.AppendLine("}");
+				#endregion
+			}
+
 
 			sb.Insert(0, context.GetImportsText());
 			string file = Path.Combine(Options.TypingsDir, Filename);

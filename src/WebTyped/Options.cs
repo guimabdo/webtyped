@@ -19,6 +19,8 @@ namespace WebTyped {
 		public IEnumerable<string> ModuleTrims { get; private set; }
 		public string BaseModule { get; private set; }
 		public ServiceMode ServiceMode { get; private set; }
+
+		//public bool GenerateKeys { get;  }
 		public bool IsAngular { get {
 				return ServiceMode == ServiceMode.Angular || ServiceMode == ServiceMode.Angular4;
 			}
