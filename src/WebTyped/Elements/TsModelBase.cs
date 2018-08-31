@@ -144,7 +144,11 @@ namespace WebTyped.Elements {
 						continue;
 					}
 					if (m.DeclaredAccessibility != Accessibility.Public) { continue; }
-					sb.AppendLine(2, $@"{m.Name} = ""{m.Name}"",");
+					var name = m.Name;
+					if (!Options.KeepPropsCase && !((m as IFieldSymbol)?.IsConst).GetValueOrDefault()) {
+						name = name.ToCamelCase();
+					}
+					sb.AppendLine(2, $@"{name} = ""{name}"",");
 				}
 				sb.AppendLine(1, "}");
 				sb.AppendLine("}");
