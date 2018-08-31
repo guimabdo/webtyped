@@ -137,7 +137,7 @@ namespace WebTyped {
 					sb.AppendLine($"declare namespace $wt {{");
 					constName = "$names";
 				}
-				sb.AppendLine(1, $@"const enum {constName} {{ {ClassName} = ""{ClassName}""; }}");
+				sb.AppendLine(1, $@"const enum {constName} {{ {ClassName} = ""{ClassName}"" }}");
 				sb.AppendLine("}");
 
 				//Members names
@@ -164,10 +164,10 @@ namespace WebTyped {
 					var last = splitted.Last();
 					splitted.RemoveAt(splitted.Count - 1);
 					sb.AppendLine($"declare namespace $wt.types{(splitted.Any() ? "." + string.Join('.', splitted) : "")} {{");
-					interfaceName = $"${last}";
+					interfaceName = $"{last}";
 				} else {
 					sb.AppendLine($"declare namespace $wt {{");
-					interfaceName = "$types";
+					interfaceName = "types";
 				}
 				sb.AppendLine(1, $@"interface {interfaceName} {{ {ClassName} }}");
 				sb.AppendLine("}");
