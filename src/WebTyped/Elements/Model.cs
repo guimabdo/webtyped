@@ -150,7 +150,7 @@ namespace WebTyped {
 						continue;
 					}
 					if(m.DeclaredAccessibility != Accessibility.Public) { continue; }
-					sb.AppendLine(2, $@"{m.Name} = ""{m.Name}"";");
+					sb.AppendLine(2, $@"{m.Name} = ""{m.Name}"",");
 				}
 				sb.AppendLine(1, "}");
 				sb.AppendLine("}");
