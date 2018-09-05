@@ -10,12 +10,21 @@ using WebTyped.Annotations;
 using WebTyped.Elements;
 
 namespace WebTyped {
+	public enum ParameterFromKind {
+		None,
+		FromRoute,
+		FromQuery,
+		FromUri,
+		FromBody,
+	}
+
 	public class ParameterResolution {
 		public string Name { get; private set; }
 		public string Signature { get; private set; }
 		public string BodyRelayFormat { get; private set; }
 		public string SearchRelayFormat { get; private set; }
-		public bool FromBody { get; private set; }
+		public ParameterFromKind From { get; private set; } = ParameterFromKind.None;
+		public string FromName { get; set; }
 		public bool Ignore { get; private set; }
 		public ParameterResolution(IParameterSymbol parameterSymbol, TypeResolver typeResolver, ResolutionContext context) {
 			var p = parameterSymbol;
@@ -26,11 +35,54 @@ namespace WebTyped {
 			this.Name = parameterSymbol.Name;
 			this.BodyRelayFormat = this.Name;
 			this.SearchRelayFormat = this.Name;
-			this.FromBody = attrs.Any(a => a.AttributeClass.Name.StartsWith("FromBody"));
+			var fromAttr = attrs.FirstOrDefault(a => a.AttributeClass.Name.StartsWith("From"));
+
+			if (fromAttr != null) {
+				switch (fromAttr.AttributeClass.Name) {
+					case "FromUriAttribute":
+					case "FromQueryAttribute":
+					case "FromBodyAttribute":
+					case "FromRouteAttribute":
+						this.From = (ParameterFromKind)typeof(ParameterFromKind).GetField(fromAttr.AttributeClass.Name.Replace("Attribute", "")).GetValue(null);
+						switch (fromAttr.AttributeClass.Name) {
+							case "FromUriAttribute":
+							case "FromQueryAttribute":
+								KeyValuePair<string, TypedConstant>? nameArg = fromAttr.NamedArguments.ToList().FirstOrDefault(na => na.Key == "Name");
+								if (nameArg.HasValue) {
+									this.FromName = nameArg.Value.Value.Value.ToString();
+									this.SearchRelayFormat = $"{this.FromName}: {this.Name}";
+								}
+							break;
+						}
+						break;
+				}
+				//if (attrs.Any(a => a.AttributeClass.Name.StartsWith("FromBody"))) {
+				//	this.From = ParameterFromKind.FromBody;
+				//}
+				//if (attrs.Any(a => a.AttributeClass.Name.StartsWith("FromUri"))) {
+				//	this.From = ParameterFromKind.FromUri;
+
+				//}
+				//if (attrs.Any(a => a.AttributeClass.Name.StartsWith("FromQuery"))) {
+				//	this.From = ParameterFromKind.FromQuery;
+				//}
+				//if (attrs.Any(a => a.AttributeClass.Name.StartsWith("FromRoute"))) {
+				//	this.From = ParameterFromKind.FromRoute;
+				//}
+
+				switch (From) {
+					case ParameterFromKind.FromQuery:
+					case ParameterFromKind.FromUri:
+						break;
+					default:
+						break;
+				}
+			}
+
 			//var hasMapFunc = !string.IsNullOrWhiteSpace(res.MapAltToOriginalFunc);
 			string unsupportedNamedTupleMessage = "[UNSUPPORTED - NamedTupleAttribute must be used only for tuple parameters]";
 			string typeName = res.Name;
-			
+
 			if (hasNamedTupleAttr) {
 				if (!res.IsTuple) {
 					this.BodyRelayFormat = unsupportedNamedTupleMessage;
@@ -47,7 +99,7 @@ namespace WebTyped {
 				if (res.TsType != null && res.TsType is TsEnum) {
 					var enumNames = string
 						.Join(
-							" | ", 
+							" | ",
 							p.Type.GetMembers()
 							.Where(m => m.Kind == SymbolKind.Field)
 							.Select(m => $"'{m.Name}'"));
@@ -60,7 +112,7 @@ namespace WebTyped {
 			this.Signature = $"{p.Name}{(p.IsOptional ? "?" : "")}: {typeName}" + (res.IsNullable ? " | null" : "");
 			this.Ignore = p.GetAttributes().Any(a => a.AttributeClass.Name == "FromServices");
 		}
-		
+
 	}
 
 	public class Service : ITsFile {
@@ -153,14 +205,14 @@ namespace WebTyped {
 					//subClasses.Add(m as INamedTypeSymbol);
 					continue;
 				}
-				if(m.DeclaredAccessibility != Accessibility.Public) { continue; }
+				if (m.DeclaredAccessibility != Accessibility.Public) { continue; }
 				if (m.IsStatic) { continue; }
 				if (m.Kind != SymbolKind.Method) { continue; }
 				if (m.IsImplicitlyDeclared) { continue; }
 				if (!m.IsDefinition) { continue; }
 				var mtd = m as IMethodSymbol;
-				if(m.Name == ".ctor") { continue; }
-				
+				if (m.Name == ".ctor") { continue; }
+
 				var mtdAttrs = mtd.GetAttributes();
 				//var hasNamedTupleAttr = mtdAttrs.Any(a => a.AttributeClass.Name == nameof(NamedTupleAttribute));
 				//var returnType = TypeResolver.Resolve(mtd.ReturnType as INamedTypeSymbol, context, hasNamedTupleAttr);
@@ -219,16 +271,16 @@ namespace WebTyped {
 				var pendingParameters = new List<ParameterResolution>();
 				var parameterResolutions = mtd.Parameters.Select(p => new ParameterResolution(p, TypeResolver, context)).Where(p => !p.Ignore);
 				var bodyParam = "null";
-				foreach(var pr in parameterResolutions) {
+				foreach (var pr in parameterResolutions) {
 					//[FromRoute]
 					if (action.Contains($"{{{pr.Name}}}")) {
-																					   //Casting to any because encodeURIComponent expects string
+						//Casting to any because encodeURIComponent expects string
 						action = action.Replace($"{{{pr.Name}}}", $"{{encodeURIComponent(<any>{pr.Name})}}");
 						continue;
 					}
 
 					//[FromBody]
-					if (pr.FromBody) {
+					if (pr.From == ParameterFromKind.FromBody) {
 						bodyParam = pr.BodyRelayFormat;
 						continue;
 					}
@@ -246,7 +298,7 @@ namespace WebTyped {
 				switch (Options.ServiceMode) {
 					case ServiceMode.Jquery: genericReturnType = "JQuery.jqXHR"; break;
 					case ServiceMode.Fetch: genericReturnType = "Promise"; break;
-					case ServiceMode.Angular:case ServiceMode.Angular4:default: genericReturnType = "Observable"; break;
+					case ServiceMode.Angular: case ServiceMode.Angular4: default: genericReturnType = "Observable"; break;
 				}
 
 				var upperMethodName = methodName[0].ToString().ToUpper() + methodName.Substring(1);

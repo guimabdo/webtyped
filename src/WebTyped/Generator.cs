@@ -36,15 +36,48 @@ namespace WebTyped.Annotations {
 		public NamedTupleAttribute() {}
 	}
 }
-				
+
+namespace System.Web.Http {
+	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Parameter, AllowMultiple = false)]
+	public class FromUriAttribute : Attribute {
+		public string Name { get; set; }
+		public Type BinderType { get; set; }
+		public bool SuppressPrefixCheck { get; set; }
+	}
+
+	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Parameter, AllowMultiple = false)]
+	public class FromBodyAttribute : Attribute {}
+}
+
+namespace Microsoft.AspNetCore.Mvc{
+	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Parameter, AllowMultiple = false)]
+	public class FromQueryAttribute : Attribute {
+		public string Name { get; set; }
+	}
+
+	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Parameter, AllowMultiple = false)]
+	public class FromRouteAttribute : Attribute {
+		public string Name { get; set; }
+	}
+
+	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Parameter, AllowMultiple = false)]
+	public class FromBodyAttribute : Attribute {}
+}
 ");
 			//References
 			var mscorlib = MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
 			//var webTypedAnnotations = MetadataReference.CreateFromFile(typeof(ClientTypeAttribute).Assembly.Location);
 			var systemRuntime = MetadataReference.CreateFromFile(typeof(int).Assembly.Location);
 			var linqExpressions = MetadataReference.CreateFromFile(typeof(IQueryable).Assembly.Location);
+			var thisAssembly = MetadataReference.CreateFromFile(this.GetType().Assembly.Location);
 
-			var compilation = CSharpCompilation.Create("Comp", trees.Union(new SyntaxTree[] { attributes }), new[] { mscorlib, systemRuntime, linqExpressions/*, webTypedAnnotations*/ });
+			var compilation = CSharpCompilation.Create("Comp", trees.Union(new SyntaxTree[] { attributes }), new[] {
+				mscorlib,
+				systemRuntime,
+				linqExpressions,
+				//MetadataReference.CreateFromFile(typeof(Attribute).Assembly.Location),
+				//thisAssembly
+				/*, webTypedAnnotations*/ });
 			var typeResolver = new TypeResolver(_options);
 			var tasks = new List<Task>();
 			var namedTypeSymbols = new ConcurrentBag<INamedTypeSymbol>();

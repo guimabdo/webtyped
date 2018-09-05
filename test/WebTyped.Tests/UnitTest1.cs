@@ -262,6 +262,29 @@ namespace Test {
 		}
 
 		[TestMethod]
+		public async Task FromNamedUriQueryTest() {
+			var cs =
+@"
+using System;
+using System.Threading.Tasks;
+using System.Web.Http;
+namespace Test{
+	[Route(""api/[controller]"")]
+	public class TestController {
+		[HttpGet]
+		public void Get([FromUri(Name = ""$id"")]int id){}
+    }
+}
+";
+
+			var generator = new Generator(
+				new string[] { cs },
+				new Options(null, false, ServiceMode.Angular, new string[0], "", false)
+			);
+			var outputs = await generator.GenerateOutputsAsync();
+		}
+
+		[TestMethod]
 		public async Task TupleTest() {
 			var cs =
 @"
