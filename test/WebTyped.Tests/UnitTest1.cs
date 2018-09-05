@@ -273,6 +273,9 @@ namespace Test{
 	public class TestController {
 		[HttpGet]
 		public void Get([FromUri(Name = ""$id"")]int id){}
+
+		[HttpGet(""get2"")]
+		public void Get([FromUri]int id){}
     }
 }
 ";

@@ -49,8 +49,11 @@ namespace WebTyped {
 							case "FromQueryAttribute":
 								KeyValuePair<string, TypedConstant>? nameArg = fromAttr.NamedArguments.ToList().FirstOrDefault(na => na.Key == "Name");
 								if (nameArg.HasValue) {
-									this.FromName = nameArg.Value.Value.Value.ToString();
-									this.SearchRelayFormat = $"{this.FromName}: {this.Name}";
+									var tConst = nameArg.Value.Value;
+									if (tConst.Value != null) {
+										this.FromName = tConst.Value.ToString();
+										this.SearchRelayFormat = $"{this.FromName}: {this.Name}";
+									}
 								}
 							break;
 						}
