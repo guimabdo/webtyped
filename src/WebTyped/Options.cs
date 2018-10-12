@@ -40,6 +40,7 @@ namespace WebTyped {
 			BaseModule = baseModule;
 			ServiceMode = serviceMode;
 			KeepPropsCase = keepPropsCase;
+			KeysAndNames = keysAndNames;
 		}
 
 		public string AdjustModule(string module) {
