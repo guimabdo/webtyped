@@ -32,7 +32,9 @@ namespace WebTyped {
 			ServiceMode serviceMode,
 			IEnumerable<String> moduleTrims, string baseModule, bool keepPropsCase, bool keysAndNames) {
 			ModuleTrims = moduleTrims.OrderByDescending(m => m.Length);
-			if (string.IsNullOrWhiteSpace(outDir)) { outDir = "./"; }
+			if (string.IsNullOrWhiteSpace(outDir)) {
+				outDir = "./";//This works for linux and windows, .\\ will not work for linux 
+			}
 			OutDir = outDir;
 			TypingsDir = Path.Combine(outDir, "typings");
 			Directory.CreateDirectory(TypingsDir);

@@ -142,8 +142,8 @@ namespace WebTyped.Elements {
 				var currentTypeSymbol = TypeSymbol;
 				var members = new List<ISymbol>();
 				do {
-					members.AddRange(TypeSymbol.GetMembers());
-					currentTypeSymbol = TypeSymbol.BaseType;
+					members.AddRange(currentTypeSymbol.GetMembers());
+					currentTypeSymbol = currentTypeSymbol.BaseType;
 				} while (currentTypeSymbol != null);
 				foreach (var m in members) {
 					if (m.Kind != SymbolKind.Field && m.Kind != SymbolKind.Property) {
