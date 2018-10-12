@@ -62,7 +62,7 @@ namespace WebTyped {
 						}
 					}
 
-					var options = new Options(outDir.Value(), clear.HasValue(), svModeEnum, trims.Values, baseModule.Value(), keepPropsCase.HasValue());
+					var options = new Options(outDir.Value(), clear.HasValue(), svModeEnum, trims.Values, baseModule.Value(), keepPropsCase.HasValue(), false);
 
 					foreach (var task in tasks) { await task; }
 					var gen = new Generator(trees.Values, options);

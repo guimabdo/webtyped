@@ -221,7 +221,8 @@ namespace WebTyped.Cli {
 				config.ServiceMode,
 				config.Trims ?? new string[0],
 				config.BaseModule,
-				config.KeepPropsCase);
+				config.KeepPropsCase,
+				config.KeysAndNames);
 
 			foreach (var task in tasks) { await task; }
 			var gen = new Generator(trees.Values, options);
@@ -240,5 +241,6 @@ namespace WebTyped.Cli {
 		public ServiceMode ServiceMode { get; set; } = ServiceMode.Fetch;
 		public string BaseModule { get; set; }
 		public bool KeepPropsCase { get; set; }
+		public bool KeysAndNames { get; set; }
 	}
 }

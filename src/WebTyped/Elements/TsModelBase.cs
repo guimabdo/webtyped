@@ -113,8 +113,8 @@ namespace WebTyped.Elements {
 
 		protected void AppendKeysAndNames(StringBuilder sb) {
 			var hasModule = !string.IsNullOrEmpty(Module);
-			bool shouldGenerateKeysAndNames = true;
-			if (shouldGenerateKeysAndNames) {
+			// bool shouldGenerateKeysAndNames = true;
+			if (Options.KeysAndNames) {
 				sb.AppendLine();
 
 				#region names
@@ -139,7 +139,13 @@ namespace WebTyped.Elements {
 
 				sb.AppendLine($"declare namespace $wt.names{(hasModule ? ("." + Module) : "")} {{");
 				sb.AppendLine(1, $@"const enum ${ClassName} {{");
-				foreach (var m in TypeSymbol.GetMembers()) {
+				var currentTypeSymbol = TypeSymbol;
+				var members = new List<ISymbol>();
+				do {
+					members.AddRange(TypeSymbol.GetMembers());
+					currentTypeSymbol = TypeSymbol.BaseType;
+				} while (currentTypeSymbol != null);
+				foreach (var m in members) {
 					if (m.Kind != SymbolKind.Field && m.Kind != SymbolKind.Property) {
 						continue;
 					}

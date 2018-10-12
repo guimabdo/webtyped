@@ -19,6 +19,7 @@ namespace WebTyped {
 		public IEnumerable<string> ModuleTrims { get; private set; }
 		public string BaseModule { get; private set; }
 		public ServiceMode ServiceMode { get; private set; }
+		public bool KeysAndNames { get; set; }
 
 		//public bool GenerateKeys { get;  }
 		public bool IsAngular { get {
@@ -29,7 +30,7 @@ namespace WebTyped {
 		public Options(string outDir,
 			bool clear,
 			ServiceMode serviceMode,
-			IEnumerable<String> moduleTrims, string baseModule, bool keepPropsCase) {
+			IEnumerable<String> moduleTrims, string baseModule, bool keepPropsCase, bool keysAndNames) {
 			ModuleTrims = moduleTrims.OrderByDescending(m => m.Length);
 			if (string.IsNullOrWhiteSpace(outDir)) { outDir = "./"; }
 			OutDir = outDir;
