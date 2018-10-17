@@ -128,7 +128,7 @@ namespace WebTyped {
 			}
 		}
 		public string ControllerName { get; private set; }
-		public string ClassName { get { return $"{ControllerName}Service"; } }
+		public string ClassName { get { return $"{ControllerName}{Options.ServiceSuffix}"; } }
 		public string FullName {
 			get {
 				if (string.IsNullOrEmpty(Module)) { return ClassName; }

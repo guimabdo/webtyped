@@ -222,7 +222,8 @@ namespace WebTyped.Cli {
 				config.Trims ?? new string[0],
 				config.BaseModule,
 				config.KeepPropsCase,
-				config.KeysAndNames);
+				config.KeysAndNames,
+				config.ServiceSuffix);
 
 			foreach (var task in tasks) { await task; }
 			var gen = new Generator(trees.Values, options);
@@ -242,5 +243,6 @@ namespace WebTyped.Cli {
 		public string BaseModule { get; set; }
 		public bool KeepPropsCase { get; set; }
 		public bool KeysAndNames { get; set; }
+		public string ServiceSuffix { get; set; }
 	}
 }

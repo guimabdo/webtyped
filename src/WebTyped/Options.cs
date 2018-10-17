@@ -19,6 +19,7 @@ namespace WebTyped {
 		public IEnumerable<string> ModuleTrims { get; private set; }
 		public string BaseModule { get; private set; }
 		public ServiceMode ServiceMode { get; private set; }
+		public string ServiceSuffix { get; private set; }
 		public bool KeysAndNames { get; set; }
 
 		//public bool GenerateKeys { get;  }
@@ -30,7 +31,11 @@ namespace WebTyped {
 		public Options(string outDir,
 			bool clear,
 			ServiceMode serviceMode,
-			IEnumerable<String> moduleTrims, string baseModule, bool keepPropsCase, bool keysAndNames) {
+			IEnumerable<String> moduleTrims, string baseModule, 
+			bool keepPropsCase, 
+			bool keysAndNames,
+			string serviceSuffix) {
+			this.ServiceSuffix = serviceSuffix ?? "Service";
 			ModuleTrims = moduleTrims.OrderByDescending(m => m.Length);
 			if (string.IsNullOrWhiteSpace(outDir)) {
 				outDir = "./";//This works for linux and windows, .\\ will not work for linux 

@@ -164,7 +164,8 @@ namespace WebTyped {
 				var parentName = parent.Name;
 				//Adjust to check prerequisites
 				if (Service.IsService(parent)) {
-					parentName = parentName.Replace("Controller", "Service");
+					//parentName = parentName.Replace("Controller", "Service");
+					parentName = parentName.Replace("Controller", Options.ServiceSuffix);
 				}
 				//For now, we'll just check if ends with "Controller" suffix
 				//if (parentName.EndsWith("Controller")) {

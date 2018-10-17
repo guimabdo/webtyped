@@ -12,8 +12,13 @@ using System.Threading.Tasks;
 using WebTyped.Annotations;
 
 namespace WebTyped.Tests {
+
 	[TestClass]
 	public class UnitTest1 {
+		Options GetCommonOptions() {
+			return new Options(".\\", false, ServiceMode.Angular, new string[0], "", false, false, null);
+		}
+
 		[TestMethod]
 		public async Task DateTimeOffsetShouldBeStringTest() {
 			var cs = @"
@@ -23,7 +28,7 @@ public class Model {
 }";
 			var generator = new Generator(
 	new string[] { cs },
-	new Options(".\\", false, ServiceMode.Angular, new string[0], "", false, false)
+	GetCommonOptions()
 );
 			var outputs = await generator.GenerateOutputsAsync();
 			Assert.AreEqual(
@@ -35,7 +40,7 @@ public class Model {
 
 		[TestMethod]
 		public void KeyValuePairToTsTest() {
-			var tr = new TypeResolver(new Options("", false, ServiceMode.Angular, new string[0], "", false, false));
+			var tr = new TypeResolver(GetCommonOptions());
 			var kvpType = typeof(KeyValuePair<,>);
 			var assembly = MetadataReference.CreateFromFile(kvpType.Assembly.Location);
 			var compilation = CSharpCompilation.Create("CompTest", references: new[] { assembly });
@@ -55,7 +60,7 @@ public class Model {
 			var cs = @"public class Model: Interface {}";
 			var generator = new Generator(
 		new string[] { cs },
-		new Options(".\\", false, ServiceMode.Angular, new string[0], "", false, false)
+		GetCommonOptions()
 	);
 			var outputs = await generator.GenerateOutputsAsync();
 			Assert.AreEqual(
@@ -84,7 +89,7 @@ public enum TestEnum{
 ";
 			var generator = new Generator(
 	new string[] { cs },
-	new Options(".\\", false, ServiceMode.Angular, new string[0], "", false, false)
+	GetCommonOptions()
 );
 			var outputs = await generator.GenerateOutputsAsync();
 		}
@@ -103,28 +108,36 @@ public class MyController {
 }";
 			var generator = new Generator(
 		new string[] { cs },
-		new Options(".\\", false, ServiceMode.Angular, new string[0], "", false, false)
+		GetCommonOptions()
 	);
 			var outputs = await generator.GenerateOutputsAsync();
 			Assert.AreEqual(
-				@"import { Injectable, Inject, forwardRef, Optional } from '@angular/core';
+				@"import { WebTypedCallInfo, WebTypedFunction } from '@guimabdo/webtyped-common';
+import { Injectable, Inject, forwardRef, Optional } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { WebTypedClient, WebTypedEventEmitterService } from '@guimabdo/webtyped-angular';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 @Injectable()
 export class MyService extends WebTypedClient {
 	constructor(@Optional() @Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebTypedEventEmitterService)) eventEmitter: WebTypedEventEmitterService) {
 		super(baseUrl, 'api/my', httpClient, eventEmitter);
 	}
-	getArray = () : Observable<Array<number>> => {
-		return this.invokeGet<Array<number>>({
+	getArray: MyService.GetArrayFunction = () : Observable<Array<number>> => {
+		return this.invokeGet({
+				kind: 'GetArray',
 				func: this.getArray,
-				parameters: {  }
+				parameters: { _wtKind: 'GetArray' }
 			},
 			``,
 			undefined
 		);
 	};
+}
+export namespace MyService {
+	export type GetArrayParameters = {_wtKind: 'GetArray' };
+	export interface GetArrayCallInfo extends WebTypedCallInfo<GetArrayParameters, Array<number>> { kind: 'GetArray'; }
+	export type GetArrayFunctionBase = () => Observable<Array<number>>;
+	export interface GetArrayFunction extends WebTypedFunction<GetArrayParameters, Array<number>>, GetArrayFunctionBase {}
 }
 ",
 				outputs[@".\my.service.ts"]);
@@ -143,7 +156,7 @@ public class MyController {
 }";
 			var generator = new Generator(
 		new string[] { cs },
-		new Options(".\\", false, ServiceMode.Angular, new string[0], "", false, false)
+		GetCommonOptions()
 	);
 			var outputs = await generator.GenerateOutputsAsync();
 			Assert.AreEqual(
@@ -177,7 +190,7 @@ export class MyService extends WebTypedClient {
 }";
 			var generator = new Generator(
 		new string[] { cs },
-		new Options(".\\", false, ServiceMode.Angular, new string[0], "", false, false)
+		GetCommonOptions()
 	);
 			var outputs = await generator.GenerateOutputsAsync();
 			Assert.IsTrue(outputs.First().Value.Contains(
@@ -199,7 +212,7 @@ public class GenericClass : GenericClass<int>{}
 ";
 			var generator = new Generator(
 		new string[] { cs },
-		new Options(".\\", false, ServiceMode.Angular, new string[0], "", false, true)
+		GetCommonOptions()
 	);
 			var outputs = await generator.GenerateOutputsAsync();
 			Assert.IsTrue(outputs[@".\typings\genericClass.d.ts"] ==
@@ -256,7 +269,7 @@ namespace Test {
 ";
 			var generator = new Generator(
 			new string[] { cs },
-			new Options(".\\", false, ServiceMode.Angular, new string[0], "", false, false)
+			GetCommonOptions()
 		);
 			var outputs = await generator.GenerateOutputsAsync();
 		}
@@ -282,7 +295,7 @@ namespace Test{
 
 			var generator = new Generator(
 				new string[] { cs },
-				new Options(".\\", false, ServiceMode.Angular, new string[0], "", false, false)
+				GetCommonOptions()
 			);
 			var outputs = await generator.GenerateOutputsAsync();
 		}
@@ -325,7 +338,7 @@ namespace Test{
 
 			var generator = new Generator(
 				new string[] { cs },
-				new Options(".\\", false, ServiceMode.Angular, new string[0], "", false, false)
+				GetCommonOptions()
 			);
 			var outputs = await generator.GenerateOutputsAsync();
 
