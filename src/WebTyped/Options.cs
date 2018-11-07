@@ -42,7 +42,7 @@ namespace WebTyped {
 			}
 			OutDir = outDir;
 			TypingsDir = Path.Combine(outDir, "typings");
-			Directory.CreateDirectory(TypingsDir);
+			//Directory.CreateDirectory(TypingsDir);
 			Clear = clear;
 			BaseModule = baseModule;
 			ServiceMode = serviceMode;
