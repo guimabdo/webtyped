@@ -1,13 +1,19 @@
+/// <reference path="../../node_modules/monaco-editor/monaco.d.ts"/>
 import { Component } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-//import { editor } from 'monaco-editor/esm/vs/editor/editor.api.d'
-
 let monaco$ = new BehaviorSubject(null);
+let ga$ = new BehaviorSubject(null);
 let interval = setInterval(() => {
   if (window['monaco']) {
     monaco$.next(window['monaco']);
     clearInterval(interval);
+  }
+});
+let intervalGa = setInterval(() => {
+  if (window['ga']) {
+    ga$.next(window['ga']);
+    clearInterval(intervalGa);
   }
 });
 @Component({
@@ -28,6 +34,11 @@ export class AppComponent {
 
   }
   ngAfterViewInit() {
+    ga$.subscribe(ga => {
+      if (ga) {
+        ga('create', 'UA-126693951-1', 'auto');
+      }
+    });
     monaco$.subscribe(m => {
       if (!m) { return; }
       
@@ -77,19 +88,27 @@ public class MyController {
           enabled: false
         }
       });
-      this.select(this.result.files[0]);
+      this.select(this.result.files[0], false);
     });
   }
-  select(ts) {
+  select(ts, emitEvent: boolean = true) {
+    console.log(emitEvent);
     if (!ts) { this.editorResult.setValue(''); return; }
     this.editorResult.setValue(ts.content);
     this.lastSelectionPath = ts.path;
     this.selectedItem = ts;
+    if (emitEvent) {
+      console.log('sending ga');
+      ga('send', 'event', 'Playground', 'SelectFile', ts.path,);
+    }
     return false;
   }
   async transpile() {
+    
+    ga('send', 'event', 'Playground', 'Transpile');
     //https://webtyped-functions.azurewebsites.net/api/HttpTrigger2?code=myGYx/xa0lpLhskRGlZWm7vnX2RIKv1GNWQXB38KQb0RHd9YGEcliQ==
     this.transpiling = true;
+    var startDate = new Date();
     try {
       this.result = await this.http.post<any>(
         'https://webtyped-functions.azurewebsites.net/api/HttpTrigger2?code=myGYx/xa0lpLhskRGlZWm7vnX2RIKv1GNWQXB38KQb0RHd9YGEcliQ==',
@@ -108,9 +127,11 @@ public class MyController {
           })
         }
       ).toPromise();
+      var endDate = new Date();
+      ga('send', 'event', 'Playground', 'Transpiled', null, (endDate.getTime() - startDate.getTime()) / 1000);
       let file = this.result.files.find(f => f.path == this.lastSelectionPath);
       file = file || this.result.files[0];
-      this.select(file);
+      this.select(file, false);
     } finally {
       this.transpiling = false;
     }

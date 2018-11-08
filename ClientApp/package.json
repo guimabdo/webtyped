@@ -33,6 +33,7 @@
     "typescript": "~3.1.6",
     "@angular/cli": "~7.0.4",
     "@angular/language-service": "^7.0.2",
+    "@types/google.analytics": "0.0.39",
     "@types/jasmine": "~2.8.6",
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "~8.9.4",
