@@ -1,0 +1,15 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\assets",
+    "\\ClientApp",
+    "\\ClientApp\\node_modules\\bootstrap",
+    "\\ClientApp\\node_modules\\bootstrap\\scss",
+    "\\ClientApp\\node_modules\\monaco-editor",
+    "\\ClientApp\\node_modules\\monaco-editor\\min",
+    "\\ClientApp\\node_modules\\monaco-editor\\min\\vs",
+    "\\ClientApp\\node_modules\\monaco-editor\\min\\vs\\base",
+    "\\ClientApp\\node_modules\\monaco-editor\\min\\vs\\base\\worker"
+  ],
+  "PreviewInSolutionExplorer": false
+}

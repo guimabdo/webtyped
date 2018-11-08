@@ -1,0 +1,40 @@
+<div>
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <span class="nav-link active" href="#">Source.cs</span>
+    </li>
+  </ul>
+  <div id="editor" class="border" style="height: 300px;"></div>
+  <button class="btn btn-primary mt-2"
+          [disabled]="transpiling"
+          (click)="transpile()">
+    <span *ngIf="!transpiling">Transpile!</span>
+    <span *ngIf="transpiling">Wait...</span>
+  </button>
+  <div style="height: 300px" class="d-flex border">
+    <div style="width: 200px; overflow-y: auto" class="border-right p-1">
+        <a href="#" [ngClass]="{ 'text-danger': selectedItem == item }"
+           (click)="select(item)" class="d-block small text-truncate"
+           *ngFor="let item of result.files">
+          {{item.path.replace('\\', '/').replace('./', '')}}
+        </a>
+    </div>
+    <div id="result" style="flex: 1">
+    </div>
+    <!--<ul class="nav nav-tabs" role="tablist">
+      <li *ngFor="let item of result.files"  class="nav-item">
+        <a class="nav-link active"
+           id="home-tab"
+           data-toggle="tab"
+           href="#home" role="tab"
+           aria-controls="home"
+           aria-selected="true">{{item.path.replace('\\', '/').replace('./', '')}}</a>
+      </li>
+    </ul>
+    <div class="tab-content border" style="height: 300px">
+      <div class="tab-pane fade show active"
+           id="home"
+           role="tabpanel" aria-labelledby="home-tab">...</div>
+    </div>-->
+  </div>
+</div>
