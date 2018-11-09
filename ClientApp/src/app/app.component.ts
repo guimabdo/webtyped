@@ -2,6 +2,7 @@
 import { Component } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { FormGroup, FormBuilder } from '@angular/forms';
 let monaco$ = new BehaviorSubject(null);
 let ga$ = new BehaviorSubject(null);
 let interval = setInterval(() => {
@@ -28,10 +29,12 @@ export class AppComponent {
   lastSelectionPath: string = null;
   result = { "files": [{ "path": "./typings\\myModel2.d.ts", "content": "declare interface MyModel2 {\r\n\tprop1: number;\r\n\tprop2: string;\r\n\tprop3: MyEnum;\r\n\tprop4: string;\r\n\tprop5: Array<string>;\r\n\tprop6: MyModel2;\r\n}\r\n" }, { "path": "./typings\\myModel1.d.ts", "content": "declare interface MyModel1 {\r\n}\r\n" }, { "path": "./typings\\myEnum.d.ts", "content": "declare const enum MyEnum {\r\n\tA = 0,\r\n\tB = 1,\r\n\tC = 2,\r\n\tD = 3,\r\n\tE = 4,\r\n}\r\n" }, { "path": "./my.service.ts", "content": "import { WebTypedCallInfo, WebTypedFunction } from '@guimabdo/webtyped-common';\r\nimport { WebTypedClient } from '@guimabdo/webtyped-fetch';\r\nexport class MyService extends WebTypedClient {\r\n\tconstructor(baseUrl: string = WebTypedClient.baseUrl) {\r\n\t\tsuper(baseUrl, 'api/my');\r\n\t}\r\n\tsave: MyService.SaveFunction = (model: MyModel2) : Promise<void> => {\r\n\t\treturn this.invokePost({\r\n\t\t\t\tkind: 'Save',\r\n\t\t\t\tfunc: this.save,\r\n\t\t\t\tparameters: { model, _wtKind: 'Save' }\r\n\t\t\t},\r\n\t\t\t``,\r\n\t\t\tnull,\r\n\t\t\t{ model }\r\n\t\t);\r\n\t};\r\n}\r\nexport namespace MyService {\r\n\texport type SaveParameters = {model: MyModel2, _wtKind: 'Save' };\r\n\texport interface SaveCallInfo extends WebTypedCallInfo<SaveParameters, void> { kind: 'Save'; }\r\n\texport type SaveFunctionBase = (model: MyModel2) => Promise<void>;\r\n\texport interface SaveFunction extends WebTypedFunction<SaveParameters, void>, SaveFunctionBase {}\r\n}\r\n" }, { "path": "./index.ts", "content": "import * as mdl0 from './'\r\nexport * from './my.service';\r\nexport var serviceTypes = [\r\n\tmdl0.MyService\r\n]\r\n" }] };
   selectedItem = this.result.files[0];
-
+  formGroup: FormGroup;
   transpiling = false;
-  constructor(private http: HttpClient) {
-
+  constructor(private http: HttpClient, fb: FormBuilder) {
+    this.formGroup = fb.group({
+      serviceMode: ['fetch']
+    });
   }
   ngAfterViewInit() {
     ga$.subscribe(ga => {
@@ -119,7 +122,7 @@ public class MyController {
               content: this.editor.getValue()
             }
           ],
-          config: {}
+          config: this.formGroup.value
         },
         {
           headers: new HttpHeaders({

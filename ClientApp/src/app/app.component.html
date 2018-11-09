@@ -5,12 +5,25 @@
     </li>
   </ul>
   <div id="editor" class="border" style="height: 300px;"></div>
-  <button class="btn btn-primary mt-2"
-          [disabled]="transpiling"
-          (click)="transpile()">
-    <span *ngIf="!transpiling">Transpile!</span>
-    <span *ngIf="transpiling">Wait...</span>
-  </button>
+  <form [formGroup]="formGroup" class="form-inline my-2">
+    <div class="form-group mr-2">
+      <label for="serviceMode" class="mr-2">Mode</label>
+      <select
+              formControlName="serviceMode"
+              id="serviceMode" class="form-control">
+        <option value="fetch">Fetch</option>
+        <option value="angular">Angular 6+</option>
+        <option value="angular4">Angular (>=4.3 < 6)</option>
+        <option value="jquery">jQuery</option>
+      </select>
+    </div>
+    <button class="btn btn-primary m-0"
+            [disabled]="transpiling"
+            (click)="transpile()">
+      <span *ngIf="!transpiling">Transpile!</span>
+      <span *ngIf="transpiling">Wait...</span>
+    </button>
+  </form>
   <div style="height: 300px" class="d-flex border">
     <div style="width: 200px; overflow-y: auto" class="border-right p-1">
         <a href="#" [ngClass]="{ 'text-danger': selectedItem == item }"
