@@ -8,5 +8,6 @@ namespace WebTyped {
 		INamedTypeSymbol TypeSymbol { get; }
 		string Module { get; }
 		string FullName { get; }
+		string OutputFilePath { get; }
 	}
 }

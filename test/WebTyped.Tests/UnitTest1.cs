@@ -16,7 +16,53 @@ namespace WebTyped.Tests {
 	[TestClass]
 	public class UnitTest1 {
 		Options GetCommonOptions() {
-			return new Options(".\\", false, ServiceMode.Angular, new string[0], "", false, false, null);
+			return new Options(".\\", false, ServiceMode.Angular, TypingsScope.Global, new string[0], "", false, false, null);
+		}
+
+		Options GetTypingsModuleOptions() {
+			return new Options(".\\", false, ServiceMode.Angular, TypingsScope.Module, new string[0], "", false, false, null);
+		}
+
+		[TestMethod]
+		public async Task TypingsScopeTest() {
+			var cs = @"
+using System;
+using System.Threading.Tasks;
+namespace Ns1{
+	public class Model { 
+		public string Prop1 { get; set; }
+	}
+}
+namespace Ns2 {
+	public class Model : Ns1.Model { 
+		public string Prop2 { get; set; }
+		public Ns3.MyEnum Prop3 { get; set; }
+	}
+}
+
+public class Model : Ns2.Model { }
+
+namespace Ns3{
+	public enum MyEnum{
+		A, B, C
+	}
+	public class LocalModel : Ns2.Model { }
+
+	[Route(""api/[controller]"")]
+	public class MyController {
+		[HttpPost]
+		public async Task<Ns1.Model> SomeMethod([FromBody]Ns2.Model val){ return null; }
+
+		[HttpPost]
+		public async Task<LocalModel> SomeMethod2([FromBody]Model val){ return null; }
+	}
+}
+";
+			var generator = new Generator(
+	new string[] { cs },
+	GetTypingsModuleOptions()
+);
+			var outputs = await generator.GenerateOutputsAsync();
 		}
 
 		[TestMethod]
@@ -50,7 +96,7 @@ public class Model {
 				compilation.GetTypeByMetadataName(typeof(int).FullName),
 				compilation.GetTypeByMetadataName(typeof(string).FullName)
 			);
-			var name = tr.Resolve(typeSymbol, new ResolutionContext()).Name;
+			var name = tr.Resolve(typeSymbol, new ResolutionContext(null)).Name;
 			Assert.AreEqual(name, "{ key: number, value: string }");
 		}
 

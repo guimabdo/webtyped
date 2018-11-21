@@ -12,6 +12,12 @@ namespace WebTyped {
 		Jquery,
 		Fetch
 	}
+
+	public enum TypingsScope {
+		Global,
+		Module
+	}
+
 	public class Options {
 		public string OutDir { get; private set; }
 		public string TypingsDir { get; private set; }
@@ -19,6 +25,7 @@ namespace WebTyped {
 		public IEnumerable<string> ModuleTrims { get; private set; }
 		public string BaseModule { get; private set; }
 		public ServiceMode ServiceMode { get; private set; }
+		public TypingsScope TypingsScope { get; private set; }
 		public string ServiceSuffix { get; private set; }
 		public bool KeysAndNames { get; set; }
 
@@ -31,6 +38,7 @@ namespace WebTyped {
 		public Options(string outDir,
 			bool clear,
 			ServiceMode serviceMode,
+			TypingsScope typingsScope,
 			IEnumerable<String> moduleTrims, string baseModule, 
 			bool keepPropsCase, 
 			bool keysAndNames,
@@ -46,6 +54,7 @@ namespace WebTyped {
 			Clear = clear;
 			BaseModule = baseModule;
 			ServiceMode = serviceMode;
+			TypingsScope = typingsScope;
 			KeepPropsCase = keepPropsCase;
 			KeysAndNames = keysAndNames;
 		}

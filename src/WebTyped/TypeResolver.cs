@@ -41,6 +41,10 @@ namespace WebTyped {
 	public class ResolutionContext {
 		int counter = 0;
 		Dictionary<string, string> _aliasByModule { get; set; } = new Dictionary<string, string>();
+		public ITsFile Target { get; private set; }
+		public ResolutionContext(ITsFile target) {
+			Target = target;
+		}
 		public string GetAliasByModule(string externalModule) {
 			if (!_aliasByModule.ContainsKey(externalModule)) {
 				string alias = $"extMdl{counter++}";
@@ -108,6 +112,17 @@ namespace WebTyped {
 							var alias = context.GetAliasByModule(externalModule);
 							result.OriginalName = $"{alias}.{externalName}";
 						}
+					}else if(Options.TypingsScope == TypingsScope.Module) {
+						var c = new Uri("C:\\", UriKind.Absolute);
+						var uriOther = new Uri(c, new Uri(tsModel.OutputFilePath, UriKind.Relative));
+						var uriMe = new Uri(c, new Uri(context.Target.OutputFilePath, UriKind.Relative));
+						var module = uriMe.MakeRelativeUri(uriOther).ToString();
+						module = module.Substring(0, module.Length - 3);
+						if(module[0] != '.') {
+							module = "./" + module;
+						}
+						var alias = context.GetAliasByModule(module);
+						result.OriginalName = $"{alias}.{result.OriginalName}";
 					}
 				}
 				//When inheriting from another generic model

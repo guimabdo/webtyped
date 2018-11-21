@@ -58,7 +58,6 @@ build_script:
      dotnet pack ./src/WebTyped.Annotations -c Release
     }
     if ($env:DEPLOY_CLI -eq $true) {
-     dotnet publish ./src/WebTyped -c Release -o ../WebTyped.Npm/generator/program
      dotnet publish ./src/WebTyped.Cli -c Release -o ../WebTyped.Npm/cli/program
     }
     if ($env:DEPLOY_CLASSES -eq $true) {
@@ -104,7 +103,6 @@ after_build:
     (Get-Content ./src/WebTyped.Npm/jquery/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/jquery/package.json
     (Get-Content ./src/WebTyped.Npm/angular/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/angular/package.json
     (Get-Content ./src/WebTyped.Npm/angular4/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/angular4/package.json
-    (Get-Content ./src/WebTyped.Npm/generator/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/generator/package.json
     (Get-Content ./src/WebTyped.Npm/cli/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/cli/package.json
     (Get-Content ./README.md) | Set-Content ./src/WebTyped.Npm/cli/README.md
     if ($env:DEPLOY_CLASSES -eq $true){
@@ -126,10 +124,7 @@ after_build:
       cd ../../../
     }
     if ($env:DEPLOY_CLI -eq $true){
-      cd ./src/WebTyped.Npm/generator
-      npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
-      npm publish --tag $env:NPM_TAG
-      cd ../cli
+      cd ./src/WebTyped.Npm/cli
       npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
       npm publish --tag $env:NPM_TAG
       cd ../../../

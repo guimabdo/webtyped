@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,11 +30,17 @@ namespace WebTyped.Elements {
 
 		public string FullName {
 			get {
+				if(Options.TypingsScope == TypingsScope.Module) { return ClassName; }
 				if (string.IsNullOrEmpty(Module)) { return ClassName; }
 				return $"{Module}.{ClassName}";
 			}
 		}
 
+		public string ModuleCamel {
+			get {
+				return string.Join('.',  Module.Split('.').Select(s => s.ToCamelCase()));
+			}
+		}
 
 		public string Module {
 			get {
@@ -81,9 +88,21 @@ namespace WebTyped.Elements {
 		//		return $"{Module}.{TypeSymbol.Name}";
 		//	}
 		//}
+		public string OutputFilePath {
+			get {
+				if (Options.TypingsScope == TypingsScope.Module) {
+					return Path.Combine(Options.OutDir, ModuleCamel, Filename);
+				}
+				return Path.Combine(Options.TypingsDir, Filename);
+			}
+		}
 
 		string FilenameWithoutExtenstion {
 			get {
+				if(Options.TypingsScope == TypingsScope.Module) {
+					return ClassName.ToCamelCase();
+				}
+
 				var fileNamePart = ClassName.ToCamelCase();
 				//if (TypeSymbol.TypeArguments.Any()) {
 				//	// fileNameCore += $"_of_{string.Join('_', TypeSymbol.TypeArguments.Select(ta => ta.Name))}";

@@ -138,6 +138,19 @@ namespace WebTyped {
 		public INamedTypeSymbol TypeSymbol { get; private set; }
 		public TypeResolver TypeResolver { get; private set; }
 		public Options Options { get; private set; }
+
+		public string OutputFilePath {
+			get {
+				var dir = Options.OutDir;
+				if (!string.IsNullOrEmpty(Module)) {
+					var moduleCamel = string.Join('.', Module.Split('.').Select(s => s.ToCamelCase()));
+					dir = Path.Combine(Options.OutDir, moduleCamel);
+					//Directory.CreateDirectory(dir);
+				}
+				return Path.Combine(dir, Filename);
+			}
+		}
+
 		public Service(INamedTypeSymbol controllerType, TypeResolver typeResolver, Options options) {
 			TypeSymbol = controllerType;
 			ControllerName = controllerType.Name.Substring(0, controllerType.Name.Length - "Controller".Length);
@@ -154,7 +167,7 @@ namespace WebTyped {
 
 		public (string file, string content) GenerateOutput() {
 			var sb = new StringBuilder();
-			var context = new ResolutionContext();
+			var context = new ResolutionContext(this);
 			sb.AppendLine("import { WebTypedCallInfo, WebTypedFunction } from '@guimabdo/webtyped-common';");
 			switch (Options.ServiceMode) {
 				case ServiceMode.Jquery:
@@ -346,14 +359,14 @@ namespace WebTyped {
 			//	subClasses.ForEach(s => sb.AppendLine(CreateModelCode(s, level + 1)));
 			//	sb.AppendLine(level, $"}}");
 			//}
-			var dir = Options.OutDir;
-			if (!string.IsNullOrEmpty(Module)) {
-				dir = Path.Combine(Options.OutDir, Module.ToCamelCase());
-				Directory.CreateDirectory(dir);
-			}
-			var file = Path.Combine(dir, Filename);
+			//var dir = Options.OutDir;
+			//if (!string.IsNullOrEmpty(Module)) {
+			//	dir = Path.Combine(Options.OutDir, Module.ToCamelCase());
+			//	//Directory.CreateDirectory(dir);
+			//}
+			//var file = Path.Combine(dir, Filename);
 			string content = sb.ToString();
-			return (file, content);
+			return (OutputFilePath, content);
 			//await FileHelper.WriteAsync(file, content);
 			//return file;
 			//File.WriteAllText(Path.Combine(Options.ServicesDir, Filename), sb.ToString());

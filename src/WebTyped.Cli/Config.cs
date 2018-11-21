@@ -10,6 +10,7 @@ namespace WebTyped.Cli
 		public string OutDir { get; set; }
 		public bool Clear { get; set; } = true;
 		public ServiceMode ServiceMode { get; set; } = ServiceMode.Fetch;
+		public TypingsScope TypingsScope { get; set; } = TypingsScope.Global;
 		public string BaseModule { get; set; }
 		public bool KeepPropsCase { get; set; }
 		public bool KeysAndNames { get; set; }
@@ -19,6 +20,7 @@ namespace WebTyped.Cli
 			return new Options(OutDir,
 				Clear,
 				ServiceMode,
+				TypingsScope,
 				Trims ?? new string[0],
 				BaseModule,
 				KeepPropsCase,
