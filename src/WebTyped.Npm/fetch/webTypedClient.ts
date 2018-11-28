@@ -44,9 +44,11 @@ export class WebTypedClient {
 			})
 		});
 		let r = await req;
+
 		if (!r.ok) {
 			throw r;
 		}
+
 		let data: any;
 		try {
 			data = await r.json();
