@@ -381,7 +381,10 @@ namespace WebTyped {
 		}
 
 		public async Task SaveAllAsync() {
-			var currentFiles = Directory.GetFiles(Options.OutDir, "*.ts", SearchOption.AllDirectories);
+			var currentFiles =
+				Directory.Exists(Options.OutDir) ?
+				Directory.GetFiles(Options.OutDir, "*.ts", SearchOption.AllDirectories)
+				: new string[0];
 			List<Task<string>> tasks = new List<Task<string>>();
 			Process((file, content) => tasks.Add(FileHelper.WriteAsync(file, content)));
 			if (Options.Clear) {
