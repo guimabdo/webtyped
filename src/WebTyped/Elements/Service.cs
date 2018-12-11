@@ -232,7 +232,7 @@ namespace WebTyped {
 				var mtdAttrs = mtd.GetAttributes();
 				//var hasNamedTupleAttr = mtdAttrs.Any(a => a.AttributeClass.Name == nameof(NamedTupleAttribute));
 				//var returnType = TypeResolver.Resolve(mtd.ReturnType as INamedTypeSymbol, context, hasNamedTupleAttr);
-				var returnType = TypeResolver.Resolve(mtd.ReturnType as INamedTypeSymbol, context);
+				var returnType = TypeResolver.Resolve(mtd.ReturnType as ITypeSymbol, context);
 				var returnTypeName = returnType.Name;
 				//if (hasNamedTupleAttr) {
 				//	if (!returnType.IsTuple) {

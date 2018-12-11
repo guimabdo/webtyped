@@ -199,6 +199,10 @@ using System.Threading.Tasks;
 public class MyController {
 	[HttpGet]
 	public async Task<byte[]> GetArray(){ return null; }
+
+	[HttpGet(""sync"")]
+	public byte[] GetArraySync(){ return null; }
+
 }";
 			var generator = new Generator(
 		new string[] { cs },
