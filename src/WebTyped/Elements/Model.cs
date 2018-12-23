@@ -118,7 +118,7 @@ namespace WebTyped {
 			}
 			level--;
 			//$wt.names and $wt.keys... Make this optional? 
-			AppendKeysAndNames(sb);
+			//AppendKeysAndNames(sb);
 
 			sb.Insert(0, context.GetImportsText());
 			string content = sb.ToString();

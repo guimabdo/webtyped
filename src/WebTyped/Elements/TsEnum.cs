@@ -41,7 +41,7 @@ namespace WebTyped.Elements
 				sb.AppendLine("}");
 			}
 
-			AppendKeysAndNames(sb);
+			//AppendKeysAndNames(sb);
 
 			//File.WriteAllText(Path.Combine(Options.ModelsDir, Filename), sb.ToString());
 			//string file = Path.Combine(Options.TypingsDir, Filename);

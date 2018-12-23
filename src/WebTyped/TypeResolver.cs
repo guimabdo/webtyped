@@ -328,27 +328,63 @@ namespace WebTyped {
 			if(Options.TypingsScope == TypingsScope.Module) {
 				moduledFiles = moduledFiles.Union(Models);
 			}
-			var serviceModules = moduledFiles
+			var typeModules = moduledFiles
 				.GroupBy(s => s.Module)
 				.Distinct()
 				.OrderBy(g => g.Key);
 			var counter = 0;
 			var services = new List<string>();
-
-			foreach (var sm in serviceModules) {
-				sbRootIndex.AppendLine($"import * as mdl{counter} from './{sm.Key.ToCamelCase()}'");
-				var sbServiceIndex = string.IsNullOrEmpty(sm.Key) ? sbRootIndex : new StringBuilder();
-				foreach (var s in sm.OrderBy(s => s.ClassName)) {
-					sbServiceIndex.AppendLine($"export * from './{s.FilenameWithoutExtenstion}';");
-					services.Add($"mdl{counter}.{s.ClassName}");
+			foreach (var tm in typeModules) {
+				var sbTypeIndex = string.IsNullOrEmpty(tm.Key) ? sbRootIndex : new StringBuilder();
+				var hasService = false;
+				foreach (var t in tm.OrderBy(t => t.ClassName)) {
+					sbTypeIndex.AppendLine($"export * from './{t.FilenameWithoutExtenstion}';");
+					if (t is Service) {
+						services.Add($"mdl{counter}.{t.ClassName}");
+						hasService = true;
+					}
 				}
 
-				if (!string.IsNullOrEmpty(sm.Key)) {
-					var servicesDir = Path.Combine(Options.OutDir, sm.Key.ToCamelCase());
-					var serviceIndexFile = Path.Combine(servicesDir, "index.ts");
-					outputManager(serviceIndexFile, sbServiceIndex.ToString());
+				if (Options.KeysAndNames) {
+					
+
+					//sbTypeIndex.AppendLine(0, "export const  {");
+					foreach (var t in tm.OrderBy(t => t.ClassName)) {
+						if(t is Model || t is TsEnum) {
+							
+							//var members = new List<ISymbol>();
+							//var currentTypeSymbol = t.TypeSymbol;
+							//do {
+							//	members.AddRange(currentTypeSymbol.GetMembers());
+							//	currentTypeSymbol = currentTypeSymbol.BaseType;
+							//} while (currentTypeSymbol != null);
+							//foreach (var m in members) {
+							//	if (m.Kind != SymbolKind.Field && m.Kind != SymbolKind.Property) {
+							//		continue;
+							//	}
+							//	if (m.DeclaredAccessibility != Accessibility.Public) { continue; }
+							//	var name = m.Name;
+							//	if (!Options.KeepPropsCase && !((m as IFieldSymbol)?.IsConst).GetValueOrDefault()) {
+							//		name = name.ToCamelCase();
+							//	}
+							//	//sb.AppendLine(2, $@"{name} = ""{name}"",");
+							//}
+						}
+						
+					}
+
 				}
-				counter++;
+
+				if (!string.IsNullOrEmpty(tm.Key)) {
+					var typesDir = Path.Combine(Options.OutDir, tm.Key.ToCamelCase());
+					var typesIndexFile = Path.Combine(typesDir, "index.ts");
+					outputManager(typesIndexFile, sbTypeIndex.ToString());
+				}
+
+				if (hasService) {
+					sbRootIndex.AppendLine($"import * as mdl{counter} from './{tm.Key.ToCamelCase()}'");
+					counter++;
+				}
 			}
 			sbRootIndex.AppendLine("export var serviceTypes = [");
 			sbRootIndex.AppendLine(1, string.Join($",{System.Environment.NewLine}	", services));
