@@ -324,12 +324,17 @@ namespace WebTyped {
 			}
 
 			//Create index for each module folder
-			var serviceModules = Services
+			IEnumerable<ITsFile> moduledFiles = Services;
+			if(Options.TypingsScope == TypingsScope.Module) {
+				moduledFiles = moduledFiles.Union(Models);
+			}
+			var serviceModules = moduledFiles
 				.GroupBy(s => s.Module)
 				.Distinct()
 				.OrderBy(g => g.Key);
 			var counter = 0;
 			var services = new List<string>();
+
 			foreach (var sm in serviceModules) {
 				sbRootIndex.AppendLine($"import * as mdl{counter} from './{sm.Key.ToCamelCase()}'");
 				var sbServiceIndex = string.IsNullOrEmpty(sm.Key) ? sbRootIndex : new StringBuilder();

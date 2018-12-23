@@ -9,5 +9,7 @@ namespace WebTyped {
 		string Module { get; }
 		string FullName { get; }
 		string OutputFilePath { get; }
+		string ClassName { get; }
+		string FilenameWithoutExtenstion { get; }
 	}
 }

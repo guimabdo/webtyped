@@ -210,24 +210,46 @@ public class MyController {
 	);
 			var outputs = await generator.GenerateOutputsAsync();
 			Assert.AreEqual(
-				@"import { Injectable, Inject, forwardRef, Optional } from '@angular/core';
+				@"import { WebTypedCallInfo, WebTypedFunction } from '@guimabdo/webtyped-common';
+import { Injectable, Inject, forwardRef, Optional } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { WebTypedClient, WebTypedEventEmitterService } from '@guimabdo/webtyped-angular';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 @Injectable()
 export class MyService extends WebTypedClient {
 	constructor(@Optional() @Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebTypedEventEmitterService)) eventEmitter: WebTypedEventEmitterService) {
 		super(baseUrl, 'api/my', httpClient, eventEmitter);
 	}
-	getArray = () : Observable<string> => {
-		return this.invokeGet<string>({
+	getArray: MyService.GetArrayFunction = () : Observable<string> => {
+		return this.invokeGet({
+				kind: 'GetArray',
 				func: this.getArray,
-				parameters: {  }
+				parameters: { _wtKind: 'GetArray' }
 			},
 			``,
 			undefined
 		);
 	};
+	getArraySync: MyService.GetArraySyncFunction = () : Observable<string> => {
+		return this.invokeGet({
+				kind: 'GetArraySync',
+				func: this.getArraySync,
+				parameters: { _wtKind: 'GetArraySync' }
+			},
+			`sync`,
+			undefined
+		);
+	};
+}
+export namespace MyService {
+	export type GetArrayParameters = {_wtKind: 'GetArray' };
+	export interface GetArrayCallInfo extends WebTypedCallInfo<GetArrayParameters, string> { kind: 'GetArray'; }
+	export type GetArrayFunctionBase = () => Observable<string>;
+	export interface GetArrayFunction extends WebTypedFunction<GetArrayParameters, string>, GetArrayFunctionBase {}
+	export type GetArraySyncParameters = {_wtKind: 'GetArraySync' };
+	export interface GetArraySyncCallInfo extends WebTypedCallInfo<GetArraySyncParameters, string> { kind: 'GetArraySync'; }
+	export type GetArraySyncFunctionBase = () => Observable<string>;
+	export interface GetArraySyncFunction extends WebTypedFunction<GetArraySyncParameters, string>, GetArraySyncFunctionBase {}
 }
 ",
 				outputs[@".\my.service.ts"]);

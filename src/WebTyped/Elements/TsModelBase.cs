@@ -97,7 +97,7 @@ namespace WebTyped.Elements {
 			}
 		}
 
-		string FilenameWithoutExtenstion {
+		public string FilenameWithoutExtenstion {
 			get {
 				if(Options.TypingsScope == TypingsScope.Module) {
 					return ClassName.ToCamelCase();
