@@ -352,6 +352,7 @@ namespace WebTyped {
 					foreach (var t in tm.OrderBy(t => t.ClassName)) {
 						if(t is Model || t is TsEnum) {
 							
+
 							//var members = new List<ISymbol>();
 							//var currentTypeSymbol = t.TypeSymbol;
 							//do {
