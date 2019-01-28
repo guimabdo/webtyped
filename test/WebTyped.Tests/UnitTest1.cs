@@ -16,7 +16,7 @@ namespace WebTyped.Tests {
 	[TestClass]
 	public class UnitTest1 {
 		Options GetCommonOptions() {
-			return new Options(".\\", false, ServiceMode.Angular, new string[0], "", false, false, null);
+			return new Options(".\\", false, ServiceMode.Angular, new string[0], "", false, null);
 		}
 
 		async Task<Dictionary<string, string>> Generate(params string[] cs) {

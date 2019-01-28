@@ -13,7 +13,7 @@ namespace WebTyped.Cli
 		//public TypingsScope TypingsScope { get; set; } = TypingsScope.Global;
 		public string BaseModule { get; set; }
 		public bool KeepPropsCase { get; set; }
-		public bool KeysAndNames { get; set; }
+		//public bool KeysAndNames { get; set; }
 		public string ServiceSuffix { get; set; }
 
 		public Options ToOptions() {
@@ -24,7 +24,7 @@ namespace WebTyped.Cli
 				Trims ?? new string[0],
 				BaseModule,
 				KeepPropsCase,
-				KeysAndNames,
+				//KeysAndNames,
 				ServiceSuffix);
 		}
 	}

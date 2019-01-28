@@ -345,47 +345,23 @@ namespace WebTyped {
 			var counter = 0;
 			var services = new List<string>();
 			foreach (var tm in typeModules) {
-				var sbTypeIndex = string.IsNullOrEmpty(tm.Key) ? sbRootIndex : new StringBuilder();
+				var isRoot = string.IsNullOrEmpty(tm.Key);
+				var sbTypeIndex = isRoot ? sbRootIndex : new StringBuilder();
 				var hasService = false;
 				foreach (var t in tm.OrderBy(t => t.ClassName)) {
 					sbTypeIndex.AppendLine($"export * from './{t.FilenameWithoutExtenstion}';");
 					if (t is Service) {
-						services.Add($"mdl{counter}.{t.ClassName}");
+						if (!isRoot) {
+							services.Add($"mdl{counter}.{t.ClassName}");
+						}
+						else {
+							services.Add(t.ClassName);
+							sbRootIndex.AppendLine($"import {{ {t.ClassName} }} from './{t.FilenameWithoutExtenstion}';");
+						}
 						hasService = true;
 					}
 				}
-
-				if (Options.KeysAndNames) {
-					
-
-					//sbTypeIndex.AppendLine(0, "export const  {");
-					foreach (var t in tm.OrderBy(t => t.ClassName)) {
-						if(t is Model || t is TsEnum) {
-							
-
-							//var members = new List<ISymbol>();
-							//var currentTypeSymbol = t.TypeSymbol;
-							//do {
-							//	members.AddRange(currentTypeSymbol.GetMembers());
-							//	currentTypeSymbol = currentTypeSymbol.BaseType;
-							//} while (currentTypeSymbol != null);
-							//foreach (var m in members) {
-							//	if (m.Kind != SymbolKind.Field && m.Kind != SymbolKind.Property) {
-							//		continue;
-							//	}
-							//	if (m.DeclaredAccessibility != Accessibility.Public) { continue; }
-							//	var name = m.Name;
-							//	if (!Options.KeepPropsCase && !((m as IFieldSymbol)?.IsConst).GetValueOrDefault()) {
-							//		name = name.ToCamelCase();
-							//	}
-							//	//sb.AppendLine(2, $@"{name} = ""{name}"",");
-							//}
-						}
-						
-					}
-
-				}
-
+				
 				if (!string.IsNullOrEmpty(tm.Key)) {
 					var typesDir = Path.Combine(Options.OutDir, tm.Key.ToCamelCase());
 					var typesIndexFile = Path.Combine(typesDir, "index.ts");
@@ -393,7 +369,9 @@ namespace WebTyped {
 				}
 
 				if (hasService) {
-					sbRootIndex.AppendLine($"import * as mdl{counter} from './{tm.Key.ToCamelCase()}'");
+					if (!isRoot) {
+						sbRootIndex.AppendLine($"import * as mdl{counter} from './{tm.Key.ToCamelCase()}'");
+					}
 					counter++;
 				}
 			}

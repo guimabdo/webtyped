@@ -27,7 +27,7 @@ namespace WebTyped {
 		public ServiceMode ServiceMode { get; private set; }
 		//public TypingsScope TypingsScope { get; private set; }
 		public string ServiceSuffix { get; private set; }
-		public bool KeysAndNames { get; set; }
+		//public bool KeysAndNames { get; set; }
 
 		//public bool GenerateKeys { get;  }
 		public bool IsAngular { get {
@@ -41,7 +41,7 @@ namespace WebTyped {
 			//TypingsScope typingsScope,
 			IEnumerable<String> moduleTrims, string baseModule, 
 			bool keepPropsCase, 
-			bool keysAndNames,
+			//bool keysAndNames,
 			string serviceSuffix) {
 			this.ServiceSuffix = serviceSuffix ?? "Service";
 			ModuleTrims = moduleTrims.OrderByDescending(m => m.Length);
@@ -56,7 +56,7 @@ namespace WebTyped {
 			ServiceMode = serviceMode;
 			//TypingsScope = typingsScope;
 			KeepPropsCase = keepPropsCase;
-			KeysAndNames = keysAndNames;
+			//KeysAndNames = keysAndNames;
 		}
 
 		public string AdjustModule(string module) {
