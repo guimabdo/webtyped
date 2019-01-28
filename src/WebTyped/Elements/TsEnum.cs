@@ -29,7 +29,8 @@ namespace WebTyped.Elements
 			//if(Options.TypingsScope == TypingsScope.Module) {
 			//	declaration = "export ";
 			//}
-			sb.AppendLine(level, $"export const enum {TypeSymbol.Name} {{");
+			//sb.AppendLine(level, $"export const enum {TypeSymbol.Name} {{");
+			sb.AppendLine(level, $"export enum {TypeSymbol.Name} {{");
 			foreach (var m in TypeSymbol.GetMembers()) {
 				if (m.Kind == SymbolKind.Field) {
 					var f = m as IFieldSymbol;
