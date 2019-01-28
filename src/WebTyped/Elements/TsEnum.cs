@@ -18,18 +18,18 @@ namespace WebTyped.Elements
 			var sb = new StringBuilder();
 
 			var level = 0;
-			var hasModule = false;
-			if (!string.IsNullOrEmpty(Module) && Options.TypingsScope == TypingsScope.Global) {
-				hasModule = true;
-				sb.AppendLine($"declare module {Module} {{");
-				level++;
-			}
-			var declaration = "declare ";
-			if (hasModule) { declaration = ""; }
-			if(Options.TypingsScope == TypingsScope.Module) {
-				declaration = "export ";
-			}
-			sb.AppendLine(level, $"{declaration}const enum {TypeSymbol.Name} {{");
+			//var hasModule = false;
+			//if (!string.IsNullOrEmpty(Module) && Options.TypingsScope == TypingsScope.Global) {
+			//	hasModule = true;
+			//	sb.AppendLine($"declare module {Module} {{");
+			//	level++;
+			//}
+			//var declaration = "declare ";
+			//if (hasModule) { declaration = ""; }
+			//if(Options.TypingsScope == TypingsScope.Module) {
+			//	declaration = "export ";
+			//}
+			sb.AppendLine(level, $"export const enum {TypeSymbol.Name} {{");
 			foreach (var m in TypeSymbol.GetMembers()) {
 				if (m.Kind == SymbolKind.Field) {
 					var f = m as IFieldSymbol;
@@ -37,11 +37,11 @@ namespace WebTyped.Elements
 				}
 			}
 			sb.AppendLine(level, "}");
-			if (!string.IsNullOrEmpty(Module) && Options.TypingsScope == TypingsScope.Global) {
-				sb.AppendLine("}");
-			}
+			//if (!string.IsNullOrEmpty(Module) && Options.TypingsScope == TypingsScope.Global) {
+			//	sb.AppendLine("}");
+			//}
 
-			//AppendKeysAndNames(sb);
+			AppendKeysAndNames(sb);
 
 			//File.WriteAllText(Path.Combine(Options.ModelsDir, Filename), sb.ToString());
 			//string file = Path.Combine(Options.TypingsDir, Filename);

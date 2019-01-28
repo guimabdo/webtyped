@@ -15,14 +15,16 @@ namespace WebTyped.Elements {
 		public Options Options { get; private set; }
 		//public string ClassName { get; set; }
 
-		public string ClassName { get {
+		public string ClassName {
+			get {
 				if (TypeSymbol.TypeArguments.Any()) {
 					//if (TypeSymbol.TypeArguments.Any()) {
 					//	// fileNameCore += $"_of_{string.Join('_', TypeSymbol.TypeArguments.Select(ta => ta.Name))}";
 					//	fileNameCore += $"Of{TypeSymbol.TypeArguments.Count()}";
 					//}
 					return $"{TypeSymbol.Name}Of{TypeSymbol.TypeArguments.Count()}";
-				} else {
+				}
+				else {
 					return TypeSymbol.Name;
 				}
 			}
@@ -30,15 +32,16 @@ namespace WebTyped.Elements {
 
 		public string FullName {
 			get {
-				if(Options.TypingsScope == TypingsScope.Module) { return ClassName; }
-				if (string.IsNullOrEmpty(Module)) { return ClassName; }
-				return $"{Module}.{ClassName}";
+				return ClassName;
+				//if(Options.TypingsScope == TypingsScope.Module) { return ClassName; }
+				//if (string.IsNullOrEmpty(Module)) { return ClassName; }
+				//return $"{Module}.{ClassName}";
 			}
 		}
 
 		public string ModuleCamel {
 			get {
-				return string.Join('.',  Module.Split('.').Select(s => s.ToCamelCase()));
+				return string.Join('.', Module.Split('.').Select(s => s.ToCamelCase()));
 			}
 		}
 
@@ -90,26 +93,28 @@ namespace WebTyped.Elements {
 		//}
 		public string OutputFilePath {
 			get {
-				if (Options.TypingsScope == TypingsScope.Module) {
-					return Path.Combine(Options.OutDir, ModuleCamel, Filename);
-				}
-				return Path.Combine(Options.TypingsDir, Filename);
+				//if (Options.TypingsScope == TypingsScope.Module) {
+				//	return Path.Combine(Options.OutDir, ModuleCamel, Filename);
+				//}
+				//return Path.Combine(Options.TypingsDir, Filename);
+				return Path.Combine(Options.OutDir, ModuleCamel, Filename);
 			}
 		}
 
 		public string FilenameWithoutExtenstion {
 			get {
-				if(Options.TypingsScope == TypingsScope.Module) {
-					return ClassName.ToCamelCase();
-				}
-
-				var fileNamePart = ClassName.ToCamelCase();
-				//if (TypeSymbol.TypeArguments.Any()) {
-				//	// fileNameCore += $"_of_{string.Join('_', TypeSymbol.TypeArguments.Select(ta => ta.Name))}";
-				//	fileNameCore += $"Of{TypeSymbol.TypeArguments.Count()}";
+				//if(Options.TypingsScope == TypingsScope.Module) {
+				//	return ClassName.ToCamelCase();
 				//}
-				if (string.IsNullOrEmpty(Module)) { return $"{fileNamePart}.d"; }
-				return $"{Module}.{fileNamePart}.d";
+
+				//var fileNamePart = ClassName.ToCamelCase();
+				////if (TypeSymbol.TypeArguments.Any()) {
+				////	// fileNameCore += $"_of_{string.Join('_', TypeSymbol.TypeArguments.Select(ta => ta.Name))}";
+				////	fileNameCore += $"Of{TypeSymbol.TypeArguments.Count()}";
+				////}
+				//if (string.IsNullOrEmpty(Module)) { return $"{fileNamePart}.d"; }
+				//return $"{Module}.{fileNamePart}.d";
+				return ClassName.ToCamelCase();
 			}
 		}
 
@@ -128,6 +133,44 @@ namespace WebTyped.Elements {
 			TypeSymbol = modelType;
 			TypeResolver = typeResolver;
 			Options = options;
+		}
+
+		protected void AppendKeysAndNames(StringBuilder sb) {
+			var level = 0;
+			sb.AppendLine();
+			sb.AppendLine($"export namespace {ClassName} {{");
+			level++;
+
+			//Class name
+			sb.AppendLine(level, $"export const $nameof = '{ClassName}';");
+
+			//Members
+			var currentTypeSymbol = TypeSymbol;
+			var members = new List<ISymbol>();
+			do {
+				members.AddRange(currentTypeSymbol.GetMembers());
+				currentTypeSymbol = currentTypeSymbol.BaseType;
+			} while (currentTypeSymbol != null);
+
+			foreach (var m in members) {
+				if (m.Kind != SymbolKind.Field && m.Kind != SymbolKind.Property) {
+					continue;
+				}
+				if (m.DeclaredAccessibility != Accessibility.Public) { continue; }
+				var name = m.Name;
+				if (!Options.KeepPropsCase && !((m as IFieldSymbol)?.IsConst).GetValueOrDefault()) {
+					name = name.ToCamelCase();
+				}
+				sb.AppendLine(level, $"export namespace {name} {{");
+				level++;
+				sb.AppendLine(level, $"export const $nameof = '{name}';");
+				level--;
+				sb.AppendLine(level, "}");
+				// sb.AppendLine(2, $@"{name} = ""{name}"",");
+			}
+
+			level--;
+			sb.AppendLine("}");
 		}
 
 		//protected void AppendKeysAndNames(StringBuilder sb) {

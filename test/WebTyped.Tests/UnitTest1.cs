@@ -16,11 +16,27 @@ namespace WebTyped.Tests {
 	[TestClass]
 	public class UnitTest1 {
 		Options GetCommonOptions() {
-			return new Options(".\\", false, ServiceMode.Angular, TypingsScope.Global, new string[0], "", false, false, null);
+			return new Options(".\\", false, ServiceMode.Angular, new string[0], "", false, false, null);
 		}
 
-		Options GetTypingsModuleOptions() {
-			return new Options(".\\", false, ServiceMode.Angular, TypingsScope.Module, new string[0], "", false, false, null);
+		async Task<Dictionary<string, string>> Generate(params string[] cs) {
+			var generator = new Generator(cs, GetCommonOptions());
+			return await generator.GenerateOutputsAsync();
+		}
+
+		[TestMethod]
+		public async Task DictionaryTest() {
+			var cs =
+@"
+using System.Collections.Generic;
+public class Dicts {
+	public Dictionary<string, string> TsSupported1 { get; set; }
+	public Dictionary<int, string> TsSupported2 { get; set; }
+	public Dictionary<object, string> TsNotSupported1 { get; set; }
+}";
+			var outputs = await Generate(cs);
+
+
 		}
 
 		[TestMethod]
@@ -60,7 +76,7 @@ namespace Ns3{
 ";
 			var generator = new Generator(
 	new string[] { cs },
-	GetTypingsModuleOptions()
+	GetCommonOptions()
 );
 			var outputs = await generator.GenerateOutputsAsync();
 		}

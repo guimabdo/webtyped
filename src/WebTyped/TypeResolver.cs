@@ -112,7 +112,9 @@ namespace WebTyped {
 							var alias = context.GetAliasByModule(externalModule);
 							result.OriginalName = $"{alias}.{externalName}";
 						}
-					}else if(Options.TypingsScope == TypingsScope.Module) {
+					}
+					//else if(Options.TypingsScope == TypingsScope.Module) {
+					else { 
 						var c = new Uri("C:\\", UriKind.Absolute);
 						var uriOther = new Uri(c, new Uri(tsModel.OutputFilePath, UriKind.Relative));
 						var uriMe = new Uri(c, new Uri(context.Target.OutputFilePath, UriKind.Relative));
@@ -290,13 +292,21 @@ namespace WebTyped {
 					return "void";
 				case "System.Threading.Tasks.Task<TResult>":
 					return "";
-				case "System.Collections.Generic.KeyValuePair<TKey, TValue>":
-					var keyType = Resolve(original.TypeArguments[0], context, useTupleAltNames).Name;
-					var valType = Resolve(original.TypeArguments[1], context, useTupleAltNames).Name;
-					return Options.KeepPropsCase ?
-					$"{{ Key: {keyType}, Value: {valType} }}"
-					: $"{{ key: {keyType}, value: {valType} }}";
-				//default: return typeName;
+				case "System.Collections.Generic.KeyValuePair<TKey, TValue>": {
+						var keyType = Resolve(original.TypeArguments[0], context, useTupleAltNames).Name;
+						var valType = Resolve(original.TypeArguments[1], context, useTupleAltNames).Name;
+						return Options.KeepPropsCase ?
+						$"{{ Key: {keyType}, Value: {valType} }}"
+						: $"{{ key: {keyType}, value: {valType} }}";
+					}
+				case "System.Collections.Generic.Dictionary<TKey, TValue>": {
+						var keyType = Resolve(original.TypeArguments[0], context, useTupleAltNames).Name;
+						var valType = Resolve(original.TypeArguments[1], context, useTupleAltNames).Name;
+						if(keyType == "string" || keyType == "number") {
+							return $"{{ [key: {keyType}]: {valType} }}";
+						}
+						goto default;
+					}
 				default: return $"any/*{constructedFrom}*/";
 			}
 		}
@@ -325,9 +335,9 @@ namespace WebTyped {
 
 			//Create index for each module folder
 			IEnumerable<ITsFile> moduledFiles = Services;
-			if(Options.TypingsScope == TypingsScope.Module) {
+			//if(Options.TypingsScope == TypingsScope.Module) {
 				moduledFiles = moduledFiles.Union(Models);
-			}
+			//}
 			var typeModules = moduledFiles
 				.GroupBy(s => s.Module)
 				.Distinct()
