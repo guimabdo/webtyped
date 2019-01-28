@@ -142,7 +142,8 @@ namespace WebTyped.Elements {
 			level++;
 
 			//Class name
-			sb.AppendLine(level, $"export const $nameof = '{ClassName}';");
+			//sb.AppendLine(level, $"export const $nameof = '{ClassName}';");
+			sb.AppendLine(level, $"export const $ = '{ClassName}';");
 
 			//Members
 			var currentTypeSymbol = TypeSymbol;
@@ -161,11 +162,12 @@ namespace WebTyped.Elements {
 				if (!Options.KeepPropsCase && !((m as IFieldSymbol)?.IsConst).GetValueOrDefault()) {
 					name = name.ToCamelCase();
 				}
-				sb.AppendLine(level, $"export namespace {name} {{");
-				level++;
-				sb.AppendLine(level, $"export const $nameof = '{name}';");
-				level--;
-				sb.AppendLine(level, "}");
+				sb.AppendLine(level, $"export const ${name} = '{name}';");
+				//sb.AppendLine(level, $"export namespace {name} {{");
+				//level++;
+				//sb.AppendLine(level, $"export const $nameof = '{name}';");
+				//level--;
+				//sb.AppendLine(level, "}");
 				// sb.AppendLine(2, $@"{name} = ""{name}"",");
 			}
 
