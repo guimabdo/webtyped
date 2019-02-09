@@ -543,6 +543,7 @@ public class MyController {
 }";
 			var generator = new Generator(new string[] { cs }, GetCommonOptions());
 			var outputs = await generator.GenerateOutputsAsync();
+
 		}
 
 		//[TestMethod]
