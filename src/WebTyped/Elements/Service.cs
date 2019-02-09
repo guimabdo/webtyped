@@ -19,106 +19,6 @@ namespace WebTyped {
 		FromBody,
 	}
 
-	public class ParameterResolution {
-		public string Name { get; private set; }
-		public string Signature { get; private set; }
-		public string BodyRelayFormat { get; private set; }
-		public string SearchRelayFormat { get; private set; }
-		public ParameterFromKind From { get; private set; } = ParameterFromKind.None;
-		public string FromName { get; set; }
-		public bool Ignore { get; private set; }
-		public ParameterResolution(IParameterSymbol parameterSymbol, TypeResolver typeResolver, ResolutionContext context) {
-			var p = parameterSymbol;
-			var attrs = p.GetAttributes();
-			var hasNamedTupleAttr = attrs.Any(a => a.AttributeClass.Name == nameof(NamedTupleAttribute));
-			var res = typeResolver.Resolve(parameterSymbol.Type, context, hasNamedTupleAttr);
-
-			this.Name = parameterSymbol.Name;
-			this.BodyRelayFormat = this.Name;
-			this.SearchRelayFormat = this.Name;
-			var fromAttr = attrs.FirstOrDefault(a => a.AttributeClass.Name.StartsWith("From"));
-
-			if (fromAttr != null) {
-				switch (fromAttr.AttributeClass.Name) {
-					case "FromUriAttribute":
-					case "FromQueryAttribute":
-					case "FromBodyAttribute":
-					case "FromRouteAttribute":
-						this.From = (ParameterFromKind)typeof(ParameterFromKind).GetField(fromAttr.AttributeClass.Name.Replace("Attribute", "")).GetValue(null);
-						switch (fromAttr.AttributeClass.Name) {
-							case "FromUriAttribute":
-							case "FromQueryAttribute":
-								KeyValuePair<string, TypedConstant>? nameArg = fromAttr.NamedArguments.ToList().FirstOrDefault(na => na.Key == "Name");
-								if (nameArg.HasValue) {
-									var tConst = nameArg.Value.Value;
-									if (tConst.Value != null) {
-										this.FromName = tConst.Value.ToString();
-										this.SearchRelayFormat = $"{this.FromName}: {this.Name}";
-									}
-								}
-							break;
-						}
-						break;
-				}
-				//if (attrs.Any(a => a.AttributeClass.Name.StartsWith("FromBody"))) {
-				//	this.From = ParameterFromKind.FromBody;
-				//}
-				//if (attrs.Any(a => a.AttributeClass.Name.StartsWith("FromUri"))) {
-				//	this.From = ParameterFromKind.FromUri;
-
-				//}
-				//if (attrs.Any(a => a.AttributeClass.Name.StartsWith("FromQuery"))) {
-				//	this.From = ParameterFromKind.FromQuery;
-				//}
-				//if (attrs.Any(a => a.AttributeClass.Name.StartsWith("FromRoute"))) {
-				//	this.From = ParameterFromKind.FromRoute;
-				//}
-
-				switch (From) {
-					case ParameterFromKind.FromQuery:
-					case ParameterFromKind.FromUri:
-						break;
-					default:
-						break;
-				}
-			}
-
-			//var hasMapFunc = !string.IsNullOrWhiteSpace(res.MapAltToOriginalFunc);
-			string unsupportedNamedTupleMessage = "[UNSUPPORTED - NamedTupleAttribute must be used only for tuple parameters]";
-			string typeName = res.Name;
-
-			if (hasNamedTupleAttr) {
-				if (!res.IsTuple) {
-					this.BodyRelayFormat = unsupportedNamedTupleMessage;
-					this.SearchRelayFormat = unsupportedNamedTupleMessage;
-					//typeName = unsupportedNamedTupleMessage;
-				} else {
-					this.BodyRelayFormat = $"{res.MapAltToOriginalFunc}({this.Name})";
-					this.SearchRelayFormat = $"{this.Name}: {this.BodyRelayFormat}";
-					//typeName = res.AltName;
-				}
-			}
-
-			if (TsEnum.IsEnum(p.Type)) {
-				if (res.TsType != null && res.TsType is TsEnum) {
-					var enumNames = string
-						.Join(
-							" | ",
-							p.Type.GetMembers()
-							.Where(m => m.Kind == SymbolKind.Field)
-							.Select(m => $"'{m.Name}'"));
-					if (!string.IsNullOrEmpty(enumNames)) {
-						typeName = $"{typeName} | {enumNames}";
-					}
-				}
-			}
-
-			this.Signature = $"{p.Name}{(p.IsOptional ? "?" : "")}: {typeName}" + (res.IsNullable ? " | null" : "");
-			this.Ignore = p.GetAttributes().Any(a => a.AttributeClass.Name == "FromServices");
-		}
-
-	}
-
 	public class Service : ITsFile {
 		
 		public string Module { get; private set; }
@@ -292,7 +192,7 @@ namespace WebTyped {
 				//Resolve how parameters are sent
 				//var pendingParameters = new List<string>();
 				var pendingParameters = new List<ParameterResolution>();
-				var parameterResolutions = mtd.Parameters.Select(p => new ParameterResolution(p, TypeResolver, context)).Where(p => !p.Ignore);
+				var parameterResolutions = mtd.Parameters.Select(p => new ParameterResolution(p, TypeResolver, context, Options)).Where(p => !p.Ignore);
 				var bodyParam = "null";
 				foreach (var pr in parameterResolutions) {
 					//[FromRoute]
@@ -334,6 +234,7 @@ namespace WebTyped {
 				sb.AppendLine(level + 2, $"return this.invoke{httpMethod}({{");
 				sb.AppendLine(level + 4, $"kind: '{upperMethodName}',");
 				sb.AppendLine(level + 4, $"func: this.{methodName},");
+				//parameterResolutions.First().
 				sb.AppendLine(level + 4, $"parameters: {{ {string.Join(", ", parameterResolutions.Select(p => p.Name))}{(parameterResolutions.Any() ? ", " : "")}_wtKind: '{upperMethodName}' }}");
 				sb.AppendLine(level + 3, "},");
 				sb.AppendLine(level + 3, $"`{action}`,");

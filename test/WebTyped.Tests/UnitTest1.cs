@@ -512,6 +512,39 @@ export class ApiWithTupleService extends WebTypedClient {
 			outputs[@".\test\apiWithTuple.service.ts"]);
 		}
 
+		[TestMethod]
+		public async Task GetQueryModelTest() {
+			var cs =
+@"
+using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+
+public class QueryModel1{
+	[FromRoute(Name = ""c"")]
+	public string Prop1 { get; set; }
+	[FromQuery(Name = ""$d"")]
+	public string Prop2 { get; set; }
+	public string Prop3 { get; set; }
+}
+
+public class QueryModel2{
+	[FromRoute(Name = ""a"")]
+	public string Prop1 { get; set; }
+	[FromQuery(Name = ""$b"")]
+	public string Prop2 { get; set; }
+	public string Prop3 { get; set; }
+}
+
+[Route(""api/[controller]"")]
+public class MyController {
+	[HttpGet]
+	public async Task<object> GetArray(QueryModel1 q1, QueryModel2 q2){ return null; }
+}";
+			var generator = new Generator(new string[] { cs }, GetCommonOptions());
+			var outputs = await generator.GenerateOutputsAsync();
+		}
+
 		//[TestMethod]
 		//public void RegexRouteTest() {
 		//	string route = "teste/{count:regex(\\$count)?}{bla?}";
