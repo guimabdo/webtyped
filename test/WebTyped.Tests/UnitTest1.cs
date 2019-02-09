@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using WebTyped.Annotations;
@@ -511,5 +512,15 @@ export class ApiWithTupleService extends WebTypedClient {
 			outputs[@".\test\apiWithTuple.service.ts"]);
 		}
 
+		//[TestMethod]
+		//public void RegexRouteTest() {
+		//	string route = "teste/{count:regex(\\$count)?}{bla?}";
+		//	var regex = new Regex(@"\{(?<paramName>\w+)(:\w+(\(.*?\))?)?\??}");
+		//	string result = regex.Replace(route, m => {
+		//		return $"{{{m.Groups["paramName"].Value}}}";
+		//	});
+
+
+		//}
 	}
 }

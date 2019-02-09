@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using WebTyped.Annotations;
 using WebTyped.Elements;
@@ -119,6 +120,7 @@ namespace WebTyped {
 	}
 
 	public class Service : ITsFile {
+		
 		public string Module { get; private set; }
 		string Filename { get { return $"{FilenameWithoutExtenstion}.ts"; } }
 		public string FilenameWithoutExtenstion { get; private set; }
@@ -279,8 +281,13 @@ namespace WebTyped {
 				}
 				//Replace route variables
 				action = action
-					.Replace("[action]", methodName)
-					.Replace("{", "${");
+					.Replace("[action]", methodName);
+				//.Replace("{", "${");
+
+				var regex = new Regex(@"\{(?<paramName>\w+)(:\w+(\(.*?\))?)?\??}");
+				action = regex.Replace(action, match => {
+					return $"{{{match.Groups["paramName"].Value}}}";
+				});
 
 				//Resolve how parameters are sent
 				//var pendingParameters = new List<string>();
