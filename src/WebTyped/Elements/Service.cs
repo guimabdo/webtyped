@@ -286,7 +286,7 @@ namespace WebTyped {
 
 				var regex = new Regex(@"\{(?<paramName>\w+)(:\w+(\(.*?\))?)?\??}");
 				action = regex.Replace(action, match => {
-					return $"{{{match.Groups["paramName"].Value}}}";
+					return $"${{{match.Groups["paramName"].Value}}}";
 				});
 
 				//Resolve how parameters are sent
