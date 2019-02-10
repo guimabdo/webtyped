@@ -130,14 +130,15 @@ namespace WebTyped {
 				}
 
 				if (hasModifications) {
+					this.SearchRelayFormat = "";
 					if (props.Any()) {
 						this.SearchRelayFormat = $"{this.FromName}: {{ {string.Join(", ", props)} }}";
 					}
 					if (outProps.Any()) {
 						if (props.Any()) {
 							this.SearchRelayFormat += ", ";
-							this.SearchRelayFormat += $"{string.Join(", ", outProps)}";
 						}
+						this.SearchRelayFormat += $"{string.Join(", ", outProps)}";
 
 					}
 				}
