@@ -521,9 +521,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
 public class QueryModel1{
-	[FromRoute(Name = ""c"")]
+	//[FromRoute(Name = ""c"")]
 	public string Prop1 { get; set; }
-	[FromQuery(Name = ""$d"")]
+	//[FromQuery(Name = ""$d"")]
 	public string Prop2 { get; set; }
 	public string Prop3 { get; set; }
 }

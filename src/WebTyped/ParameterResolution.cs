@@ -84,6 +84,7 @@ namespace WebTyped {
 				////When FromQuery/FromUri is used it may be renamed
 				//var renamedQueryProps = new Dictionary<string, string>();
 				var props = new List<string>();
+				var hasModifications = false;
 				foreach (var m in parameterSymbol.Type.GetMembers()) {
 					if (m.Kind != SymbolKind.Field && m.Kind != SymbolKind.Property) {
 						continue;
@@ -101,6 +102,7 @@ namespace WebTyped {
 						if (propFromAttr != null) {
 							switch (propFromAttr.AttributeClass.Name) {
 								case "FromRouteAttribute":
+									hasModifications = true;
 									//ignoredQueryProps.Add(m.Name);
 									break;
 								case "FromUriAttribute":
@@ -111,29 +113,23 @@ namespace WebTyped {
 										if (tConst.Value != null) {
 											//renamedQueryProps.Add(p.Name, tConst.Value.ToString());
 											props.Add($"{tConst.Value.ToString()}: {this.Name}.{name}");
+											hasModifications = true;
 										}
 									}
 									break;
 								default:
-									props.Add($"{this.Name}.{name}");
+									props.Add($"{name}: {this.Name}.{name}");
 									break;
 							}
 						}
 						else {
-							props.Add($"{this.Name}.{name}");
+							props.Add($"{name}: {this.Name}.{name}");
 						}
 					}
 				}
 
-				if (props.Any()) {
+				if (hasModifications) {
 					this.SearchRelayFormat = $"{this.FromName}: {{ {string.Join(", ", props)} }}";
-					//this.SearchRelayFormat = $"{this.FromName}: {{ ";
-					//foreach(var pName in allProps) {
-					//	if (ignoredQueryProps.Contains(pName)) {
-					//		
-					//	}
-					//}
-					//this.SearchRelayFormat += " }";
 				}
 
 			}
