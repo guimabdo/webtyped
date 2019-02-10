@@ -84,6 +84,7 @@ namespace WebTyped {
 				////When FromQuery/FromUri is used it may be renamed
 				//var renamedQueryProps = new Dictionary<string, string>();
 				var props = new List<string>();
+				var outProps = new List<string>();
 				var hasModifications = false;
 				foreach (var m in parameterSymbol.Type.GetMembers()) {
 					if (m.Kind != SymbolKind.Field && m.Kind != SymbolKind.Property) {
@@ -112,7 +113,7 @@ namespace WebTyped {
 										var tConst = nameArg.Value.Value;
 										if (tConst.Value != null) {
 											//renamedQueryProps.Add(p.Name, tConst.Value.ToString());
-											props.Add($"{tConst.Value.ToString()}: {this.Name}.{name}");
+											outProps.Add($"{tConst.Value.ToString()}: {this.Name}.{name}");
 											hasModifications = true;
 										}
 									}
@@ -129,7 +130,16 @@ namespace WebTyped {
 				}
 
 				if (hasModifications) {
-					this.SearchRelayFormat = $"{this.FromName}: {{ {string.Join(", ", props)} }}";
+					if (props.Any()) {
+						this.SearchRelayFormat = $"{this.FromName}: {{ {string.Join(", ", props)} }}";
+					}
+					if (outProps.Any()) {
+						if (props.Any()) {
+							this.SearchRelayFormat += ", ";
+							this.SearchRelayFormat += $"{string.Join(", ", outProps)}";
+						}
+
+					}
 				}
 
 			}
