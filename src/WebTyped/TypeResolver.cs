@@ -99,8 +99,12 @@ namespace WebTyped {
 			if (tsType != null) {
 				result.TsType = tsType;
 				result.OriginalName = tsType.FullName;
-				if(tsType is TsModelBase) {
+				if(tsType is TsModelBase 
+					&&
+					tsType != context.Target //auto-reference
+				) {
 					var tsModel = tsType as TsModelBase;
+
 					//External types
 					if (tsModel.ExternalType != null) {
 						var externalModule = tsModel.ExternalType.Value.module;
@@ -118,6 +122,8 @@ namespace WebTyped {
 						var c = new Uri("C:\\", UriKind.Absolute);
 						var uriOther = new Uri(c, new Uri(tsModel.OutputFilePath, UriKind.Relative));
 						var uriMe = new Uri(c, new Uri(context.Target.OutputFilePath, UriKind.Relative));
+
+
 						var module = uriMe.MakeRelativeUri(uriOther).ToString();
 						module = module.Substring(0, module.Length - 3);
 						if(module[0] != '.') {
