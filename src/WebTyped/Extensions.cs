@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace WebTyped {
@@ -14,7 +15,7 @@ namespace WebTyped {
 
 		public static string ToCamelCase(this string str) {
 			if (string.IsNullOrWhiteSpace(str)) { return str; }
-			return camel.GetPropertyName(str, false);
+			return string.Join('.', str.Split('.').Select(s => camel.GetPropertyName(s, false)));
 		}
 	}
 }

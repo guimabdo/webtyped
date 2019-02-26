@@ -41,7 +41,8 @@ namespace WebTyped.Elements {
 
 		public string ModuleCamel {
 			get {
-				return string.Join('.', Module.Split('.').Select(s => s.ToCamelCase()));
+				//return string.Join('.', Module.Split('.').Select(s => s.ToCamelCase()));
+				return Module.ToCamelCase();
 			}
 		}
 
