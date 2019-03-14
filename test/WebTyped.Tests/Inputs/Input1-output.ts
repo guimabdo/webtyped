@@ -27,7 +27,7 @@
 	displayFormatString: string;
 }
 
-export namespace ModelMetadata {
+export namespace ModelMetadata$ {
 	export const $ = 'ModelMetadata';
 	export const $attributes = 'attributes';
 	export const $isEnum = 'isEnum';

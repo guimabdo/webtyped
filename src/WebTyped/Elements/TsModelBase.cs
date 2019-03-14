@@ -139,7 +139,7 @@ namespace WebTyped.Elements {
 		protected void AppendKeysAndNames(StringBuilder sb) {
 			var level = 0;
 			sb.AppendLine();
-			sb.AppendLine($"export namespace {ClassName} {{");
+			sb.AppendLine($"export namespace {ClassName}$ {{");
 			level++;
 
 			//Class name
