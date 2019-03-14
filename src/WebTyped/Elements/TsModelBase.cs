@@ -143,7 +143,6 @@ namespace WebTyped.Elements {
 			level++;
 
 			//Class name
-			//sb.AppendLine(level, $"export const $nameof = '{ClassName}';");
 			sb.AppendLine(level, $"export const $ = '{ClassName}';");
 
 			//Members
