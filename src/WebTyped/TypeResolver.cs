@@ -41,6 +41,10 @@ namespace WebTyped {
 	public class ResolutionContext {
 		int counter = 0;
 		Dictionary<string, string> _aliasByModule { get; set; } = new Dictionary<string, string>();
+		public ITsFile Target { get; private set; }
+		public ResolutionContext(ITsFile target) {
+			Target = target;
+		}
 		public string GetAliasByModule(string externalModule) {
 			if (!_aliasByModule.ContainsKey(externalModule)) {
 				string alias = $"extMdl{counter++}";
@@ -95,8 +99,12 @@ namespace WebTyped {
 			if (tsType != null) {
 				result.TsType = tsType;
 				result.OriginalName = tsType.FullName;
-				if(tsType is TsModelBase) {
+				if(tsType is TsModelBase 
+					&&
+					tsType != context.Target //auto-reference
+				) {
 					var tsModel = tsType as TsModelBase;
+
 					//External types
 					if (tsModel.ExternalType != null) {
 						var externalModule = tsModel.ExternalType.Value.module;
@@ -108,6 +116,21 @@ namespace WebTyped {
 							var alias = context.GetAliasByModule(externalModule);
 							result.OriginalName = $"{alias}.{externalName}";
 						}
+					}
+					//else if(Options.TypingsScope == TypingsScope.Module) {
+					else { 
+						var c = new Uri("C:\\", UriKind.Absolute);
+						var uriOther = new Uri(c, new Uri(tsModel.OutputFilePath, UriKind.Relative));
+						var uriMe = new Uri(c, new Uri(context.Target.OutputFilePath, UriKind.Relative));
+
+
+						var module = uriMe.MakeRelativeUri(uriOther).ToString();
+						module = module.Substring(0, module.Length - 3);
+						if(module[0] != '.') {
+							module = "./" + module;
+						}
+						var alias = context.GetAliasByModule(module);
+						result.OriginalName = $"{alias}.{result.OriginalName}";
 					}
 				}
 				//When inheriting from another generic model
@@ -164,7 +187,8 @@ namespace WebTyped {
 				var parentName = parent.Name;
 				//Adjust to check prerequisites
 				if (Service.IsService(parent)) {
-					parentName = parentName.Replace("Controller", "Service");
+					//parentName = parentName.Replace("Controller", "Service");
+					parentName = parentName.Replace("Controller", Options.ServiceSuffix);
 				}
 				//For now, we'll just check if ends with "Controller" suffix
 				//if (parentName.EndsWith("Controller")) {
@@ -274,13 +298,21 @@ namespace WebTyped {
 					return "void";
 				case "System.Threading.Tasks.Task<TResult>":
 					return "";
-				case "System.Collections.Generic.KeyValuePair<TKey, TValue>":
-					var keyType = Resolve(original.TypeArguments[0], context, useTupleAltNames).Name;
-					var valType = Resolve(original.TypeArguments[1], context, useTupleAltNames).Name;
-					return Options.KeepPropsCase ?
-					$"{{ Key: {keyType}, Value: {valType} }}"
-					: $"{{ key: {keyType}, value: {valType} }}";
-				//default: return typeName;
+				case "System.Collections.Generic.KeyValuePair<TKey, TValue>": {
+						var keyType = Resolve(original.TypeArguments[0], context, useTupleAltNames).Name;
+						var valType = Resolve(original.TypeArguments[1], context, useTupleAltNames).Name;
+						return Options.KeepPropsCase ?
+						$"{{ Key: {keyType}, Value: {valType} }}"
+						: $"{{ key: {keyType}, value: {valType} }}";
+					}
+				case "System.Collections.Generic.Dictionary<TKey, TValue>": {
+						var keyType = Resolve(original.TypeArguments[0], context, useTupleAltNames).Name;
+						var valType = Resolve(original.TypeArguments[1], context, useTupleAltNames).Name;
+						if(keyType == "string" || keyType == "number") {
+							return $"{{ [key: {keyType}]: {valType} }}";
+						}
+						goto default;
+					}
 				default: return $"any/*{constructedFrom}*/";
 			}
 		}
@@ -308,26 +340,46 @@ namespace WebTyped {
 			}
 
 			//Create index for each module folder
-			var serviceModules = Services
+			IEnumerable<ITsFile> moduledFiles = Services;
+			//if(Options.TypingsScope == TypingsScope.Module) {
+				moduledFiles = moduledFiles.Union(Models);
+			//}
+			var typeModules = moduledFiles
 				.GroupBy(s => s.Module)
 				.Distinct()
 				.OrderBy(g => g.Key);
 			var counter = 0;
 			var services = new List<string>();
-			foreach (var sm in serviceModules) {
-				sbRootIndex.AppendLine($"import * as mdl{counter} from './{sm.Key.ToCamelCase()}'");
-				var sbServiceIndex = string.IsNullOrEmpty(sm.Key) ? sbRootIndex : new StringBuilder();
-				foreach (var s in sm.OrderBy(s => s.ClassName)) {
-					sbServiceIndex.AppendLine($"export * from './{s.FilenameWithoutExtenstion}';");
-					services.Add($"mdl{counter}.{s.ClassName}");
+			foreach (var tm in typeModules) {
+				var isRoot = string.IsNullOrEmpty(tm.Key);
+				var sbTypeIndex = isRoot ? sbRootIndex : new StringBuilder();
+				var hasService = false;
+				foreach (var t in tm.OrderBy(t => t.ClassName)) {
+					sbTypeIndex.AppendLine($"export * from './{t.FilenameWithoutExtenstion}';");
+					if (t is Service) {
+						if (!isRoot) {
+							services.Add($"mdl{counter}.{t.ClassName}");
+						}
+						else {
+							services.Add(t.ClassName);
+							sbRootIndex.AppendLine($"import {{ {t.ClassName} }} from './{t.FilenameWithoutExtenstion}';");
+						}
+						hasService = true;
+					}
+				}
+				
+				if (!string.IsNullOrEmpty(tm.Key)) {
+					var typesDir = Path.Combine(Options.OutDir, tm.Key.ToCamelCase());
+					var typesIndexFile = Path.Combine(typesDir, "index.ts");
+					outputManager(typesIndexFile, sbTypeIndex.ToString());
 				}
 
-				if (!string.IsNullOrEmpty(sm.Key)) {
-					var servicesDir = Path.Combine(Options.OutDir, sm.Key.ToCamelCase());
-					var serviceIndexFile = Path.Combine(servicesDir, "index.ts");
-					outputManager(serviceIndexFile, sbServiceIndex.ToString());
+				if (hasService) {
+					if (!isRoot) {
+						sbRootIndex.AppendLine($"import * as mdl{counter} from './{tm.Key.ToCamelCase()}'");
+					}
+					counter++;
 				}
-				counter++;
 			}
 			sbRootIndex.AppendLine("export var serviceTypes = [");
 			sbRootIndex.AppendLine(1, string.Join($",{System.Environment.NewLine}	", services));
@@ -365,7 +417,10 @@ namespace WebTyped {
 		}
 
 		public async Task SaveAllAsync() {
-			var currentFiles = Directory.GetFiles(Options.OutDir, "*.ts", SearchOption.AllDirectories);
+			var currentFiles =
+				Directory.Exists(Options.OutDir) ?
+				Directory.GetFiles(Options.OutDir, "*.ts", SearchOption.AllDirectories)
+				: new string[0];
 			List<Task<string>> tasks = new List<Task<string>>();
 			Process((file, content) => tasks.Add(FileHelper.WriteAsync(file, content)));
 			if (Options.Clear) {

@@ -216,13 +216,7 @@ namespace WebTyped.Cli {
 					}));
 			}
 
-			var options = new Options(config.OutDir,
-				config.Clear,
-				config.ServiceMode,
-				config.Trims ?? new string[0],
-				config.BaseModule,
-				config.KeepPropsCase,
-				config.KeysAndNames);
+			var options = config.ToOptions();
 
 			foreach (var task in tasks) { await task; }
 			var gen = new Generator(trees.Values, options);
@@ -233,14 +227,5 @@ namespace WebTyped.Cli {
 		}
 	}
 
-	public class Config {
-		public IEnumerable<string> Files { get; set; }
-		public IEnumerable<string> Trims { get; set; }
-		public string OutDir { get; set; }
-		public bool Clear { get; set; } = true;
-		public ServiceMode ServiceMode { get; set; } = ServiceMode.Fetch;
-		public string BaseModule { get; set; }
-		public bool KeepPropsCase { get; set; }
-		public bool KeysAndNames { get; set; }
-	}
+	
 }

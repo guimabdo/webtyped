@@ -8,6 +8,10 @@ namespace WebTyped {
 	public static class FileHelper {
 		public const string Mark = "//*Generated with WebTyped*\r\n";
 		public static async Task<string> WriteAsync(string file, string content) {
+			//Guarantee directory creation
+			var fileInfo = new FileInfo(file);
+			fileInfo.Directory.Create();
+			
 			content = Mark + content;
 			string currentContent = null;
 			if (File.Exists(file)) {

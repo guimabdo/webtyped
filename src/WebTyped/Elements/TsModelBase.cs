@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,14 +15,16 @@ namespace WebTyped.Elements {
 		public Options Options { get; private set; }
 		//public string ClassName { get; set; }
 
-		public string ClassName { get {
+		public string ClassName {
+			get {
 				if (TypeSymbol.TypeArguments.Any()) {
 					//if (TypeSymbol.TypeArguments.Any()) {
 					//	// fileNameCore += $"_of_{string.Join('_', TypeSymbol.TypeArguments.Select(ta => ta.Name))}";
 					//	fileNameCore += $"Of{TypeSymbol.TypeArguments.Count()}";
 					//}
 					return $"{TypeSymbol.Name}Of{TypeSymbol.TypeArguments.Count()}";
-				} else {
+				}
+				else {
 					return TypeSymbol.Name;
 				}
 			}
@@ -29,11 +32,19 @@ namespace WebTyped.Elements {
 
 		public string FullName {
 			get {
-				if (string.IsNullOrEmpty(Module)) { return ClassName; }
-				return $"{Module}.{ClassName}";
+				return ClassName;
+				//if(Options.TypingsScope == TypingsScope.Module) { return ClassName; }
+				//if (string.IsNullOrEmpty(Module)) { return ClassName; }
+				//return $"{Module}.{ClassName}";
 			}
 		}
 
+		public string ModuleCamel {
+			get {
+				//return string.Join('.', Module.Split('.').Select(s => s.ToCamelCase()));
+				return Module.ToCamelCase();
+			}
+		}
 
 		public string Module {
 			get {
@@ -81,16 +92,30 @@ namespace WebTyped.Elements {
 		//		return $"{Module}.{TypeSymbol.Name}";
 		//	}
 		//}
-
-		string FilenameWithoutExtenstion {
+		public string OutputFilePath {
 			get {
-				var fileNamePart = ClassName.ToCamelCase();
-				//if (TypeSymbol.TypeArguments.Any()) {
-				//	// fileNameCore += $"_of_{string.Join('_', TypeSymbol.TypeArguments.Select(ta => ta.Name))}";
-				//	fileNameCore += $"Of{TypeSymbol.TypeArguments.Count()}";
+				//if (Options.TypingsScope == TypingsScope.Module) {
+				//	return Path.Combine(Options.OutDir, ModuleCamel, Filename);
 				//}
-				if (string.IsNullOrEmpty(Module)) { return $"{fileNamePart}.d"; }
-				return $"{Module}.{fileNamePart}.d";
+				//return Path.Combine(Options.TypingsDir, Filename);
+				return Path.Combine(Options.OutDir, ModuleCamel, Filename);
+			}
+		}
+
+		public string FilenameWithoutExtenstion {
+			get {
+				//if(Options.TypingsScope == TypingsScope.Module) {
+				//	return ClassName.ToCamelCase();
+				//}
+
+				//var fileNamePart = ClassName.ToCamelCase();
+				////if (TypeSymbol.TypeArguments.Any()) {
+				////	// fileNameCore += $"_of_{string.Join('_', TypeSymbol.TypeArguments.Select(ta => ta.Name))}";
+				////	fileNameCore += $"Of{TypeSymbol.TypeArguments.Count()}";
+				////}
+				//if (string.IsNullOrEmpty(Module)) { return $"{fileNamePart}.d"; }
+				//return $"{Module}.{fileNamePart}.d";
+				return ClassName.ToCamelCase();
 			}
 		}
 
@@ -112,73 +137,112 @@ namespace WebTyped.Elements {
 		}
 
 		protected void AppendKeysAndNames(StringBuilder sb) {
-			var hasModule = !string.IsNullOrEmpty(Module);
-			// bool shouldGenerateKeysAndNames = true;
-			if (Options.KeysAndNames) {
-				sb.AppendLine();
+			var level = 0;
+			sb.AppendLine();
+			sb.AppendLine($"export namespace {ClassName}$ {{");
+			level++;
 
-				#region names
-				sb.AppendLine("//// If you need some kind of 'nameof':");
-				//Name of the type
-				string constName;
-				if (hasModule) {
-					var splitted = Module.Split('.').ToList();
-					var last = splitted.Last();
-					splitted.RemoveAt(splitted.Count - 1);
-					sb.AppendLine($"declare namespace $wt.names{(splitted.Any() ? "." + string.Join('.', splitted) : "")} {{");
-					constName = $"${last}";
-				} else {
-					sb.AppendLine($"declare namespace $wt {{");
-					constName = "$names";
+			//Class name
+			sb.AppendLine(level, $"export const $ = '{ClassName}';");
+
+			//Members
+			var currentTypeSymbol = TypeSymbol;
+			var members = new List<ISymbol>();
+			do {
+				members.AddRange(currentTypeSymbol.GetMembers());
+				currentTypeSymbol = currentTypeSymbol.BaseType;
+			} while (currentTypeSymbol != null);
+
+			foreach (var m in members) {
+				if (m.Kind != SymbolKind.Field && m.Kind != SymbolKind.Property) {
+					continue;
 				}
-				sb.AppendLine(1, $@"const enum {constName} {{ {ClassName} = ""{ClassName}"" }}");
-				sb.AppendLine("}");
-
-				//Members names
-				sb.AppendLine();
-
-				sb.AppendLine($"declare namespace $wt.names{(hasModule ? ("." + Module) : "")} {{");
-				sb.AppendLine(1, $@"const enum ${ClassName} {{");
-				var currentTypeSymbol = TypeSymbol;
-				var members = new List<ISymbol>();
-				do {
-					members.AddRange(currentTypeSymbol.GetMembers());
-					currentTypeSymbol = currentTypeSymbol.BaseType;
-				} while (currentTypeSymbol != null);
-				foreach (var m in members) {
-					if (m.Kind != SymbolKind.Field && m.Kind != SymbolKind.Property) {
-						continue;
-					}
-					if (m.DeclaredAccessibility != Accessibility.Public) { continue; }
-					var name = m.Name;
-					if (!Options.KeepPropsCase && !((m as IFieldSymbol)?.IsConst).GetValueOrDefault()) {
-						name = name.ToCamelCase();
-					}
-					sb.AppendLine(2, $@"{name} = ""{name}"",");
+				if (m.DeclaredAccessibility != Accessibility.Public) { continue; }
+				var name = m.Name;
+				if (!Options.KeepPropsCase && !((m as IFieldSymbol)?.IsConst).GetValueOrDefault()) {
+					name = name.ToCamelCase();
 				}
-				sb.AppendLine(1, "}");
-				sb.AppendLine("}");
-				#endregion
-
-				#region keys
-				sb.AppendLine("//// If you need type lookup");
-				string interfaceName;
-				if (hasModule) {
-					var splitted = Module.Split('.').ToList();
-					var last = splitted.Last();
-					splitted.RemoveAt(splitted.Count - 1);
-					sb.AppendLine($"declare namespace $wt.types{(splitted.Any() ? "." + string.Join('.', splitted) : "")} {{");
-					interfaceName = $"{last}";
-				} else {
-					sb.AppendLine($"declare namespace $wt {{");
-					interfaceName = "types";
-				}
-				sb.AppendLine(1, $@"interface {interfaceName} {{ {ClassName} }}");
-				sb.AppendLine("}");
-				#endregion
+				sb.AppendLine(level, $"export const ${name} = '{name}';");
+				//sb.AppendLine(level, $"export namespace {name} {{");
+				//level++;
+				//sb.AppendLine(level, $"export const $nameof = '{name}';");
+				//level--;
+				//sb.AppendLine(level, "}");
+				// sb.AppendLine(2, $@"{name} = ""{name}"",");
 			}
 
+			level--;
+			sb.AppendLine("}");
 		}
+
+		//protected void AppendKeysAndNames(StringBuilder sb) {
+		//	var hasModule = !string.IsNullOrEmpty(Module);
+		//	// bool shouldGenerateKeysAndNames = true;
+		//	if (Options.KeysAndNames) {
+		//		sb.AppendLine();
+
+		//		#region names
+		//		sb.AppendLine("//// If you need some kind of 'nameof':");
+		//		//Name of the type
+		//		string constName;
+		//		if (hasModule) {
+		//			var splitted = Module.Split('.').ToList();
+		//			var last = splitted.Last();
+		//			splitted.RemoveAt(splitted.Count - 1);
+		//			sb.AppendLine($"declare namespace $wt.names{(splitted.Any() ? "." + string.Join('.', splitted) : "")} {{");
+		//			constName = $"${last}";
+		//		} else {
+		//			sb.AppendLine($"declare namespace $wt {{");
+		//			constName = "$names";
+		//		}
+		//		sb.AppendLine(1, $@"const enum {constName} {{ {ClassName} = ""{ClassName}"" }}");
+		//		sb.AppendLine("}");
+
+		//		//Members names
+		//		sb.AppendLine();
+
+		//		sb.AppendLine($"declare namespace $wt.names{(hasModule ? ("." + Module) : "")} {{");
+		//		sb.AppendLine(1, $@"const enum ${ClassName} {{");
+		//		var currentTypeSymbol = TypeSymbol;
+		//		var members = new List<ISymbol>();
+		//		do {
+		//			members.AddRange(currentTypeSymbol.GetMembers());
+		//			currentTypeSymbol = currentTypeSymbol.BaseType;
+		//		} while (currentTypeSymbol != null);
+		//		foreach (var m in members) {
+		//			if (m.Kind != SymbolKind.Field && m.Kind != SymbolKind.Property) {
+		//				continue;
+		//			}
+		//			if (m.DeclaredAccessibility != Accessibility.Public) { continue; }
+		//			var name = m.Name;
+		//			if (!Options.KeepPropsCase && !((m as IFieldSymbol)?.IsConst).GetValueOrDefault()) {
+		//				name = name.ToCamelCase();
+		//			}
+		//			sb.AppendLine(2, $@"{name} = ""{name}"",");
+		//		}
+		//		sb.AppendLine(1, "}");
+		//		sb.AppendLine("}");
+		//		#endregion
+
+		//		#region keys
+		//		sb.AppendLine("//// If you need type lookup");
+		//		string interfaceName;
+		//		if (hasModule) {
+		//			var splitted = Module.Split('.').ToList();
+		//			var last = splitted.Last();
+		//			splitted.RemoveAt(splitted.Count - 1);
+		//			sb.AppendLine($"declare namespace $wt.types{(splitted.Any() ? "." + string.Join('.', splitted) : "")} {{");
+		//			interfaceName = $"{last}";
+		//		} else {
+		//			sb.AppendLine($"declare namespace $wt {{");
+		//			interfaceName = "types";
+		//		}
+		//		sb.AppendLine(1, $@"interface {interfaceName} {{ {ClassName} }}");
+		//		sb.AppendLine("}");
+		//		#endregion
+		//	}
+
+		//}
 
 		//public abstract Task<string> SaveAsync();
 		public abstract (string file, string content)? GenerateOutput();
