@@ -138,7 +138,7 @@ namespace WebTyped {
 						if (props.Any()) {
 							this.SearchRelayFormat += ", ";
 						}
-						this.SearchRelayFormat += $"{string.Join(", ", outProps)}";
+						this.SearchRelayFormat += $"...({this.Name} ? {{{string.Join(", ", outProps)}}} : {{}})";
 
 					}
 				}
