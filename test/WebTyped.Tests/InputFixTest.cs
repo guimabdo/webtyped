@@ -11,6 +11,7 @@ namespace WebTyped.Tests {
 			await AssertOutput("Input1");
 		}
 
+
         [TestMethod]
         public async Task Input2ShouldBeFixed()
         {
