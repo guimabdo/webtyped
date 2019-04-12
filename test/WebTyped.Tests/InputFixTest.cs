@@ -15,7 +15,7 @@ namespace WebTyped.Tests {
         [TestMethod]
         public async Task Input2ShouldBeFixed()
         {
-            await AssertOutput("Input2", 1);
+            await AssertOutput("Input2", 2);
         }
 
         string Read(string file) {

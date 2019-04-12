@@ -14,6 +14,17 @@ namespace ComplexTypeQuery {
         {
             return null;
         }
+
+        [HttpGet]
+        public IQueryable<object> Query2([FromQuery]ComplexChildType obj = null)
+        {
+            return null;
+        }
+    }
+
+    public class ComplexChildType : ComplexType
+    {
+        public string Search { get; set; }
     }
 
     public class ComplexType
