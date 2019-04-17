@@ -27,7 +27,7 @@ export class MyService extends WebTypedClient {
 				parameters: { obj, _wtKind: 'Query2' }
 			},
 			``,
-			{ obj: { search: obj.search }, ...(obj ? {$skip: obj.skip, $take: obj.take, $orderby: obj.orderBy} : {}) }
+			{ ...(obj ? { obj: { search: obj.search } } : {}), ...(obj ? {$skip: obj.skip, $take: obj.take, $orderby: obj.orderBy} : {}) }
 		);
 	};
 }
