@@ -27,6 +27,7 @@ namespace WebTyped.Tests {
         string Read(string file) {
 			return File.ReadAllText($"../../../Inputs/{file}");
 		}
+
 		async Task AssertOutput(string file, int index = 0) {
 			var cs = Read($"{file}.cs");
 			var output = await TestHelpers.Generate(cs);
