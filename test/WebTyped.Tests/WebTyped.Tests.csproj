@@ -9,9 +9,11 @@
   <ItemGroup>
     <Compile Remove="Inputs\Input1.cs" />
     <Compile Remove="Inputs\Input2.cs" />
+    <Compile Remove="Inputs\Input3.cs" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Inputs\Input3.cs" />
     <None Include="Inputs\Input2.cs" />
     <None Include="Inputs\Input1.cs" />
   </ItemGroup>

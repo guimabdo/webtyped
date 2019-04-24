@@ -18,6 +18,12 @@ namespace WebTyped.Tests {
             await AssertOutput("Input2", 2);
         }
 
+        [TestMethod]
+        public async Task Input3ShouldNotThrowException()
+        {
+            await AssertOutput("Input3");
+        }
+
         string Read(string file) {
 			return File.ReadAllText($"../../../Inputs/{file}");
 		}

@@ -221,7 +221,13 @@ namespace WebTyped {
 				if (string.IsNullOrEmpty(tsTypeName)) {
 					tsTypeName = Resolve(type.TypeArguments[0], context, useTupleAltNames).Name;
 				} else {
-					genericPart = $"<{string.Join(", ", type.TypeArguments.Select(t => Resolve(t as INamedTypeSymbol, context, useTupleAltNames).Name))}>";
+                    var types = type.TypeArguments
+                        .Select(t => 
+                            t is INamedTypeSymbol ?
+                            /* When type is defined */
+                            Resolve(t as INamedTypeSymbol, context, useTupleAltNames).Name
+                            : t.Name /* When it is a generic param reference */ );
+					genericPart = $"<{string.Join(", ",types)}>";
 				}
 			}
 			//genericPart = genericPart.Replace("*", "");
