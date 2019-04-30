@@ -24,6 +24,13 @@ namespace WebTyped.Tests {
             await AssertOutput("Input3");
         }
 
+
+        [TestMethod]
+        public async Task Input4ShouldExportExternalTypeInIndex()
+        {
+            await AssertOutput("Input4", 2);
+        }
+
         string Read(string file) {
 			return File.ReadAllText($"../../../Inputs/{file}");
 		}

@@ -361,6 +361,13 @@ namespace WebTyped {
 				var sbTypeIndex = isRoot ? sbRootIndex : new StringBuilder();
 				var hasService = false;
 				foreach (var t in tm.OrderBy(t => t.ClassName)) {
+                    if(t is Model m)
+                    {
+                        if(m.ExternalType != null)
+                        {
+                            continue;
+                        }
+                    }
 					sbTypeIndex.AppendLine($"export * from './{t.FilenameWithoutExtenstion}';");
 					if (t is Service) {
 						if (!isRoot) {
