@@ -232,7 +232,8 @@ namespace WebTyped {
 
 				sb.AppendLine(level + 1, $"{methodName}: {ClassName}.{upperMethodName}Function = ({strParameters}) : {genericReturnType}<{returnTypeName}> => {{");
 				sb.AppendLine(level + 2, $"return this.invoke{httpMethod}({{");
-				sb.AppendLine(level + 4, $"kind: '{upperMethodName}',");
+                sb.AppendLine(level + 4, $"returnTypeName: '{returnTypeName}',");
+                sb.AppendLine(level + 4, $"kind: '{upperMethodName}',");
 				sb.AppendLine(level + 4, $"func: this.{methodName},");
 				//parameterResolutions.First().
 				sb.AppendLine(level + 4, $"parameters: {{ {string.Join(", ", parameterResolutions.Select(p => p.Name))}{(parameterResolutions.Any() ? ", " : "")}_wtKind: '{upperMethodName}' }}");
