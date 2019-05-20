@@ -50,11 +50,15 @@ export class WebTypedClient {
 		}
 
 		let data: any;
-		try {
-			data = await r.json();
+        try {
+            if (info.returnTypeName == 'string' && r.headers.get('content-type').indexOf('text/plain') == 0) {
+                data = await r.text();
+            } else {
+                data = await r.json();
+            }
 		} catch (err) {
-			if (err instanceof SyntaxError) {
-				data = undefined;
+            if (err instanceof SyntaxError) {
+                data = undefined;
 			}
 		}
 		var anyWebTyped = <any>WebTypedEventEmitter;
