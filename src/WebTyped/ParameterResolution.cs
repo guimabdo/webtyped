@@ -86,7 +86,15 @@ namespace WebTyped {
 				var props = new List<string>();
 				var outProps = new List<string>();
 				var hasModifications = false;
-				foreach (var m in parameterSymbol.Type.GetMembers()) {
+                List<ISymbol> members = new List<ISymbol>();
+                var t = parameterSymbol.Type;
+                while(t != null)
+                {
+                    members.AddRange(t.GetMembers());
+                    t = t.BaseType;
+                }
+
+				foreach (var m in members) {
 					if (m.Kind != SymbolKind.Field && m.Kind != SymbolKind.Property) {
 						continue;
 					}
@@ -132,13 +140,14 @@ namespace WebTyped {
 				if (hasModifications) {
 					this.SearchRelayFormat = "";
 					if (props.Any()) {
-						this.SearchRelayFormat = $"{this.FromName}: {{ {string.Join(", ", props)} }}";
+						this.SearchRelayFormat = $"...({this.Name} ? {{ {this.FromName}: {{ {string.Join(", ", props)} }} }} : {{}})";
 					}
 					if (outProps.Any()) {
 						if (props.Any()) {
+                            //Add comma
 							this.SearchRelayFormat += ", ";
 						}
-						this.SearchRelayFormat += $"{string.Join(", ", outProps)}";
+						this.SearchRelayFormat += $"...({this.Name} ? {{{string.Join(", ", outProps)}}} : {{}})";
 
 					}
 				}

@@ -11,14 +11,37 @@ namespace WebTyped.Tests {
 			await AssertOutput("Input1");
 		}
 
-		string Read(string file) {
+
+        [TestMethod]
+        public async Task Input2ShouldBeFixed()
+        {
+            await AssertOutput("Input2", 2);
+        }
+
+        [TestMethod]
+        public async Task Input3ShouldNotThrowException()
+        {
+            await AssertOutput("Input3");
+        }
+
+
+        [TestMethod]
+        public async Task Input4ShouldExportExternalTypeInIndex()
+        {
+            await AssertOutput("Input4", 2);
+        }
+
+        string Read(string file) {
 			return File.ReadAllText($"../../../Inputs/{file}");
 		}
 
-		async Task AssertOutput(string file) {
+		async Task AssertOutput(string file, int index = 0) {
 			var cs = Read($"{file}.cs");
 			var output = await TestHelpers.Generate(cs);
-			Assert.AreEqual(Read($"{file}-output.ts"), output.First().Value);
+			Assert.AreEqual(Read($"{file}-output.ts")
+                .Trim(), 
+                output.ElementAt(index).Value
+                .Trim());
 		}
 	}
 }

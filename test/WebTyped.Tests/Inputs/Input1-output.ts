@@ -1,30 +1,30 @@
 ﻿export interface ModelMetadata {
-	attributes: Array<any/*object*/>;
+	attributes?: Array<any/*object*/>;
 	isEnum: boolean;
 	isFlagsEnum: boolean;
 	isReadOnly: boolean;
 	isRequired: boolean;
 	order: number;
-	placeholder: string;
-	nullDisplayText: string;
+	placeholder?: string;
+	nullDisplayText?: string;
 	showForDisplay: boolean;
 	showForEdit: boolean;
-	simpleDisplayProperty: string;
-	templateHint: string;
+	simpleDisplayProperty?: string;
+	templateHint?: string;
 	isNullableValueType: boolean;
 	isCollectionType: boolean;
 	isEnumerableType: boolean;
 	isReferenceOrNullableType: boolean;
-	enumNamesAndValues: any/*System.Collections.Generic.IReadOnlyDictionary<TKey, TValue>*//*<string, string>*/;
-	name: string;
-	propertyName: string;
-	properties: Array<ModelMetadata>;
-	enumGroupedDisplayNamesAndValues: Array<{ key: any/*EnumGroupAndName*/, value: string }>;
-	displayName: string;
-	description: string;
-	dataTypeName: string;
+	enumNamesAndValues?: any/*System.Collections.Generic.IReadOnlyDictionary<TKey, TValue>*//*<string, string>*/;
+	name?: string;
+	propertyName?: string;
+	properties?: Array<ModelMetadata>;
+	enumGroupedDisplayNamesAndValues?: Array<{ key: any/*EnumGroupAndName*/, value: string }>;
+	displayName?: string;
+	description?: string;
+	dataTypeName?: string;
 	convertEmptyStringToNull: boolean;
-	displayFormatString: string;
+	displayFormatString?: string;
 }
 
 export namespace ModelMetadata$ {
