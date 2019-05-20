@@ -4,5 +4,5 @@ export interface WebTypedCallInfo<TParameters, TResult> {
 	parameters: TParameters,
 	result?: TResult;
     kind: string;
-    returnTypeName: 'string' | 'number' | 'boolean' | 'undefined' | 'object';
+    returnTypeName: string;
 }
