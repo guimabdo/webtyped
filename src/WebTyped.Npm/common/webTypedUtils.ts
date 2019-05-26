@@ -1,5 +1,5 @@
 ﻿export class WebTypedUtils {
-    private static addQueryParameterValue(path: string, val: any, result: { path: string, val: string }[]) {
+    private static addQueryParameterValue(path: string, val: any, result: { path: string, val: string }[], addedObjects: any[]) {
         //undefined dont add the parameter to the query
         if (val === undefined) { return; }
         //null add parameter with empty value
@@ -10,27 +10,30 @@
         //arrays
         if (Array.isArray(val)) {
             val.forEach((item, index) => {
-                WebTypedUtils.addQueryParameterValue(`${path}[${index}]`, item, result);
+                WebTypedUtils.addQueryParameterValue(`${path}[${index}]`, item, result, addedObjects);
             });
             return;
         }
         //complex objects
         if (typeof val === "object") {
-            WebTypedUtils.resolveQueryParameters(val, result, path);
+            WebTypedUtils.resolveQueryParameters(val, result, path, addedObjects);
             return;
         }
         //simple values
         result.push({ path, val });
     }
-    public static resolveQueryParameters(obj: any, result?: { path: string, val: string }[], parentField?: string) {
+    public static resolveQueryParameters(obj: any, result?: { path: string, val: string }[], parentField?: string, addedObjects?: any[]) {
         if (!result) { result = []; }
+        if (!addedObjects) { addedObjects = []; }
+        if (addedObjects.indexOf(obj) >= 0) { return result; }
+        addedObjects.push(obj);
         for (let field in obj) {
             var val = obj[field];
             var pathElements = [];
             if (parentField) { pathElements.push(parentField); }
             pathElements.push(field);
             var path = pathElements.join('.');
-            WebTypedUtils.addQueryParameterValue(path, val, result);
+            WebTypedUtils.addQueryParameterValue(path, val, result, addedObjects);
         }
         return result;
 
