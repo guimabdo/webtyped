@@ -24,8 +24,18 @@
     }
     public static resolveQueryParameters(obj: any, result?: { path: string, val: string }[], parentField?: string) {
         if (!result) { result = []; }
-        //Avoid overflow
-        if (result.length > 1000000) { return result; }
+        let limitLength = 16000;
+        let currentLength = 0;
+        for (let v of result) {
+            currentLength += v.path.length;
+            if (v.val) {
+                currentLength += v.val.length;
+            }
+            if (currentLength > limitLength) {
+                return result;
+            }
+        }
+
         for (let field in obj) {
             var val = obj[field];
             var pathElements = [];
