@@ -31,6 +31,12 @@ namespace WebTyped.Tests {
             await AssertOutput("Input4", 2);
         }
 
+        [TestMethod]
+        public async Task Input5GenericControllerShouldBeFixed()
+        {
+            await AssertOutput("Input5" ,2);
+        }
+
         string Read(string file) {
 			return File.ReadAllText($"../../../Inputs/{file}");
 		}

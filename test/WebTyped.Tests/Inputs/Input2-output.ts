@@ -12,6 +12,7 @@ export class MyService extends WebTypedClient {
 	}
 	query: MyService.QueryFunction = (obj?: extMdl0.ComplexType) : Observable<Array<any/*object*/>> => {
 		return this.invokeGet({
+				returnTypeName: 'Array<any/*object*/>',
 				kind: 'Query',
 				func: this.query,
 				parameters: { obj, _wtKind: 'Query' }
@@ -22,6 +23,7 @@ export class MyService extends WebTypedClient {
 	};
 	query2: MyService.Query2Function = (obj?: extMdl1.ComplexChildType) : Observable<Array<any/*object*/>> => {
 		return this.invokeGet({
+				returnTypeName: 'Array<any/*object*/>',
 				kind: 'Query2',
 				func: this.query2,
 				parameters: { obj, _wtKind: 'Query2' }
