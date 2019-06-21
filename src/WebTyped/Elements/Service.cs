@@ -101,6 +101,7 @@ namespace WebTyped {
 					break;
 			}
 			sb.AppendLine(level, $"export class {ClassName} extends WebTypedClient {{");
+            sb.AppendLine(level, $"        static readonly controllerName = '{TypeSymbol.Name}';");
 			switch (Options.ServiceMode) {
 				case ServiceMode.Angular:
 				case ServiceMode.Angular4:
