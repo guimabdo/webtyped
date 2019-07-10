@@ -12,6 +12,9 @@ namespace WebTyped.Functions {
 			Console.WriteLine("Creating generator");
 			var generator = new Generator(
 				model.Files.Select(f => f.Content),
+                new string[0],
+                new Package[0],
+                new string[0],
 				model.Config.ToOptions()
 
 			);
