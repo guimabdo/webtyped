@@ -7,6 +7,7 @@ import { WebTypedClient, WebTypedEventEmitterService } from '@guimabdo/webtyped-
 import { Observable } from 'rxjs';
 @Injectable()
 export class MyService extends WebTypedClient {
+        static readonly controllerName = 'MyController';
 	constructor(@Optional() @Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebTypedEventEmitterService)) eventEmitter: WebTypedEventEmitterService) {
 		super(baseUrl, 'api/my', httpClient, eventEmitter);
 	}

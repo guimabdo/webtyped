@@ -28,15 +28,10 @@ public class Test : ExternalModel {
                 new string[] {
                     @"..\..\..\..\ExternalLib\bin\Debug\netstandard2.0\ExternalLib.dll"
                 },
-                new Package[]
-                {
-                    new Package
-                    {
-                        Name = "Cblx.AspNetCore.ModelMetadataApi",
-                    }
-                },
+                new Package[0],
                 new string[] {
                     "ExternalLib.Models.*Model",
+                    "Cblx.*Model"
                 },
                 options);
             var output = await generator.GenerateOutputsAsync();

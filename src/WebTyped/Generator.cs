@@ -117,15 +117,39 @@ namespace Microsoft.AspNetCore.Mvc{
             {
                 if (File.Exists(path))
                 {
-                    externals.Add(MetadataReference.CreateFromFile(str));
+                    externals.Add(MetadataReference.CreateFromFile(path));
                 }
             }
 
+            //var nugetGlobalPackages = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+            //     ? "%userprofile%/.nuget/packages"
+            //     : "~/.nuget/packages";
+
+            var nugetGlobalPackages = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/.nuget/packages";
+
             foreach (var pkg in packages)
             {
-                var nugetGlobalPackages = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                    ? "%userprofile%/.nuget/packages"
-                    : "~/.nuget/packages";
+                var version = pkg.Version;
+
+                if (string.IsNullOrWhiteSpace(version))
+                {
+                    throw new Exception($"{pkg.Name} version not informed");
+                      //TODO: think of this feature....
+                     //Try to pick version from parent csproj
+                }
+
+                var pkgDir = $"{nugetGlobalPackages}/{pkg.Name}/{pkg.Version}";
+                var dllPaths = Directory.GetFiles(pkgDir, $"*.dll", SearchOption.AllDirectories);
+                var grouped = dllPaths.GroupBy(path => Path.GetFileName(path));
+                foreach(var g in grouped)
+                {
+                    externals.Add(MetadataReference.CreateFromFile(g.First()));
+                }
+
+                //if(dllPath != null)
+                //{
+                //    externals.Add(MetadataReference.CreateFromFile(dllPath));
+                //}
             }
 
             var compilation = CSharpCompilation.Create(
@@ -166,24 +190,44 @@ namespace Microsoft.AspNetCore.Mvc{
             var assembliesTypesMatcher = new Matcher();
             referenceTypes.ToList().ForEach(t => assembliesTypesMatcher.AddInclude(t));
             //var allSymbols = compilation.GetSymbolsWithName((str) => true);
+         
+
             foreach (var e in externals)
             {
                 
-                var ass = Assembly.LoadFile(Path.GetFullPath(e.FilePath));
+                //var ass = Assembly.ReflectionOnlyLoadFrom(Path.GetFullPath(e.FilePath));
                 var assSymbol = compilation.GetAssemblyOrModuleSymbol(e) as IAssemblySymbol;
-                var typeNames = ass.GetTypes().Select(t => t.FullName);
-                
-                foreach(var tn in typeNames)
+
+                //var tm = assSymbol.GlobalNamespace.GetTypeMembers();
+                var named = GetNamedTypeSymbols(assSymbol.GlobalNamespace);// assSymbol.GlobalNamespace.GetMembers().OfType<INamedTypeSymbol>();
+                var fullNames = named.Select(n => n.ToString().Split(" ").Last());
+                foreach(var fn in fullNames)
                 {
                     try
                     {
-                        if (assembliesTypesMatcher.Match(tn).HasMatches)
+                        if (assembliesTypesMatcher.Match(fn).HasMatches)
                         {
-                            namedTypeSymbols.Add(assSymbol.GetTypeByMetadataName(tn));
+                            namedTypeSymbols.Add(assSymbol.GetTypeByMetadataName(fn));
                         }
                     }
                     catch { }
                 }
+
+                //var named = assSymbol.GlobalNamespace.GetMembers().OfType<INamedTypeSymbol>();
+
+                //var typeNames = ass.GetTypes().Select(t => t.FullName);
+
+                //foreach(var tn in typeNames)
+                //{
+                //    try
+                //    {
+                //        if (assembliesTypesMatcher.Match(tn).HasMatches)
+                //        {
+                //            namedTypeSymbols.Add(assSymbol.GetTypeByMetadataName(tn));
+                //        }
+                //    }
+                //    catch { }
+                //}
             }
 
            
@@ -211,6 +255,24 @@ namespace Microsoft.AspNetCore.Mvc{
                 }
             }
             return typeResolver;
+        }
+
+        IEnumerable<INamedTypeSymbol> GetNamedTypeSymbols(INamespaceSymbol namespaceSymbol)
+        {
+            var result = new List<INamedTypeSymbol>();
+            foreach(var m in namespaceSymbol.GetMembers())
+            {
+                if(m is INamedTypeSymbol nts)
+                {
+                    result.Add(nts);
+                }
+
+                if(m is INamespaceSymbol ns)
+                {
+                    result.AddRange(GetNamedTypeSymbols(ns));
+                }
+            }
+            return result;
         }
 
         public async Task<Dictionary<string, string>> GenerateOutputsAsync()
