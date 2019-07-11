@@ -77,9 +77,12 @@ namespace WebTyped.Cli {
 							matcher.AddInclude(val);
 						}
 
-                        foreach(var ass in config.Assemblies)
+                        if (config.Assemblies != null)
                         {
-                            matcher.AddInclude(ass);
+                            foreach (var ass in config.Assemblies)
+                            {
+                                matcher.AddInclude(ass);
+                            }
                         }
 
 						string lastCheck = "";
