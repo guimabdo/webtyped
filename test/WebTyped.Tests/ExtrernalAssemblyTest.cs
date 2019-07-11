@@ -30,7 +30,7 @@ public class Test : ExternalModel {
                 },
                 new Package[0],
                 new string[] {
-                    "ExternalLib.Models.*Model",
+                    "ExternalLib.Models.*",
                     "Cblx.*Model"
                 },
                 options);

@@ -134,14 +134,14 @@ namespace Microsoft.AspNetCore.Mvc{
                 if (string.IsNullOrWhiteSpace(version))
                 {
                     throw new Exception($"{pkg.Name} version not informed");
-                      //TODO: think of this feature....
-                     //Try to pick version from parent csproj
+                    //TODO: think of this feature....
+                    //Try to pick version from parent csproj
                 }
 
                 var pkgDir = $"{nugetGlobalPackages}/{pkg.Name}/{pkg.Version}";
                 var dllPaths = Directory.GetFiles(pkgDir, $"*.dll", SearchOption.AllDirectories);
                 var grouped = dllPaths.GroupBy(path => Path.GetFileName(path));
-                foreach(var g in grouped)
+                foreach (var g in grouped)
                 {
                     externals.Add(MetadataReference.CreateFromFile(g.First()));
                 }
@@ -190,28 +190,44 @@ namespace Microsoft.AspNetCore.Mvc{
             var assembliesTypesMatcher = new Matcher();
             referenceTypes.ToList().ForEach(t => assembliesTypesMatcher.AddInclude(t));
             //var allSymbols = compilation.GetSymbolsWithName((str) => true);
-         
+
 
             foreach (var e in externals)
             {
-                
+
                 //var ass = Assembly.ReflectionOnlyLoadFrom(Path.GetFullPath(e.FilePath));
                 var assSymbol = compilation.GetAssemblyOrModuleSymbol(e) as IAssemblySymbol;
 
                 //var tm = assSymbol.GlobalNamespace.GetTypeMembers();
                 var named = GetNamedTypeSymbols(assSymbol.GlobalNamespace);// assSymbol.GlobalNamespace.GetMembers().OfType<INamedTypeSymbol>();
-                var fullNames = named.Select(n => n.ToString().Split(" ").Last());
-                foreach(var fn in fullNames)
+                //var fullNames = named.Select(n => n.ToString().Split(" ").Last());
+                foreach (var n in named)
                 {
                     try
                     {
-                        if (assembliesTypesMatcher.Match(fn).HasMatches)
+                        var fullName = n.ToString().Split(" ").Last();
+                        if (assembliesTypesMatcher.Match(fullName).HasMatches)
                         {
-                            namedTypeSymbols.Add(assSymbol.GetTypeByMetadataName(fn));
+                            namedTypeSymbols.Add(n);
                         }
                     }
                     catch { }
                 }
+
+                //foreach(var fn in fullNames)
+                //{
+                //    try
+                //    {
+                //        if (assembliesTypesMatcher.Match(fn).HasMatches)
+                //        {
+                //            var name = fn;
+
+                //            var nts = assSymbol.GetTypeByMetadataName(name);
+                //            namedTypeSymbols.Add(nts);
+                //        }
+                //    }
+                //    catch { }
+                //}
 
                 //var named = assSymbol.GlobalNamespace.GetMembers().OfType<INamedTypeSymbol>();
 
@@ -230,7 +246,7 @@ namespace Microsoft.AspNetCore.Mvc{
                 //}
             }
 
-           
+
 
 
             foreach (var tsk in tasks) { await tsk; }
@@ -260,14 +276,14 @@ namespace Microsoft.AspNetCore.Mvc{
         IEnumerable<INamedTypeSymbol> GetNamedTypeSymbols(INamespaceSymbol namespaceSymbol)
         {
             var result = new List<INamedTypeSymbol>();
-            foreach(var m in namespaceSymbol.GetMembers())
+            foreach (var m in namespaceSymbol.GetMembers())
             {
-                if(m is INamedTypeSymbol nts)
+                if (m is INamedTypeSymbol nts)
                 {
                     result.Add(nts);
                 }
 
-                if(m is INamespaceSymbol ns)
+                if (m is INamespaceSymbol ns)
                 {
                     result.AddRange(GetNamedTypeSymbols(ns));
                 }

@@ -2,9 +2,13 @@
 
 namespace ExternalLib.Models
 {
-    public class ExternalModel
+    public class ExternalModel<TKey>
     {
-        public int Id { get; set; }
+        public TKey Id { get; set; }
+    }
+
+    public class ExternalModel : ExternalModel<int>
+    {
         public string Name { get; set; }
     }
 }
