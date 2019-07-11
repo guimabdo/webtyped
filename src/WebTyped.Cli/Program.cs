@@ -152,9 +152,12 @@ namespace WebTyped.Cli {
 
             //Find dll files
             var assemblyMatcher = new Matcher();
-            foreach(var ass in config.Assemblies)
+            if (config.Assemblies != null)
             {
-                assemblyMatcher.AddInclude(ass);
+                foreach (var ass in config.Assemblies)
+                {
+                    assemblyMatcher.AddInclude(ass);
+                }
             }
             var dllFiles = assemblyMatcher.GetResultsInFullPath(Directory.GetCurrentDirectory());
             

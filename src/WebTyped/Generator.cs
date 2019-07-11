@@ -56,7 +56,7 @@ namespace WebTyped
             this._options = options;
             this.assemblies = assemblies ?? new string[0];
             this.referenceTypes = assembliesClasses ?? new string[0];
-            this.packages = packages;
+            this.packages = packages ?? new Package[0];
         }
 
         async Task<TypeResolver> PrepareAsync()
