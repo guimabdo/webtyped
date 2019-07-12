@@ -109,6 +109,7 @@ namespace Microsoft.AspNetCore.Mvc{
             //var webTypedAnnotations = MetadataReference.CreateFromFile(typeof(ClientTypeAttribute).Assembly.Location);
             var systemRuntime = MetadataReference.CreateFromFile(typeof(int).Assembly.Location);
             var linqExpressions = MetadataReference.CreateFromFile(typeof(IQueryable).Assembly.Location);
+            //Nullable
             var thisAssembly = MetadataReference.CreateFromFile(this.GetType().Assembly.Location);
 
             //External assemblies

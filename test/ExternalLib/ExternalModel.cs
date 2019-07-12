@@ -5,6 +5,8 @@ namespace ExternalLib.Models
     public class ExternalModel<TKey>
     {
         public TKey Id { get; set; }
+        public int? NullNumber1 { get; set; }
+        public bool? NullBool1 { get; set; }
     }
 
     public class ExternalModel : ExternalModel<int>
