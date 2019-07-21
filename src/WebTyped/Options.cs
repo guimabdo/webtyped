@@ -16,7 +16,10 @@ namespace WebTyped {
     public class Package
     {
         public string Name { get; set; }
+
         public string Version { get; set; }
+
+        public string Csproj { get; set; }
     }
 
 	//public enum TypingsScope {

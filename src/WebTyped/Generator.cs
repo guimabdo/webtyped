@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using WebTyped.Annotations;
 using WebTyped.Elements;
 
@@ -130,16 +131,33 @@ namespace Microsoft.AspNetCore.Mvc{
 
             foreach (var pkg in packages)
             {
-                var version = pkg.Version;
-
-                if (string.IsNullOrWhiteSpace(version))
+                if(string.IsNullOrWhiteSpace(pkg.Version) && string.IsNullOrWhiteSpace(pkg.Csproj))
                 {
                     throw new Exception($"{pkg.Name} version not informed");
-                    //TODO: think of this feature....
-                    //Try to pick version from parent csproj
+                }
+
+                var version = pkg.Version;
+                if (!string.IsNullOrWhiteSpace(pkg.Csproj))
+                {
+                    var reference = XDocument
+                        .Load(pkg.Csproj)
+                        .Descendants()
+                        .FirstOrDefault(d => d.Name.LocalName == "PackageReference" && d.Attribute("Include").Value == pkg.Name);
+
+                    if (reference != null)
+                    {
+                        version = reference.Attribute("Version").Value;
+                    }
                 }
 
                 var pkgDir = $"{nugetGlobalPackages}/{pkg.Name}/{pkg.Version}";
+
+                if (!Directory.Exists(pkgDir))
+                {
+                    Console.WriteLine($"Package {pkg.Name} not found");
+                    continue;
+                }
+
                 var dllPaths = Directory.GetFiles(pkgDir, $"*.dll", SearchOption.AllDirectories);
                 var grouped = dllPaths.GroupBy(path => Path.GetFileName(path));
                 foreach (var g in grouped)

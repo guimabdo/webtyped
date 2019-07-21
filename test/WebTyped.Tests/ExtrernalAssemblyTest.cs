@@ -24,11 +24,18 @@ public class Test : ExternalModel {
 }
 "
                 }
-                , 
+                ,
                 new string[] {
                     @"..\..\..\..\ExternalLib\bin\Debug\netstandard2.0\ExternalLib.dll"
                 },
-                new Package[0],
+                new Package[] {
+                    new Package
+                    {
+                        Name = "MSTest.TestFramework",
+                        Csproj = @"..\..\..\WebTyped.Tests.csproj"
+                        // Version = "1.1.18"
+                    }
+                },
                 new string[] {
                     "ExternalLib.Models.*",
                     "Cblx.*Model"
