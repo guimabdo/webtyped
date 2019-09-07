@@ -150,7 +150,7 @@ namespace Microsoft.AspNetCore.Mvc{
                     }
                 }
 
-                var pkgDir = $"{nugetGlobalPackages}/{pkg.Name}/{pkg.Version}";
+                var pkgDir = $"{nugetGlobalPackages}/{pkg.Name}/{version}";
 
                 if (!Directory.Exists(pkgDir))
                 {
