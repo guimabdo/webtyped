@@ -5,7 +5,9 @@ import { WebTypedEventEmitterService } from './webTypedEventEmitter.service';
 import { WebTypedInvoker } from '@guimabdo/webtyped-common';
 
 @NgModule({
-    imports:[ HttpClientModule ]
+    imports: [HttpClientModule],
+    exports: [HttpClientModule]
+    
 })
 export class WebTypedNgModule { 
     static forRoot(): ModuleWithProviders {
