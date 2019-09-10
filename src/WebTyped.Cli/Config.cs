@@ -19,7 +19,8 @@ namespace WebTyped.Cli
 
 		public bool Clear { get; set; } = true;
 
-		public ServiceMode ServiceMode { get; set; } = ServiceMode.Fetch;
+		//public ServiceMode ServiceMode { get; set; } = ServiceMode.Fetch;
+        public ClientType GenericReturnType { get; set; }
 
 		//public TypingsScope TypingsScope { get; set; } = TypingsScope.Global;
 		public string BaseModule { get; set; }
@@ -32,9 +33,10 @@ namespace WebTyped.Cli
 		public Options ToOptions() {
 			return new Options(OutDir,
 				Clear,
-				ServiceMode,
-				//TypingsScope,
-				Trims ?? new string[0],
+                GenericReturnType,
+                //ServiceMode,
+                //TypingsScope,
+                Trims ?? new string[0],
 				BaseModule,
 				KeepPropsCase,
 				//KeysAndNames,

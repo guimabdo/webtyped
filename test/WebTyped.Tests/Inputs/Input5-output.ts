@@ -1,36 +1,35 @@
 ﻿import * as extMdl0 from './cblxSignupResultModel';
 import * as extMdl1 from './cblxSignupModel';
-import { WebTypedCallInfo, WebTypedFunction } from '@guimabdo/webtyped-common';
-import { Injectable, Inject, forwardRef, Optional } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { WebTypedClient, WebTypedEventEmitterService } from '@guimabdo/webtyped-angular';
+import { WebTypedCallInfo, WebTypedFunction, WebTypedInvoker } from '@guimabdo/webtyped-common';
 import { Observable } from 'rxjs';
-@Injectable()
-export class CblxIdentityService extends WebTypedClient {
-        static readonly controllerName = 'CblxIdentityController';
-	constructor(@Optional() @Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebTypedEventEmitterService)) eventEmitter: WebTypedEventEmitterService) {
-		super(baseUrl, 'cblx-identity', httpClient, eventEmitter);
-	}
+export class CblxIdentityService {
+	static readonly controllerName = 'CblxIdentityController';
+	private api = 'cblx-identity';
+	constructor(private invoker: WebTypedInvoker) {}
 	signup: CblxIdentityService.SignupFunction = (model: extMdl1.CblxSignupModel) : Observable<extMdl0.CblxSignupResultModel> => {
-		return this.invokePost({
+		return this.invoker.invoke({
 				returnTypeName: 'extMdl0.CblxSignupResultModel',
 				kind: 'Signup',
 				func: this.signup,
 				parameters: { model, _wtKind: 'Signup' }
 			},
+			this.api,
 			`sign-up`,
+			`post`,
 			model,
 			undefined
 		);
 	};
 	resetPassword: CblxIdentityService.ResetPasswordFunction = (email: string) : Observable<void> => {
-		return this.invokePost({
+		return this.invoker.invoke({
 				returnTypeName: 'void',
 				kind: 'ResetPassword',
 				func: this.resetPassword,
 				parameters: { email, _wtKind: 'ResetPassword' }
 			},
+			this.api,
 			`password/reset`,
+			`post`,
 			email,
 			undefined
 		);

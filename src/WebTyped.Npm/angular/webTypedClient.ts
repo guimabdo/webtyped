@@ -26,24 +26,6 @@ export class WebTypedClient {
 	invokeDelete<TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>, action: string, search?: any): Observable<TResult> {
 		return this.invoke(info, action, 'delete', null, search);
 	}
-	private addObjectToQueryParams(params: HttpParams, val: any, parentName: string): HttpParams {
-		for (let i in val) {
-			var pathElements = [];
-			if (parentName) { pathElements.push(parentName); }
-			pathElements.push(i);
-			var path = pathElements.join('.');
-
-			let fVal = val[i];
-			if (typeof fVal === "object") {
-				this.addObjectToQueryParams(params, fVal, path);
-				continue;
-			} //Currently just getting first level of fields. TODO: See how asp.net webapi manage nested objects from uri and then adjust here
-			if (fVal === undefined) { continue; }
-			if (fVal === null) { fVal = ""; }
-			params = params.set(path, fVal);
-		}
-		return params;
-	}
 	private generateHttpParams(obj: any): HttpParams {
 		var params = WebTypedUtils.resolveQueryParameters(obj);
 		var httpParams = new HttpParams();

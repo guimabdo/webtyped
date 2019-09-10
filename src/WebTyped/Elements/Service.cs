@@ -70,51 +70,73 @@ namespace WebTyped {
 		public (string file, string content) GenerateOutput() {
 			var sb = new StringBuilder();
 			var context = new ResolutionContext(this);
-			sb.AppendLine("import { WebTypedCallInfo, WebTypedFunction } from '@guimabdo/webtyped-common';");
-			switch (Options.ServiceMode) {
-				case ServiceMode.Jquery:
-					sb.AppendLine("import { WebTypedClient } from '@guimabdo/webtyped-jquery';");
-					break;
-				case ServiceMode.Fetch:
-					sb.AppendLine("import { WebTypedClient } from '@guimabdo/webtyped-fetch';");
-					break;
-				case ServiceMode.Angular:
-				case ServiceMode.Angular4:
-				default:
-					sb.AppendLine("import { Injectable, Inject, forwardRef, Optional } from '@angular/core';");
-					sb.AppendLine("import { HttpClient } from '@angular/common/http';");
-					var ngV = Options.ServiceMode == ServiceMode.Angular4 ? "4" : "";
-					sb.AppendLine($"import {{ WebTypedClient, WebTypedEventEmitterService }} from '@guimabdo/webtyped-angular{ngV}';");
-					sb.AppendLine("import { Observable } from 'rxjs';");
-					break;
-			}
+			sb.AppendLine("import { WebTypedCallInfo, WebTypedFunction, WebTypedInvoker } from '@guimabdo/webtyped-common';");
+            string genericReturnType = "Promise";
+            if(Options.GenericReturnType != null)
+            {
+                if (!string.IsNullOrWhiteSpace(Options.GenericReturnType.Name)) { genericReturnType = Options.GenericReturnType.Name; }
+                if (!string.IsNullOrWhiteSpace(Options.GenericReturnType.Module))
+                {
+                    sb.AppendLine($"import {{ {Options.GenericReturnType.Name} }} from '{Options.GenericReturnType.Module}';");
+                }
+            }
+
+			//switch (Options.ServiceMode) {
+			//	case ServiceMode.Jquery:
+			//		sb.AppendLine("import { WebTypedClient } from '@guimabdo/webtyped-jquery';");
+			//		break;
+			//	case ServiceMode.Fetch:
+			//		sb.AppendLine("import { WebTypedClient } from '@guimabdo/webtyped-fetch';");
+			//		break;
+			//	case ServiceMode.Angular:
+			//	case ServiceMode.Angular4:
+			//	default:
+			//		sb.AppendLine("import { Injectable, Inject, forwardRef, Optional } from '@angular/core';");
+			//		sb.AppendLine("import { HttpClient } from '@angular/common/http';");
+			//		var ngV = Options.ServiceMode == ServiceMode.Angular4 ? "4" : "";
+			//		sb.AppendLine($"import {{ WebTypedClient, WebTypedEventEmitterService }} from '@guimabdo/webtyped-angular{ngV}';");
+			//		sb.AppendLine("import { Observable } from 'rxjs';");
+			//		break;
+			//}
 
 			var routeAttr = TypeSymbol.GetAttributes().FirstOrDefault(a => a.AttributeClass.Name == "Route" || a.AttributeClass.Name.ToString() == "RoutePrefix");
 
 			var arg = (routeAttr.ApplicationSyntaxReference.GetSyntax() as AttributeSyntax).ArgumentList.Arguments[0].ToString().Replace("\"", "");
 			var path = arg.Replace("[controller]", ControllerName.ToCamelCase());
 			int level = 0;
-			switch (Options.ServiceMode) {
-				case ServiceMode.Angular:
-				case ServiceMode.Angular4:
-					sb.AppendLine(level, "@Injectable()");
-					break;
-			}
-			sb.AppendLine(level, $"export class {ClassName} extends WebTypedClient {{");
-            sb.AppendLine(level, $"        static readonly controllerName = '{TypeSymbol.Name}';");
-			switch (Options.ServiceMode) {
-				case ServiceMode.Angular:
-				case ServiceMode.Angular4:
-					sb.AppendLine(level, $"	constructor(@Optional() @Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebTypedEventEmitterService)) eventEmitter: WebTypedEventEmitterService) {{");
-					sb.AppendLine(level, $@"		super(baseUrl, '{path}', httpClient, eventEmitter);");
-					break;
-				case ServiceMode.Fetch:
-				case ServiceMode.Jquery:
-					sb.AppendLine(level, $@"	constructor(baseUrl: string = WebTypedClient.baseUrl) {{");
-					sb.AppendLine(level, $@"		super(baseUrl, '{path}');");
-					break;
-			}
-			sb.AppendLine(level, "	}");
+
+            //switch (Options.ServiceMode) {
+            //	case ServiceMode.Angular:
+            //	case ServiceMode.Angular4:
+            //		sb.AppendLine(level, "@Injectable()");
+            //		break;
+            //}
+
+            //sb.AppendLine(level, $"export class {ClassName} extends WebTypedClient {{");
+            sb.AppendLine(level, $"export class {ClassName} {{");
+
+            sb.AppendLine(level, $"	static readonly controllerName = '{TypeSymbol.Name}';");
+            sb.AppendLine(level, $"	private api = '{path}';");
+
+            //switch (Options.ServiceMode) {
+            //	case ServiceMode.Angular:
+            //	case ServiceMode.Angular4:
+            //		sb.AppendLine(level, $"	constructor(@Optional() @Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebTypedEventEmitterService)) eventEmitter: WebTypedEventEmitterService) {{");
+            //		sb.AppendLine(level, $@"		super(baseUrl, '{path}', httpClient, eventEmitter);");
+            //		break;
+            //	case ServiceMode.Fetch:
+            //	case ServiceMode.Jquery:
+            //		sb.AppendLine(level, $@"	constructor(baseUrl: string = WebTypedClient.baseUrl) {{");
+            //		sb.AppendLine(level, $@"		super(baseUrl, '{path}');");
+            //		break;
+            //}
+
+            //sb.AppendLine(level, "	}");
+
+            sb.AppendLine(level, "	constructor(private invoker: WebTypedInvoker) {}");
+
+
+
 			var existingMethods = new Dictionary<string, int>();
 
 			List<string> typeAliases = new List<string>();
@@ -218,12 +240,12 @@ namespace WebTyped {
 				//	bodyParam = pendingParameters[0];
 				//	pendingParameters.RemoveAt(0);
 				//}
-				string genericReturnType;
-				switch (Options.ServiceMode) {
-					case ServiceMode.Jquery: genericReturnType = "JQuery.jqXHR"; break;
-					case ServiceMode.Fetch: genericReturnType = "Promise"; break;
-					case ServiceMode.Angular: case ServiceMode.Angular4: default: genericReturnType = "Observable"; break;
-				}
+				//string genericReturnType;
+				//switch (Options.ServiceMode) {
+				//	case ServiceMode.Jquery: genericReturnType = "JQuery.jqXHR"; break;
+				//	case ServiceMode.Fetch: genericReturnType = "Promise"; break;
+				//	case ServiceMode.Angular: case ServiceMode.Angular4: default: genericReturnType = "Observable"; break;
+				//}
 
 				var upperMethodName = methodName[0].ToString().ToUpper() + methodName.Substring(1);
 				typeAliases.Add($"export type {upperMethodName}Parameters = {{{strParameters}{(parameterResolutions.Any() ? ", " : "")}_wtKind: '{upperMethodName}' }};");
@@ -232,22 +254,31 @@ namespace WebTyped {
 				typeAliases.Add($"export interface {upperMethodName}Function extends WebTypedFunction<{upperMethodName}Parameters, {returnTypeName}>, {upperMethodName}FunctionBase {{}}");
 
 				sb.AppendLine(level + 1, $"{methodName}: {ClassName}.{upperMethodName}Function = ({strParameters}) : {genericReturnType}<{returnTypeName}> => {{");
-				sb.AppendLine(level + 2, $"return this.invoke{httpMethod}({{");
+                //sb.AppendLine(level + 2, $"return this.invoke{httpMethod}({{");
+                //            sb.AppendLine(level + 4, $"returnTypeName: '{returnTypeName}',");
+                //            sb.AppendLine(level + 4, $"kind: '{upperMethodName}',");
+                //sb.AppendLine(level + 4, $"func: this.{methodName},");
+                //sb.AppendLine(level + 4, $"parameters: {{ {string.Join(", ", parameterResolutions.Select(p => p.Name))}{(parameterResolutions.Any() ? ", " : "")}_wtKind: '{upperMethodName}' }}");
+                //sb.AppendLine(level + 3, "},");
+                //sb.AppendLine(level + 3, $"`{action}`,");
+                sb.AppendLine(level + 2, $"return this.invoker.invoke({{");
                 sb.AppendLine(level + 4, $"returnTypeName: '{returnTypeName}',");
                 sb.AppendLine(level + 4, $"kind: '{upperMethodName}',");
-				sb.AppendLine(level + 4, $"func: this.{methodName},");
-				//parameterResolutions.First().
-				sb.AppendLine(level + 4, $"parameters: {{ {string.Join(", ", parameterResolutions.Select(p => p.Name))}{(parameterResolutions.Any() ? ", " : "")}_wtKind: '{upperMethodName}' }}");
-				sb.AppendLine(level + 3, "},");
-				sb.AppendLine(level + 3, $"`{action}`,");
-				//Body
-				switch (httpMethod) {
+                sb.AppendLine(level + 4, $"func: this.{methodName},");
+                sb.AppendLine(level + 4, $"parameters: {{ {string.Join(", ", parameterResolutions.Select(p => p.Name))}{(parameterResolutions.Any() ? ", " : "")}_wtKind: '{upperMethodName}' }}");
+                sb.AppendLine(level + 3, "},");
+                sb.AppendLine(level + 3, $"this.api,");
+                sb.AppendLine(level + 3, $"`{action}`,");
+                sb.AppendLine(level + 3, $"`{httpMethod.ToLower()}`,");
+
+                //Body
+                switch (httpMethod) {
 					case "Put":
 					case "Patch":
 					case "Post":
 						sb.AppendLine(level + 3, $"{bodyParam},");
 						break;
-					default: break;
+					default: sb.AppendLine(level + 3, "undefined,"); break;
 				}
 				var search = pendingParameters.Any() ? $"{{ {string.Join(", ", pendingParameters.Select(pr => pr.SearchRelayFormat))} }}" : "undefined";
 				sb.AppendLine(level + 3, $"{search}");

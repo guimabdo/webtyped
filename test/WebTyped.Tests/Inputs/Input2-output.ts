@@ -1,35 +1,36 @@
 ﻿import * as extMdl0 from './complexType';
 import * as extMdl1 from './complexChildType';
-import { WebTypedCallInfo, WebTypedFunction } from '@guimabdo/webtyped-common';
-import { Injectable, Inject, forwardRef, Optional } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { WebTypedClient, WebTypedEventEmitterService } from '@guimabdo/webtyped-angular';
+import { WebTypedCallInfo, WebTypedFunction, WebTypedInvoker } from '@guimabdo/webtyped-common';
 import { Observable } from 'rxjs';
-@Injectable()
-export class MyService extends WebTypedClient {
-        static readonly controllerName = 'MyController';
-	constructor(@Optional() @Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebTypedEventEmitterService)) eventEmitter: WebTypedEventEmitterService) {
-		super(baseUrl, 'api/my', httpClient, eventEmitter);
-	}
+export class MyService {
+	static readonly controllerName = 'MyController';
+	private api = 'api/my';
+	constructor(private invoker: WebTypedInvoker) {}
 	query: MyService.QueryFunction = (obj?: extMdl0.ComplexType) : Observable<Array<any/*object*/>> => {
-		return this.invokeGet({
+		return this.invoker.invoke({
 				returnTypeName: 'Array<any/*object*/>',
 				kind: 'Query',
 				func: this.query,
 				parameters: { obj, _wtKind: 'Query' }
 			},
+			this.api,
 			``,
+			`get`,
+			undefined,
 			{ ...(obj ? {$skip: obj.skip, $take: obj.take, $orderby: obj.orderBy} : {}) }
 		);
 	};
 	query2: MyService.Query2Function = (obj?: extMdl1.ComplexChildType) : Observable<Array<any/*object*/>> => {
-		return this.invokeGet({
+		return this.invoker.invoke({
 				returnTypeName: 'Array<any/*object*/>',
 				kind: 'Query2',
 				func: this.query2,
 				parameters: { obj, _wtKind: 'Query2' }
 			},
+			this.api,
 			``,
+			`get`,
+			undefined,
 			{ ...(obj ? { obj: { search: obj.search } } : {}), ...(obj ? {$skip: obj.skip, $take: obj.take, $orderby: obj.orderBy} : {}) }
 		);
 	};

@@ -1,4 +1,4 @@
-version: '0.28.0'
+version: '0.29.0'
 image: Visual Studio 2017
 only_commits:
   message: /\[deploy\]/
@@ -65,17 +65,17 @@ build_script:
      npm install
      node node_modules/typescript/bin/tsc
      cd ../fetch
-     npm install
-     node node_modules/typescript/bin/tsc
+     #npm install
+     #node node_modules/typescript/bin/tsc
      cd ../jquery
-     npm install
-     node node_modules/typescript/bin/tsc
+     #npm install
+     #node node_modules/typescript/bin/tsc
      cd ../angular
-     npm install
-     node node_modules/typescript/bin/tsc
+     #npm install
+     #node node_modules/typescript/bin/tsc
      cd ../angular4
-     npm install
-     node node_modules/typescript/bin/tsc
+     #npm install
+     #node node_modules/typescript/bin/tsc
      cd ../../../
     }
 test: off
@@ -99,10 +99,10 @@ after_build:
     ECHO $env:NPM_TAG
     "//registry.npmjs.org/:_authToken=$env:npm_token`n" | out-file "$env:userprofile\.npmrc" -Encoding ASCII
     (Get-Content ./src/WebTyped.Npm/common/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/common/package.json
-    (Get-Content ./src/WebTyped.Npm/fetch/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/fetch/package.json
-    (Get-Content ./src/WebTyped.Npm/jquery/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/jquery/package.json
-    (Get-Content ./src/WebTyped.Npm/angular/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/angular/package.json
-    (Get-Content ./src/WebTyped.Npm/angular4/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/angular4/package.json
+    #(Get-Content ./src/WebTyped.Npm/fetch/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/fetch/package.json
+    #(Get-Content ./src/WebTyped.Npm/jquery/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/jquery/package.json
+    #(Get-Content ./src/WebTyped.Npm/angular/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/angular/package.json
+    #(Get-Content ./src/WebTyped.Npm/angular4/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/angular4/package.json
     (Get-Content ./src/WebTyped.Npm/cli/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/cli/package.json
     (Get-Content ./README.md) | Set-Content ./src/WebTyped.Npm/cli/README.md
     if ($env:DEPLOY_CLASSES -eq $true){
@@ -110,17 +110,17 @@ after_build:
       npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
       npm publish --tag $env:NPM_TAG
       cd ../fetch
-      npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
-      npm publish --tag $env:NPM_TAG
+      #npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
+      #npm publish --tag $env:NPM_TAG
       cd ../jquery
-      npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
-      npm publish --tag $env:NPM_TAG
+      #npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
+      #npm publish --tag $env:NPM_TAG
       cd ../angular
-      npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
-      npm publish --tag $env:NPM_TAG
+      #npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
+      #npm publish --tag $env:NPM_TAG
       cd ../angular4
-      npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
-      npm publish --tag $env:NPM_TAG
+      #npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
+      #npm publish --tag $env:NPM_TAG
       cd ../../../
     }
     if ($env:DEPLOY_CLI -eq $true){

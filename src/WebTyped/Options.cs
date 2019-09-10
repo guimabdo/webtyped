@@ -13,6 +13,13 @@ namespace WebTyped {
 		Fetch
 	}
 
+    public class ClientType
+    {
+        public string Name { get; set; }
+
+        public string Module { get; set; }
+    }
+
     public class Package
     {
         public string Name { get; set; }
@@ -35,26 +42,37 @@ namespace WebTyped {
 
 	public class Options {
 		public string OutDir { get; private set; }
+
 		//public string TypingsDir { get; private set; }
 		public bool Clear { get; private set; }
+
 		public IEnumerable<string> ModuleTrims { get; private set; }
+
 		public string BaseModule { get; private set; }
-		public ServiceMode ServiceMode { get; private set; }
+
+        public ClientType GenericReturnType { get; private set; }
+
+		//public ServiceMode ServiceMode { get; private set; }
+
 		//public TypingsScope TypingsScope { get; private set; }
+
 		public string ServiceSuffix { get; private set; }
 		//public bool KeysAndNames { get; set; }
 
 		//public bool GenerateKeys { get;  }
-		public bool IsAngular { get {
-				return ServiceMode == ServiceMode.Angular || ServiceMode == ServiceMode.Angular4;
-			}
-		}
+		//public bool IsAngular { get {
+		//		return ServiceMode == ServiceMode.Angular || ServiceMode == ServiceMode.Angular4;
+		//	}
+		//}
+
 		public bool KeepPropsCase { get; private set; }
 		public Options(string outDir,
 			bool clear,
-			ServiceMode serviceMode,
+            ClientType genericReturnType,
+			//ServiceMode serviceMode,
 			//TypingsScope typingsScope,
-			IEnumerable<String> moduleTrims, string baseModule, 
+			IEnumerable<String> moduleTrims, 
+            string baseModule, 
 			bool keepPropsCase, 
 			//bool keysAndNames,
 			string serviceSuffix) {
@@ -68,10 +86,12 @@ namespace WebTyped {
 			//Directory.CreateDirectory(TypingsDir);
 			Clear = clear;
 			BaseModule = baseModule;
-			ServiceMode = serviceMode;
+			//ServiceMode = serviceMode;
 			//TypingsScope = typingsScope;
 			KeepPropsCase = keepPropsCase;
-			//KeysAndNames = keysAndNames;
+            //KeysAndNames = keysAndNames;
+
+            GenericReturnType = genericReturnType;
 		}
 
 		public string AdjustModule(string module) {

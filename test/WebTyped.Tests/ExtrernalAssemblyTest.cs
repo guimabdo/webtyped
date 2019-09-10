@@ -10,7 +10,13 @@ namespace WebTyped.Tests {
 		[TestMethod]
 		public async Task GenerateFromAssemblyTest() {
             var options = new Options(".\\", 
-                false, ServiceMode.Angular, 
+                false, 
+                //ServiceMode.Angular, 
+                new ClientType
+                {
+                    Name = "Observable",
+                    Module = "rxjs"
+                },
                 new string[0], "", 
                 false, 
                 null
