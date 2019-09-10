@@ -16,12 +16,12 @@
 		"type": "git",
 		"url": "git+https://github.com/guimabdo/WebTyped.git"
 	},
-	"peerDependencies": {
-		"rxjs": ">=6.0.0",
-		"@angular/core": ">=6.0.0",
-		"@angular/common": ">=6.0.0",
-		"@guimabdo/webtyped-common": "^latest"
-	},
+  "peerDependencies": {
+    "rxjs": ">=6.0.0",
+    "@angular/core": ">=6.0.0",
+    "@angular/common": ">=6.0.0",
+    "@guimabdo/webtyped-common": "^0.29.0-dev.158"
+  },
 	"devDependencies": {
 		"rxjs": "6.0.0",
 		"@angular/core": "6.0.0",
