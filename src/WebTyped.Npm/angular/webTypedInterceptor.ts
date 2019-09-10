@@ -15,8 +15,8 @@ export class WebTypedInterceptor implements HttpInterceptor {
         }
         //Force always application/json (otherwise contenttype will be text/plain for strings)
 		var headers = req.headers;
-		var currentContentType = headers.get("Content-Type");
-		if (!currentContentType && !(body instanceof FormData)) {
+        var currentContentType = headers.get("Content-Type");
+        if (!currentContentType && !(typeof FormData != 'undefined' && body instanceof FormData)) {
 			headers = headers.set("Content-Type", "application/json");
 		}
 

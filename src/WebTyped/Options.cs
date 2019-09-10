@@ -13,14 +13,29 @@ namespace WebTyped {
 		Fetch
 	}
 
+    public class Package
+    {
+        public string Name { get; set; }
+
+        public string Version { get; set; }
+
+        public string Csproj { get; set; }
+    }
+
 	//public enum TypingsScope {
 	//	Global,
 	//	Module
 	//}
 
+    //public class ExternalAssembly
+    //{
+    //    public string Path { get; set; }
+    //    public List<string> Classes { get; set; }
+    //}
+
 	public class Options {
 		public string OutDir { get; private set; }
-		public string TypingsDir { get; private set; }
+		//public string TypingsDir { get; private set; }
 		public bool Clear { get; private set; }
 		public IEnumerable<string> ModuleTrims { get; private set; }
 		public string BaseModule { get; private set; }
@@ -49,7 +64,7 @@ namespace WebTyped {
 				outDir = "./";//This works for linux and windows, .\\ will not work for linux 
 			}
 			OutDir = outDir;
-			TypingsDir = Path.Combine(outDir, "typings");
+			//TypingsDir = Path.Combine(outDir, "typings");
 			//Directory.CreateDirectory(TypingsDir);
 			Clear = clear;
 			BaseModule = baseModule;

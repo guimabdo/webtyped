@@ -1,4 +1,4 @@
-version: '0.27.2'
+version: '0.28.0'
 image: Visual Studio 2017
 only_commits:
   message: /\[deploy\]/

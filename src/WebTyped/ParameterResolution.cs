@@ -17,12 +17,20 @@ namespace WebTyped {
 		public bool Ignore { get; private set; }
 		public ParameterResolution(IParameterSymbol parameterSymbol, TypeResolver typeResolver, ResolutionContext context, Options options) {
 			var p = parameterSymbol;
-			var attrs = p.GetAttributes();
-			var hasNamedTupleAttr = attrs.Any(a => a.AttributeClass.Name == nameof(NamedTupleAttribute));
-			var res = typeResolver.Resolve(parameterSymbol.Type, context, hasNamedTupleAttr);
+            var type = p.Type;
+            //it it is generic type, try get some constraint type
+            var cTypes = (type as ITypeParameterSymbol)?.ConstraintTypes;
+            if (cTypes.HasValue)
+            {
+                type = cTypes.Value.First();
+            }
 
-			this.Name = parameterSymbol.Name;
-			this.FromName = parameterSymbol.Name;
+            var attrs = p.GetAttributes();
+			var hasNamedTupleAttr = attrs.Any(a => a.AttributeClass.Name == nameof(NamedTupleAttribute));
+			var res = typeResolver.Resolve(type, context, hasNamedTupleAttr);
+
+			this.Name = p.Name;
+			this.FromName = p.Name;
 			this.BodyRelayFormat = this.Name;
 			this.SearchRelayFormat = this.Name;
 			var fromAttr = attrs.FirstOrDefault(a => a.AttributeClass.Name.StartsWith("From"));
@@ -77,7 +85,7 @@ namespace WebTyped {
 			}
 
 			//Check if it is a Model being used to catch query/route parameters
-			if (parameterSymbol.Type.IsReferenceType) {
+			if (type.IsReferenceType) {
 				//var allProps = new List<string>();
 				////When FromRoute is used in a model it should be ignored in queries
 				//var ignoredQueryProps = new List<string>();
@@ -87,7 +95,7 @@ namespace WebTyped {
 				var outProps = new List<string>();
 				var hasModifications = false;
                 List<ISymbol> members = new List<ISymbol>();
-                var t = parameterSymbol.Type;
+                var t = type;
                 while(t != null)
                 {
                     members.AddRange(t.GetMembers());
@@ -172,12 +180,12 @@ namespace WebTyped {
 				}
 			}
 
-			if (TsEnum.IsEnum(p.Type)) {
+			if (TsEnum.IsEnum(type)) {
 				if (res.TsType != null && res.TsType is TsEnum) {
 					var enumNames = string
 						.Join(
 							" | ",
-							p.Type.GetMembers()
+							type.GetMembers()
 							.Where(m => m.Kind == SymbolKind.Field)
 							.Select(m => $"'{m.Name}'"));
 					if (!string.IsNullOrEmpty(enumNames)) {
@@ -185,8 +193,8 @@ namespace WebTyped {
 					}
 				}
 			}
-
-			this.Signature = $"{p.Name}{(p.IsOptional ? "?" : "")}: {typeName}" + (res.IsNullable ? " | null" : "");
+          
+            this.Signature = $"{p.Name}{(p.IsOptional ? "?" : "")}: {typeName}" + (res.IsNullable ? " | null" : "");
 			this.Ignore = p.GetAttributes().Any(a => a.AttributeClass.Name == "FromServices");
 		}
 

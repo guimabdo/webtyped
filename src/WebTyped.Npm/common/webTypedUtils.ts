@@ -20,10 +20,25 @@
             return;
         }
         //simple values
-        result.push({ path, val });
+        result.push({ path, val: val.toString() });
     }
     public static resolveQueryParameters(obj: any, result?: { path: string, val: string }[], parentField?: string) {
         if (!result) { result = []; }
+        let limitLength = 16000;
+        let currentLength = 0;
+        for (let v of result) {
+            if (v.path) {
+                currentLength += v.path.toString().length;
+            }
+            if (v.val) {
+                currentLength += v.val.toString().length;
+            }
+            if (currentLength > limitLength) {
+                return result;
+            }
+        }
+        //if (result.length > 6000) { return result; }
+        //console.log(currentLength);
         for (let field in obj) {
             var val = obj[field];
             var pathElements = [];

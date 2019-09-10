@@ -245,8 +245,9 @@ namespace WebTyped {
 			return (genericPart, tsTypeName);
 		}
 		public bool IsNullable(ITypeSymbol t) {
-			return (t as INamedTypeSymbol)?.ConstructedFrom?.ToString() == "System.Nullable<T>";
-		}
+            //return (t as INamedTypeSymbol)?.ConstructedFrom?.ToString() == "System.Nullable<T>";
+            return ((t as INamedTypeSymbol)?.ConstructedFrom?.ToString().StartsWith("System.Nullable<")).GetValueOrDefault();
+        }
 
 		string ToTsTypeName(INamedTypeSymbol original, ResolutionContext context, bool useTupleAltNames = false) {
 			if (IsNullable(original)) { return ""; }
@@ -300,6 +301,8 @@ namespace WebTyped {
 				case "System.Collections.Generic.ICollection<T>":
 				case "System.Linq.IQueryable<T>":
 					return "Array";
+                case "System.Object":
+                    return "any";
 				case "System.Threading.Tasks.Task":
 					return "void";
 				case "System.Threading.Tasks.Task<TResult>":

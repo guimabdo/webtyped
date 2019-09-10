@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2003
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.352
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{0F795EB6-F930-42A6-A16F-5297AEBE91CB}"
 EndProject
@@ -22,7 +22,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebTyped.Annotations", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebTyped.Cli", "src\WebTyped.Cli\WebTyped.Cli.csproj", "{6C735B44-60C3-4DDA-B308-623DA36E4A35}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebTyped.Functions", "WebTyped.Functions\WebTyped.Functions.csproj", "{FFDF857A-B7A7-4BAB-85C7-7F025843C184}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebTyped.Functions", "WebTyped.Functions\WebTyped.Functions.csproj", "{FFDF857A-B7A7-4BAB-85C7-7F025843C184}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExternalLib", "test\ExternalLib\ExternalLib.csproj", "{D8E54EB4-C7BC-4C3D-A2B7-1A658F127EA1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -54,6 +56,10 @@ Global
 		{FFDF857A-B7A7-4BAB-85C7-7F025843C184}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FFDF857A-B7A7-4BAB-85C7-7F025843C184}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FFDF857A-B7A7-4BAB-85C7-7F025843C184}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8E54EB4-C7BC-4C3D-A2B7-1A658F127EA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8E54EB4-C7BC-4C3D-A2B7-1A658F127EA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8E54EB4-C7BC-4C3D-A2B7-1A658F127EA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8E54EB4-C7BC-4C3D-A2B7-1A658F127EA1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -65,6 +71,7 @@ Global
 		{F4E47D05-8C52-4ED8-92C0-0C7CEAD1BBA4} = {0F795EB6-F930-42A6-A16F-5297AEBE91CB}
 		{6C735B44-60C3-4DDA-B308-623DA36E4A35} = {0F795EB6-F930-42A6-A16F-5297AEBE91CB}
 		{FFDF857A-B7A7-4BAB-85C7-7F025843C184} = {0F795EB6-F930-42A6-A16F-5297AEBE91CB}
+		{D8E54EB4-C7BC-4C3D-A2B7-1A658F127EA1} = {FE7DC3EF-7264-42F4-A942-5B034CE55658}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9B562F8C-30E8-4449-87E2-2CC1A712FF43}

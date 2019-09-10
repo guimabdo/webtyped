@@ -7,11 +7,13 @@ import { WebTypedClient, WebTypedEventEmitterService } from '@guimabdo/webtyped-
 import { Observable } from 'rxjs';
 @Injectable()
 export class MyService extends WebTypedClient {
+        static readonly controllerName = 'MyController';
 	constructor(@Optional() @Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebTypedEventEmitterService)) eventEmitter: WebTypedEventEmitterService) {
 		super(baseUrl, 'api/my', httpClient, eventEmitter);
 	}
 	query: MyService.QueryFunction = (obj?: extMdl0.ComplexType) : Observable<Array<any/*object*/>> => {
 		return this.invokeGet({
+				returnTypeName: 'Array<any/*object*/>',
 				kind: 'Query',
 				func: this.query,
 				parameters: { obj, _wtKind: 'Query' }
@@ -22,6 +24,7 @@ export class MyService extends WebTypedClient {
 	};
 	query2: MyService.Query2Function = (obj?: extMdl1.ComplexChildType) : Observable<Array<any/*object*/>> => {
 		return this.invokeGet({
+				returnTypeName: 'Array<any/*object*/>',
 				kind: 'Query2',
 				func: this.query2,
 				parameters: { obj, _wtKind: 'Query2' }

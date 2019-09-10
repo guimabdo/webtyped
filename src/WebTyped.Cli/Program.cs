@@ -77,6 +77,14 @@ namespace WebTyped.Cli {
 							matcher.AddInclude(val);
 						}
 
+                        if (config.Assemblies != null)
+                        {
+                            foreach (var ass in config.Assemblies)
+                            {
+                                matcher.AddInclude(ass);
+                            }
+                        }
+
 						string lastCheck = "";
 						//Observable.Timeout()
 						subscriber = Observable
@@ -98,44 +106,6 @@ namespace WebTyped.Cli {
 								await Execute();
 							}
 						});
-						//	var csFiles = matcher.GetResultsInFullPath("./");
-						//	Console.WriteLine(JsonConvert.SerializeObject(csFiles).Replace(",", System.Environment.NewLine));
-						//	var directories = csFiles.Select(cs => Path.GetDirectoryName(cs)).Distinct();
-						//	var observables = new List<IObservable<EventPattern<FileSystemEventArgs>>>();
-						//	foreach (var d in directories) {
-						//		Console.WriteLine("Watching " + d);
-						//		var watcher = new FileSystemWatcher(d) {
-						//			EnableRaisingEvents = true,
-						//			IncludeSubdirectories = true
-						//		};
-						//		var obs = Observable
-						//			.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
-						//				h => watcher.Changed += h,
-						//				h => watcher.Changed -= h);
-						//		observables.Add(obs);
-						//		obs = Observable
-						//			.FromEventPattern<RenamedEventHandler, FileSystemEventArgs>(
-						//				h => watcher.Renamed += h,
-						//				h => watcher.Renamed -= h);
-						//		observables.Add(obs);
-						//	}
-						//	subscriber = Observable.Merge(observables)
-						//		.Where(e2 => {
-						//			Console.WriteLine(e2.EventArgs.FullPath);
-						//			var files = GetFilePathsAsync().Result;
-						//			return files.Contains(e2.EventArgs.FullPath);
-						//		})
-						//		.StartWith(new List<EventPattern<FileSystemEventArgs>>() { null })
-						//		.Throttle(new TimeSpan(0, 0, 1))
-						//		.Subscribe(async e2 => {
-						//			if (e2 == null) {
-						//				Console.WriteLine($"Watch - first execution");
-						//			} else {
-						//				Console.WriteLine($"File(s) has changed");
-						//			}
-						//			await Execute();
-						//		});
-
 					});
 
 				//await Execute();
@@ -176,14 +146,25 @@ namespace WebTyped.Cli {
 			if (config.OutDir == null) {
 				config.OutDir = "webtyped";
 			}
+            //Find cs files
 			var matcher = new Matcher();
 			foreach (var val in config.Files) {
 				matcher.AddInclude(val);
 			}
 			var csFiles = matcher.GetResultsInFullPath(Directory.GetCurrentDirectory());
 
-
-			Console.WriteLine();
+            //Find dll files
+            var assemblyMatcher = new Matcher();
+            if (config.Assemblies != null)
+            {
+                foreach (var ass in config.Assemblies)
+                {
+                    assemblyMatcher.AddInclude(ass);
+                }
+            }
+            var dllFiles = assemblyMatcher.GetResultsInFullPath(Directory.GetCurrentDirectory());
+            
+            Console.WriteLine();
 			Console.WriteLine($" \u001b[1;36mWebTyped is processing files. Configs:\u001b[0m");
 			config.GetType().GetProperties().ToList().ForEach(p => {
 				var val = p.GetValue(config);
@@ -219,7 +200,11 @@ namespace WebTyped.Cli {
 			var options = config.ToOptions();
 
 			foreach (var task in tasks) { await task; }
-			var gen = new Generator(trees.Values, options);
+			var gen = new Generator(trees.Values, 
+                config.Assemblies,
+                config.Packages,
+                config.ReferenceTypes,
+                options);
 			await gen.WriteFilesAsync();
 			var dtEnd = DateTime.Now;
 			Console.WriteLine($"Time: {Math.Truncate((dtEnd - dtInit).TotalMilliseconds)}ms");
