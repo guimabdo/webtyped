@@ -113,6 +113,15 @@ namespace WebTyped {
             //}
 
             //sb.AppendLine(level, $"export class {ClassName} extends WebTypedClient {{");
+
+            if(Options.Inject?.BeforeServiceClass != null)
+            {
+                foreach(var line in Options.Inject.BeforeServiceClass)
+                {
+                    sb.AppendLine(line);
+                }
+            }
+
             sb.AppendLine(level, $"export class {ClassName} {{");
 
             sb.AppendLine(level, $"	static readonly controllerName = '{TypeSymbol.Name}';");

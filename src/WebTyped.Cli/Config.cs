@@ -15,6 +15,8 @@ namespace WebTyped.Cli
 
         public IEnumerable<string> Trims { get; set; }
 
+        public Inject Inject { get; set; }
+
 		public string OutDir { get; set; }
 
 		public bool Clear { get; set; } = true;
@@ -40,7 +42,7 @@ namespace WebTyped.Cli
 				BaseModule,
 				KeepPropsCase,
 				//KeysAndNames,
-				ServiceSuffix);
+				ServiceSuffix, Inject);
 		}
 	}
 }

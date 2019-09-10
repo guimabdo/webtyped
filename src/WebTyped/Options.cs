@@ -13,6 +13,12 @@ namespace WebTyped {
 		Fetch
 	}
 
+    public class Inject
+    {
+        public List<string> BeforeServiceClass { get; set; }
+    }
+
+
     public class ClientType
     {
         public string Name { get; set; }
@@ -52,6 +58,8 @@ namespace WebTyped {
 
         public ClientType GenericReturnType { get; private set; }
 
+        public Inject Inject { get; private set; }
+
 		//public ServiceMode ServiceMode { get; private set; }
 
 		//public TypingsScope TypingsScope { get; private set; }
@@ -75,7 +83,7 @@ namespace WebTyped {
             string baseModule, 
 			bool keepPropsCase, 
 			//bool keysAndNames,
-			string serviceSuffix) {
+			string serviceSuffix, Inject inject) {
 			this.ServiceSuffix = serviceSuffix ?? "Service";
 			ModuleTrims = moduleTrims.OrderByDescending(m => m.Length);
 			if (string.IsNullOrWhiteSpace(outDir)) {
@@ -92,6 +100,8 @@ namespace WebTyped {
             //KeysAndNames = keysAndNames;
 
             GenericReturnType = genericReturnType;
+
+            Inject = inject;
 		}
 
 		public string AdjustModule(string module) {

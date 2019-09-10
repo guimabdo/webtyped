@@ -17,6 +17,7 @@ namespace WebTyped.Tests {
                 },
                 new string[0], "", 
                 false, 
+                null,
                 null
             );
 			var generator = new Generator(
