@@ -1,9 +1,10 @@
 ﻿import { HttpClient, HttpParams } from '@angular/common/http';
-import { Optional, Inject } from '@angular/core';
+import { Optional, Inject, Injectable } from '@angular/core';
 import { WebTypedEventEmitterService } from './';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { WebTypedCallInfo, WebTypedUtils, WebTypedInvoker } from '@guimabdo/webtyped-common';
+@Injectable()
 export class WebTypedNgInvoker extends WebTypedInvoker {
 
     constructor(
@@ -14,21 +15,6 @@ export class WebTypedNgInvoker extends WebTypedInvoker {
 		super();
 	 }
 
-	invokeGet<TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>, action: string, search?: any): Observable<TResult> {
-		return this.invoke(info, action, 'get', null, search);
-	}
-	invokePatch<TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>, action: string, body?: any, search?: any): Observable<TResult> {
-		return this.invoke(info, action, 'patch', body, search);
-	}
-	invokePost<TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>, action: string, body?: any, search?: any): Observable<TResult> {
-		return this.invoke(info, action, 'post', body, search);
-	}
-	invokePut<TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>, action: string, body?: any, search?: any): Observable<TResult> {
-		return this.invoke(info, action, 'put', body, search);
-	}
-	invokeDelete<TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>, action: string, search?: any): Observable<TResult> {
-		return this.invoke(info, action, 'delete', null, search);
-	}
 	private generateHttpParams(obj: any): HttpParams {
 		var params = WebTypedUtils.resolveQueryParameters(obj);
 		var httpParams = new HttpParams();
