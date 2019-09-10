@@ -1,6 +1,8 @@
 ﻿import { NgModule, ModuleWithProviders } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { WebTypedNgInvoker } from './webTypedNgInvoker';
+import { WebTypedEventEmitterService } from './webTypedEventEmitter.service';
+import { WebTypedInvoker } from '@guimabdo/webtyped-common';
 
 @NgModule({
     imports:[ HttpClientModule ]
@@ -11,7 +13,10 @@ export class WebTypedNgModule {
 			ngModule: WebTypedNgModule,
 			providers: [
                 WebTypedEventEmitterService,
-                WebTypedNgInvoker
+                {
+                    provide: WebTypedInvoker,
+                    useClass: WebTypedNgInvoker
+                }
 			]
 		};
 	}
