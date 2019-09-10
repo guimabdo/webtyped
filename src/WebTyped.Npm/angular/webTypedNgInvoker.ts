@@ -1,15 +1,18 @@
 ﻿import { HttpClient, HttpParams } from '@angular/common/http';
+import { Optional, Inject } from '@angular/core';
 import { WebTypedEventEmitterService } from './';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { WebTypedCallInfo, WebTypedUtils } from '@guimabdo/webtyped-common';
-export class WebTypedClient {
+import { WebTypedCallInfo, WebTypedUtils, WebTypedInvoker } from '@guimabdo/webtyped-common';
+export class WebTypedNgInvoker extends WebTypedInvoker {
 
-	constructor(
-		private baseUrl: string,
-		private api: string,
+    constructor(
+		@Optional() @Inject('API_BASE_URL') private baseUrl: string,
 		private httpClient: HttpClient,
-		private eventEmitter: WebTypedEventEmitterService) { }
+		private eventEmitter: WebTypedEventEmitterService
+	) {
+		super();
+	 }
 
 	invokeGet<TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>, action: string, search?: any): Observable<TResult> {
 		return this.invoke(info, action, 'get', null, search);
@@ -32,24 +35,18 @@ export class WebTypedClient {
 		params.forEach(r => httpParams = httpParams.set(r.path, r.val));
 		return httpParams;
 	}
-	private invoke<TParameters, TResult>(info: WebTypedCallInfo<TParameters, TResult>, action: string,
-		httpMethod: string, body?: any, search?: any): Observable<TResult> {
+	
+	public invoke<TParameters, TResult>(
+		info: WebTypedCallInfo<TParameters, TResult>, 
+		api: string,
+		action: string,
+		httpMethod: string, 
+		body?: any, 
+		search?: any
+		): Observable<TResult> {
 		var httpClient = this.httpClient;
-		var url = WebTypedUtils.resolveActionUrl(this.baseUrl, this.api, action);
-
-		//var fData = "FormData";
-		//var isFormData = body && typeof (body) === fData;
-
-		////Creating headers
-		//var headers = new HttpHeaders();
-		//if (!isFormData) { // multiplart header is resolved by the browser
-		//    headers.set("Content-Type", "application/json");
-		//    //If not formadata, stringify
-		//    if (body) {
-		//        body = JSON.stringify(body);
-		//    }
-		//}
-
+		var url = WebTypedUtils.resolveActionUrl(this.baseUrl, api, action);
+	
 		//Creating options
 		var options: { params: undefined | HttpParams } = {
 			params: undefined

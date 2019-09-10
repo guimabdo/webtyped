@@ -1,4 +1,4 @@
-﻿import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse, HttpErrorResponse } from '@angular/common/http';
+﻿/*import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -47,4 +47,4 @@ export class WebTypedInterceptor implements HttpInterceptor {
 			return event;
 		}));
     }
-}
+}*/
