@@ -30,22 +30,26 @@ export class WebTypedNgInvoker extends WebTypedInvoker {
 		body?: any, 
 		search?: any
 		): Observable<TResult> {
-		var httpClient = this.httpClient;
-		var url = WebTypedUtils.resolveActionUrl(this.baseUrl, api, action);
+		let httpClient = this.httpClient;
+		let url = WebTypedUtils.resolveActionUrl(this.baseUrl, api, action);
 	
 		//Creating options
-		var options: { params: undefined | HttpParams } = {
-			params: undefined
-		};
+        let options: any = {};
 
 		if (search) {
 			options.params = this.generateHttpParams(search);
-		}
+        }
 
-		var httpObservable: Observable<TResult>;
+        if (body && typeof (body) === 'string') {
+            options.headers = { 'Content-Type': 'application/json' };
+            options.responseType = 'text';
+            body = JSON.stringify(body);
+        }
+
+		var httpObservable: Observable<any>;
 		switch (httpMethod) {
 			case 'get':
-				httpObservable = httpClient.get<TResult>(url, options);
+                httpObservable = httpClient.get<TResult>(url, options);
 				break;
 			case 'put':
 				httpObservable = httpClient.put<TResult>(url, body, options);
