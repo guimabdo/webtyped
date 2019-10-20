@@ -17,7 +17,8 @@ export class MyService {
 			``,
 			`get`,
 			undefined,
-			{ ...(obj ? {$skip: obj.skip, $take: obj.take, $orderby: obj.orderBy} : {}) }
+			{ ...(obj ? {$skip: obj.skip, $take: obj.take, $orderby: obj.orderBy} : {}) },
+			{"name":"Observable","module":"rxjs"}
 		);
 	};
 	query2: MyService.Query2Function = (obj?: extMdl1.ComplexChildType) : Observable<Array<any/*object*/>> => {
@@ -31,7 +32,8 @@ export class MyService {
 			``,
 			`get`,
 			undefined,
-			{ ...(obj ? { obj: { search: obj.search } } : {}), ...(obj ? {$skip: obj.skip, $take: obj.take, $orderby: obj.orderBy} : {}) }
+			{ ...(obj ? { obj: { search: obj.search } } : {}), ...(obj ? {$skip: obj.skip, $take: obj.take, $orderby: obj.orderBy} : {}) },
+			{"name":"Observable","module":"rxjs"}
 		);
 	};
 }

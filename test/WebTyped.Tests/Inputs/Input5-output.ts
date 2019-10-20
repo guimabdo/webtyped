@@ -17,7 +17,8 @@ export class CblxIdentityService {
 			`sign-up`,
 			`post`,
 			model,
-			undefined
+			undefined,
+			{"name":"Observable","module":"rxjs"}
 		);
 	};
 	resetPassword: CblxIdentityService.ResetPasswordFunction = (email: string) : Observable<void> => {
@@ -31,7 +32,8 @@ export class CblxIdentityService {
 			`password/reset`,
 			`post`,
 			email,
-			undefined
+			undefined,
+			{"name":"Observable","module":"rxjs"}
 		);
 	};
 }
