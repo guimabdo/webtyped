@@ -61,12 +61,9 @@ build_script:
      dotnet publish ./src/WebTyped.Cli -c Release -o ../WebTyped.Npm/cli/program
     }
     if ($env:DEPLOY_CLASSES -eq $true) {
-     cd ./src/WebTyped.Npm/fetch 
+     cd ./src/WebTyped.Npm/jquery
      npm install
      node node_modules/typescript/bin/tsc
-     cd ../jquery
-     #npm install
-     #node node_modules/typescript/bin/tsc
      cd ../../../
     }
 test: off
@@ -89,17 +86,13 @@ after_build:
     IF ($env:APPVEYOR_REPO_BRANCH -ne "master") {$env:NPM_TAG = $env:APPVEYOR_REPO_BRANCH} else {$env:NPM_TAG = "latest"}
     ECHO $env:NPM_TAG
     "//registry.npmjs.org/:_authToken=$env:npm_token`n" | out-file "$env:userprofile\.npmrc" -Encoding ASCII
-    (Get-Content ./src/WebTyped.Npm/fetch/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/fetch/package.json
-    #(Get-Content ./src/WebTyped.Npm/jquery/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/jquery/package.json
+    (Get-Content ./src/WebTyped.Npm/jquery/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/jquery/package.json
     (Get-Content ./src/WebTyped.Npm/cli/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/cli/package.json
     (Get-Content ./README.md) | Set-Content ./src/WebTyped.Npm/cli/README.md
     if ($env:DEPLOY_CLASSES -eq $true){
-      cd ./src/WebTyped.Npm/fetch 
+      cd ./src/WebTyped.Npm/jquery 
       npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
       npm publish --tag $env:NPM_TAG
-      cd ../jquery
-      #npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
-      #npm publish --tag $env:NPM_TAG
       cd ../../../
     }
     if ($env:DEPLOY_CLI -eq $true){

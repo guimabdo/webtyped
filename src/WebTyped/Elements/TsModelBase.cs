@@ -153,6 +153,8 @@ namespace WebTyped.Elements {
 				currentTypeSymbol = currentTypeSymbol.BaseType;
 			} while (currentTypeSymbol != null);
 
+            HashSet<string> appendedMembers = new HashSet<string>();
+
 			foreach (var m in members) {
 				if (m.Kind != SymbolKind.Field && m.Kind != SymbolKind.Property) {
 					continue;
@@ -162,6 +164,11 @@ namespace WebTyped.Elements {
 				if (!Options.KeepPropsCase && !((m as IFieldSymbol)?.IsConst).GetValueOrDefault()) {
 					name = name.ToCamelCase();
 				}
+
+                //Avoid dup
+                if (appendedMembers.Contains(name)) { continue; }
+
+                appendedMembers.Add(name);
 				sb.AppendLine(level, $"export const ${name} = '{name}';");
 				//sb.AppendLine(level, $"export namespace {name} {{");
 				//level++;
