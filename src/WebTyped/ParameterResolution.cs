@@ -151,6 +151,8 @@ namespace WebTyped {
                         //Ao mesmo tempo, isso é uma modelagem esquisita de api. Talvez devemos dar preferencia mesmo para a segunda opção
                         //onde fica tudo na "raiz". Além disso, não testei ainda o comportamento do asp.net quando multiplos parametros
                         //que clasheiam sujas props
+                        //O maior motivo, é que no caso de uma model que possui alguns itens na raiz, ficando ora model.coisa e $coisa2
+                        //por ex, o asp.net se perde em seu modelbinding, considerando apenas no model.<algo>.
                         //this.SearchRelayFormat = $"...({this.Name} ? {{ {this.FromName}: {{ {string.Join(", ", props)} }} }} : {{}})";
                         this.SearchRelayFormat = $"...({this.Name} ? {{ {string.Join(", ", props)} }} : {{}})";
                     }
