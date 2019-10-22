@@ -148,8 +148,9 @@ namespace WebTyped {
 				if (hasModifications) {
 					this.SearchRelayFormat = "";
 					if (props.Any()) {
-						this.SearchRelayFormat = $"...({this.Name} ? {{ {this.FromName}: {{ {string.Join(", ", props)} }} }} : {{}})";
-					}
+                        //this.SearchRelayFormat = $"...({this.Name} ? {{ {this.FromName}: {{ {string.Join(", ", props)} }} }} : {{}})";
+                        this.SearchRelayFormat = $"...({this.Name} ? {{ {string.Join(", ", props)} }} : {{}})";
+                    }
 					if (outProps.Any()) {
 						if (props.Any()) {
                             //Add comma

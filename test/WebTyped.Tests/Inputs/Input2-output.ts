@@ -32,7 +32,7 @@ export class MyService {
 			``,
 			`get`,
 			undefined,
-			{ ...(obj ? { obj: { search: obj.search } } : {}), ...(obj ? {$skip: obj.skip, $take: obj.take, $orderby: obj.orderBy} : {}) },
+			{ ...(obj ? { search: obj.search } : {}), ...(obj ? {$skip: obj.skip, $take: obj.take, $orderby: obj.orderBy} : {}) },
 			{"name":"Observable","module":"rxjs"}
 		);
 	};
