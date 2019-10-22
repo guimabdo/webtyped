@@ -146,6 +146,11 @@ namespace WebTyped {
 				if (hasModifications) {
 					this.SearchRelayFormat = "";
 					if (props.Any()) {
+                        //Pensar melhor, no asp.net podemos colocar como parametros varias models com props de nomes iguais. 
+                        //Por esse motivo fazemos o obj: {}
+                        //Ao mesmo tempo, isso é uma modelagem esquisita de api. Talvez devemos dar preferencia mesmo para a segunda opção
+                        //onde fica tudo na "raiz". Além disso, não testei ainda o comportamento do asp.net quando multiplos parametros
+                        //que clasheiam sujas props
                         //this.SearchRelayFormat = $"...({this.Name} ? {{ {this.FromName}: {{ {string.Join(", ", props)} }} }} : {{}})";
                         this.SearchRelayFormat = $"...({this.Name} ? {{ {string.Join(", ", props)} }} : {{}})";
                     }
