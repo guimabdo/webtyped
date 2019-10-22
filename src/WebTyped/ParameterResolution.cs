@@ -57,8 +57,6 @@ namespace WebTyped {
 								break;
 						}
 
-						//
-
 						break;
 				}
 				//if (attrs.Any(a => a.AttributeClass.Name.StartsWith("FromBody"))) {
