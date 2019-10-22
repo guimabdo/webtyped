@@ -38,6 +38,11 @@ namespace Cblx.AspNetCore.ModelMetadataApi.Models {
 				}
 			}
 		}
+
+        /// <summary>
+        /// Summary should be copied to output
+        /// Multi line
+        /// </summary>
 		[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
 		public List<Object> Attributes { get; set; }
 

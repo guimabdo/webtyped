@@ -58,6 +58,20 @@ namespace WebTyped {
 					var prop = m as IPropertySymbol;
 					var isNullable = TypeResolver.IsNullable(prop.Type) || !prop.Type.IsValueType;
 					var name = Options.KeepPropsCase ? m.Name : m.Name.ToCamelCase();
+
+                    var summary = prop.GetDocumentationCommentXml();
+                    if (!string.IsNullOrWhiteSpace(summary))
+                    {
+                        summary = summary.Split("<summary>").Last().Split("</summary>").First().Trim();
+                        sb.AppendLine(level + 1, "/**");
+                        var lines = summary.Split(System.Environment.NewLine);
+                        foreach(var l in lines)
+                        {
+                            sb.AppendLine(level + 1,$"*{l.Trim()}");
+                        }
+                        sb.AppendLine(level + 1, "**/");
+                    }
+
 					sb.AppendLine(level + 1, $"{name}{(isNullable ? "?" : "")}: {TypeResolver.Resolve(prop.Type, context).Name};");
 				}
 				sb.AppendLine(level, "}");

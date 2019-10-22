@@ -1,4 +1,8 @@
 ﻿export interface ModelMetadata {
+	/**
+	*Summary should be copied to output
+	*Multi line
+	**/
 	attributes?: Array<any/*object*/>;
 	isEnum: boolean;
 	isFlagsEnum: boolean;
