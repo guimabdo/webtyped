@@ -322,7 +322,7 @@ namespace WebTyped
                 sb.AppendLine(level + 1, "};");
             }
             sb.AppendLine(level, "}");
-            sb.AppendLine(level, $"export namespace {ClassName} {{");
+            sb.AppendLine(level, $"export declare namespace {ClassName} {{");
             typeAliases.ForEach(ta => sb.AppendLine(level + 1, ta));
             sb.AppendLine(level, "}");
             sb.Insert(0, context.GetImportsText());
