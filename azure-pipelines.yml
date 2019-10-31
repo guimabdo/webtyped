@@ -46,7 +46,6 @@ stages:
   displayName: Deploy stage
   jobs:
   - deployment: Deploy
-    condition: false
     environment: npm-guimabdo-webtyped
     displayName: NPM - @guimabdo/webtyped
     strategy:
