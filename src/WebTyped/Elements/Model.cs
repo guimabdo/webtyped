@@ -85,8 +85,11 @@ namespace WebTyped {
 			}
 
 			//Static part
-			if (hasConsts) {
-				//string modulePart = hasModule ? $"{Module}." : "";
+			if (hasConsts
+                //removing const support for now
+                //If we enable it again, we should merge these members with KeysAndNames...
+                && false 
+                ) {
 				//https://github.com/Microsoft/TypeScript/issues/17372
 				//Currently we can't merge namespaces and const enums.
 				//This is supposed to be a bug.

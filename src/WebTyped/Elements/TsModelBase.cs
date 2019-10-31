@@ -139,11 +139,11 @@ namespace WebTyped.Elements {
 		protected void AppendKeysAndNames(StringBuilder sb) {
 			var level = 0;
 			sb.AppendLine();
-			sb.AppendLine($"export namespace {ClassName}$ {{");
+			sb.AppendLine($"export class {ClassName}$ {{");
 			level++;
 
 			//Class name
-			sb.AppendLine(level, $"export const $ = '{ClassName}';");
+			sb.AppendLine(level, $"static readonly $ = '{ClassName}';");
 
 			//Members
 			var currentTypeSymbol = TypeSymbol;
@@ -169,7 +169,7 @@ namespace WebTyped.Elements {
                 if (appendedMembers.Contains(name)) { continue; }
 
                 appendedMembers.Add(name);
-				sb.AppendLine(level, $"export const ${name} = '{name}';");
+				sb.AppendLine(level, $"static readonly ${name} = '{name}';");
 				//sb.AppendLine(level, $"export namespace {name} {{");
 				//level++;
 				//sb.AppendLine(level, $"export const $nameof = '{name}';");
@@ -182,76 +182,6 @@ namespace WebTyped.Elements {
 			sb.AppendLine("}");
 		}
 
-		//protected void AppendKeysAndNames(StringBuilder sb) {
-		//	var hasModule = !string.IsNullOrEmpty(Module);
-		//	// bool shouldGenerateKeysAndNames = true;
-		//	if (Options.KeysAndNames) {
-		//		sb.AppendLine();
-
-		//		#region names
-		//		sb.AppendLine("//// If you need some kind of 'nameof':");
-		//		//Name of the type
-		//		string constName;
-		//		if (hasModule) {
-		//			var splitted = Module.Split('.').ToList();
-		//			var last = splitted.Last();
-		//			splitted.RemoveAt(splitted.Count - 1);
-		//			sb.AppendLine($"declare namespace $wt.names{(splitted.Any() ? "." + string.Join('.', splitted) : "")} {{");
-		//			constName = $"${last}";
-		//		} else {
-		//			sb.AppendLine($"declare namespace $wt {{");
-		//			constName = "$names";
-		//		}
-		//		sb.AppendLine(1, $@"const enum {constName} {{ {ClassName} = ""{ClassName}"" }}");
-		//		sb.AppendLine("}");
-
-		//		//Members names
-		//		sb.AppendLine();
-
-		//		sb.AppendLine($"declare namespace $wt.names{(hasModule ? ("." + Module) : "")} {{");
-		//		sb.AppendLine(1, $@"const enum ${ClassName} {{");
-		//		var currentTypeSymbol = TypeSymbol;
-		//		var members = new List<ISymbol>();
-		//		do {
-		//			members.AddRange(currentTypeSymbol.GetMembers());
-		//			currentTypeSymbol = currentTypeSymbol.BaseType;
-		//		} while (currentTypeSymbol != null);
-		//		foreach (var m in members) {
-		//			if (m.Kind != SymbolKind.Field && m.Kind != SymbolKind.Property) {
-		//				continue;
-		//			}
-		//			if (m.DeclaredAccessibility != Accessibility.Public) { continue; }
-		//			var name = m.Name;
-		//			if (!Options.KeepPropsCase && !((m as IFieldSymbol)?.IsConst).GetValueOrDefault()) {
-		//				name = name.ToCamelCase();
-		//			}
-		//			sb.AppendLine(2, $@"{name} = ""{name}"",");
-		//		}
-		//		sb.AppendLine(1, "}");
-		//		sb.AppendLine("}");
-		//		#endregion
-
-		//		#region keys
-		//		sb.AppendLine("//// If you need type lookup");
-		//		string interfaceName;
-		//		if (hasModule) {
-		//			var splitted = Module.Split('.').ToList();
-		//			var last = splitted.Last();
-		//			splitted.RemoveAt(splitted.Count - 1);
-		//			sb.AppendLine($"declare namespace $wt.types{(splitted.Any() ? "." + string.Join('.', splitted) : "")} {{");
-		//			interfaceName = $"{last}";
-		//		} else {
-		//			sb.AppendLine($"declare namespace $wt {{");
-		//			interfaceName = "types";
-		//		}
-		//		sb.AppendLine(1, $@"interface {interfaceName} {{ {ClassName} }}");
-		//		sb.AppendLine("}");
-		//		#endregion
-		//	}
-
-		//}
-
-		//public abstract Task<string> SaveAsync();
 		public abstract (string file, string content)? GenerateOutput();
 	}
 }

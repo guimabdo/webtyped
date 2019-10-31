@@ -31,6 +31,9 @@ stages:
         workingDirectory: src/WebTyped.Npm/cli
         displayName: Setting npm package version
 
+      - ps: (Get-Content ./README.md) | Set-Content ./src/WebTyped.Npm/cli/README.md
+        displayName: npm - updating README
+
       - script: npm pack
         workingDirectory: src/WebTyped.Npm/cli
         displayName: npm - packing
