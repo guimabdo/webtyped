@@ -14,6 +14,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "global", "global", "{C80BA096-A257-4256-8583-447B677CE88E}"
 	ProjectSection(SolutionItems) = preProject
 		appveyor.yml = appveyor.yml
+		azure-pipelines.yml = azure-pipelines.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebTyped.Npm", "src\WebTyped.Npm\WebTyped.Npm.csproj", "{12971191-24F8-4D37-AF11-CF5A1D339B0C}"
@@ -24,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebTyped.Cli", "src\WebType
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebTyped.Functions", "WebTyped.Functions\WebTyped.Functions.csproj", "{FFDF857A-B7A7-4BAB-85C7-7F025843C184}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExternalLib", "test\ExternalLib\ExternalLib.csproj", "{D8E54EB4-C7BC-4C3D-A2B7-1A658F127EA1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExternalLib", "test\ExternalLib\ExternalLib.csproj", "{D8E54EB4-C7BC-4C3D-A2B7-1A658F127EA1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

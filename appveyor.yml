@@ -26,32 +26,17 @@ install:
                                     $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[annotations]")-or
                                     $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[all]")
                                   )
-        $env:DEPLOY_CLI = (
-                            $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[cli]")-or
-                            $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[npm]")-or
-                            $env:APPVEYOR_REPO_COMMIT_MESSAGE.Contains("[all]")
-                           )
-        ECHO "STEP:INSTALL"
         ECHO "Annotations" $env:DEPLOY_ANNOTATIONS
-        ECHO "Cli" $env:DEPLOY_CLI
         Install-Product node $env:nodejs_version
 before_build:
   # Display .NET Core version
   - cmd: dotnet --version
   # Display minimal restore text
   - cmd: dotnet restore ./src/WebTyped/WebTyped.csproj --verbosity m
-  - node --version
-  - npm --version
 build_script:
   ps: |
-    ECHO "STEP:BUILD"
-    ECHO "Annotations" $env:DEPLOY_ANNOTATIONS
-    ECHO "Cli" $env:DEPLOY_CLI
     if ($env:DEPLOY_ANNOTATIONS -eq $true) {
      dotnet pack ./src/WebTyped.Annotations -c Release
-    }
-    if ($env:DEPLOY_CLI -eq $true) {
-     dotnet publish ./src/WebTyped.Cli -c Release -o ../WebTyped.Npm/cli/program
     }
 test: off
 artifacts:
@@ -64,20 +49,3 @@ deploy:
   artifact: nupkgAnnotations
   on:
     DEPLOY_ANNOTATIONS: true
-after_build:
-  ps: |
-    ECHO "STEP:AFTER_BUILD"
-    ECHO "Annotations" $env:DEPLOY_ANNOTATIONS
-    ECHO "Cli" $env:DEPLOY_CLI
-    ECHO "Classes" $env:DEPLOY_CLASSES
-    IF ($env:APPVEYOR_REPO_BRANCH -ne "master") {$env:NPM_TAG = $env:APPVEYOR_REPO_BRANCH} else {$env:NPM_TAG = "latest"}
-    ECHO $env:NPM_TAG
-    "//registry.npmjs.org/:_authToken=$env:npm_token`n" | out-file "$env:userprofile\.npmrc" -Encoding ASCII
-    (Get-Content ./src/WebTyped.Npm/cli/package.json) | ForEach-Object { $_ -replace "latest", "$env:APPVEYOR_BUILD_VERSION" } | Set-Content ./src/WebTyped.Npm/cli/package.json
-    (Get-Content ./README.md) | Set-Content ./src/WebTyped.Npm/cli/README.md
-    if ($env:DEPLOY_CLI -eq $true){
-      cd ./src/WebTyped.Npm/cli
-      npm version $env:APPVEYOR_BUILD_VERSION -m 'v$env:APPVEYOR_BUILD_VERSION'
-      npm publish --tag $env:NPM_TAG
-      cd ../../../
-    }
