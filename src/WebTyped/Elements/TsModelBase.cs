@@ -1,12 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using WebTyped.Annotations;
 
 namespace WebTyped.Elements {
 	public abstract class TsModelBase : ITsFile {
@@ -73,17 +69,28 @@ namespace WebTyped.Elements {
 			}
 		}
 
-		public (string name, string module)? ExternalType {
-			get {
-				var clientTypeAttr = TypeSymbol.GetAttributes().FirstOrDefault(a => a.AttributeClass.Name == nameof(ClientTypeAttribute));
+        public bool HasCustomMap {
+            get {
+                if(Options.CustomMap == null) { return false; }
+                return Options.CustomMap.ContainsKey(TypeSymbol.ConstructedFrom.ToString());
+            }
+        }
 
-				if (clientTypeAttr == null) { return null; }
-				var args = clientTypeAttr.ConstructorArguments.ToList();
-				var name = (args[0].Value ?? TypeSymbol.Name).ToString();
-				var module = args[1].Value != null ? args[1].Value.ToString() : null;
-				return (name, module);
-			}
-		}
+		//public (string name, string module)? ExternalType {
+		//	get {
+  //              //if(Options.CustomMap == null) { return null; }
+  //              //if (!Options.CustomMap.ContainsKey(TypeSymbol.ConstructedFrom.ToString())) { return null; }
+
+  //              //OBSOLETE (WebTyped.Attributes)
+		//		var clientTypeAttr = TypeSymbol.GetAttributes().FirstOrDefault(a => a.AttributeClass.Name == nameof(ClientTypeAttribute));
+
+		//		if (clientTypeAttr == null) { return null; }
+		//		var args = clientTypeAttr.ConstructorArguments.ToList();
+		//		var name = (args[0].Value ?? TypeSymbol.Name).ToString();
+		//		var module = args[1].Value != null ? args[1].Value.ToString() : null;
+		//		return (name, module);
+		//	}
+		//}
 
 
 		//string FullClassName {

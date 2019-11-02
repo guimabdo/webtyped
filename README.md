@@ -8,7 +8,6 @@
 ```
 npm install @guimabdo/webtyped -g
 npm install @guimabdo/webtyped-common
-npm install @guimabdo/webtyped-[fetch|jquery|angular|angular4]
 
 ```
 
@@ -20,13 +19,7 @@ Example:
 	"files": [
 		"../Controllers/**/*.cs",
 		"../Models/**/*.cs"
-	],
-	"outDir": "./webtyped/", //optional, default: "webtyped",
-	"serviceMode": "angular", //optional, default: "fetch", current options: "fetch", "angular", "angular4" or "jquery"
-	"trims": ["My.Namespace"], //optional
-	"baseModule": "WebApis", //optional
-	"keepPropsCase": false, //optional, default: false. May be useful with old versions of Asp.Net WebApi
-	"clear": true //optional, default: true. Delete typescript files that are not part of the current generation
+	]
 }
 
 ```
@@ -46,27 +39,61 @@ Use generated services wherever you want:
 
 ```typescript
 import { MyService } from './webtyped/<services-folder>';
-let myService = new MyService(); //Generated from MyController.cs
+import { WebTypedFetchInvoker } from "@guimabdo/webtyped-common";
+
+let inv = new WebTypedFetchInvoker(<api-base-url>);
+let myService = new MyService(inv); //Generated from MyController.cs
 myService.get().then(result => console.log(result));
 ```
 
 ### Angular
 
+```
+npm install @guimabdo/webtyped-angular
+
+```
+
 webtyped.json
-- serviceMode: "angular" for >=6.0.0
-- serviceMode: "angular4" for >=4.3.0 <6.0.0
+
+```javascript
+{
+	"files": [
+		"../Controllers/**/*.cs",
+		"../Models/**/*.cs"
+	],
+	"inject": {
+		"beforeServiceClass": [
+			"import { Injectable } from '@angular/core';",
+			"@Injectable({ providedIn: 'root' })"
+		]
+	},
+}
+```
 
 Import the generated module and inject services when needed:
 
 app.module.ts
 
 ```typescript
-import { WebTypedGeneratedModule } from './webtyped';
+
+import { WebTypedNgModule } from '@guimabdo/webtyped-angular';
 @NgModule({
-	imports: [WebTypedGeneratedModule.forRoot()]
+	imports: [
+		WebTypedNgModule.forRoot()
+	],
+	//Optionally set api base. Default is './'
+	providers: [
+		{
+			provide: 'API_BASE_URL',
+			useValue: '<url>'
+		}
+	]
 })
 export class AppModule {}
+
 ```
+
+Usage:
 
 some.component.ts (for example)
 ```typescript
@@ -80,48 +107,3 @@ export class SomeComponent {
 ## Requirements
 
 netcore 2.0 on dev machine
-
-# WebTyped.Annotations [![Latest version](https://img.shields.io/nuget/v/WebTyped.Annotations.svg)](https://www.nuget.org/packages/WebTyped.Annotations/)
-
-Attributes for changing services/models generator behaviour.
-
-### ClientTypeAttribute
-
-Use this attribute for mapping a Server Model to an existing Client Type so it won't be transpiled by the generator. 
-- typeName: correspondent client type name, or empty if it has the same name as the server type.
-- module: type module, leave it empty if the type is globally visible.
-
-Generated API services will know how to resolve the type.
-
-example:
-```C#
-[WebTyped.Annotations.ClientType(module: "primeng/components/common/selectitem")]
-public class SelectItem { 
-    public string Label { get; set; }
-    public long Value { get; set; }
-}
-```
-
-### NamedTupleAttribute
-
-Sometimes your application have lots of multiparameted webapis. Instead of creating a Model for each webapi method, you may want to use Named Tuples like this:
-
-```C#
-[HttpPost("")]
-public void Save([FromBody](name: string, birthdate: DateTime, somethingElse: number) parameters) {[
-    ...
-}
-```
-
-This will be transpiled to the client accordingly to .NET compiled tuple field names (Item1, Item2, Item3, ...), otherwise deserialization will not work when server receives the data. This will result in a non-friendly usage in client:
-
-```typescript
-myService.save({ item1: "John", item2: "2010-12-01", item3: 42});
-```
-
-Decorating the method parameter with NamedTuple attribute makes the generator create the client function parameter using the original field names. This function will change the parameter field names (to item1, item2...) before sending it to the server. So the usage becomes:
-
-```typescript
-myService.save({ name: "John", birthdate: "2010-12-01", somethingElse: 42});
-```
-

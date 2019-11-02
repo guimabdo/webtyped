@@ -19,6 +19,8 @@ namespace WebTyped.Cli
 
 		public string OutDir { get; set; }
 
+        public Dictionary<string, ClientType> CustomMap { get;set; }
+
 		public bool Clear { get; set; } = true;
 
 		//public ServiceMode ServiceMode { get; set; } = ServiceMode.Fetch;
@@ -33,16 +35,15 @@ namespace WebTyped.Cli
 		public string ServiceSuffix { get; set; }
 
 		public Options ToOptions() {
-			return new Options(OutDir,
-				Clear,
-                GenericReturnType,
-                //ServiceMode,
-                //TypingsScope,
-                Trims ?? new string[0],
-				BaseModule,
-				KeepPropsCase,
-				//KeysAndNames,
-				ServiceSuffix, Inject);
+			return new Options(OutDir) {
+                Clear = Clear,
+                GenericReturnType = GenericReturnType,
+                ModuleTrims = Trims ?? new string[0],
+                BaseModule = BaseModule,
+                KeepPropsCase = KeepPropsCase,
+				ServiceSuffix = ServiceSuffix,
+                Inject = Inject
+            };
 		}
 	}
 }

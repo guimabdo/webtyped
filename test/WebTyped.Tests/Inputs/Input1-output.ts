@@ -31,32 +31,32 @@
 	displayFormatString?: string;
 }
 
-export namespace ModelMetadata$ {
-	export const $ = 'ModelMetadata';
-	export const $attributes = 'attributes';
-	export const $isEnum = 'isEnum';
-	export const $isFlagsEnum = 'isFlagsEnum';
-	export const $isReadOnly = 'isReadOnly';
-	export const $isRequired = 'isRequired';
-	export const $order = 'order';
-	export const $placeholder = 'placeholder';
-	export const $nullDisplayText = 'nullDisplayText';
-	export const $showForDisplay = 'showForDisplay';
-	export const $showForEdit = 'showForEdit';
-	export const $simpleDisplayProperty = 'simpleDisplayProperty';
-	export const $templateHint = 'templateHint';
-	export const $isNullableValueType = 'isNullableValueType';
-	export const $isCollectionType = 'isCollectionType';
-	export const $isEnumerableType = 'isEnumerableType';
-	export const $isReferenceOrNullableType = 'isReferenceOrNullableType';
-	export const $enumNamesAndValues = 'enumNamesAndValues';
-	export const $name = 'name';
-	export const $propertyName = 'propertyName';
-	export const $properties = 'properties';
-	export const $enumGroupedDisplayNamesAndValues = 'enumGroupedDisplayNamesAndValues';
-	export const $displayName = 'displayName';
-	export const $description = 'description';
-	export const $dataTypeName = 'dataTypeName';
-	export const $convertEmptyStringToNull = 'convertEmptyStringToNull';
-	export const $displayFormatString = 'displayFormatString';
+export class ModelMetadata$ {
+	static readonly $ = 'ModelMetadata';
+	static readonly $attributes = 'attributes';
+	static readonly $isEnum = 'isEnum';
+	static readonly $isFlagsEnum = 'isFlagsEnum';
+	static readonly $isReadOnly = 'isReadOnly';
+	static readonly $isRequired = 'isRequired';
+	static readonly $order = 'order';
+	static readonly $placeholder = 'placeholder';
+	static readonly $nullDisplayText = 'nullDisplayText';
+	static readonly $showForDisplay = 'showForDisplay';
+	static readonly $showForEdit = 'showForEdit';
+	static readonly $simpleDisplayProperty = 'simpleDisplayProperty';
+	static readonly $templateHint = 'templateHint';
+	static readonly $isNullableValueType = 'isNullableValueType';
+	static readonly $isCollectionType = 'isCollectionType';
+	static readonly $isEnumerableType = 'isEnumerableType';
+	static readonly $isReferenceOrNullableType = 'isReferenceOrNullableType';
+	static readonly $enumNamesAndValues = 'enumNamesAndValues';
+	static readonly $name = 'name';
+	static readonly $propertyName = 'propertyName';
+	static readonly $properties = 'properties';
+	static readonly $enumGroupedDisplayNamesAndValues = 'enumGroupedDisplayNamesAndValues';
+	static readonly $displayName = 'displayName';
+	static readonly $description = 'description';
+	static readonly $dataTypeName = 'dataTypeName';
+	static readonly $convertEmptyStringToNull = 'convertEmptyStringToNull';
+	static readonly $displayFormatString = 'displayFormatString';
 }

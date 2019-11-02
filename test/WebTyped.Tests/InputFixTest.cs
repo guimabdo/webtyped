@@ -28,7 +28,38 @@ namespace WebTyped.Tests {
         [TestMethod]
         public async Task Input4ShouldExportExternalTypeInIndex()
         {
-            await AssertOutput("Input4", 2);
+            string file = "Input4";
+            var index = 2;
+            //await AssertOutput("Input4", 2);
+            var cs = Read($"{file}.cs");
+            //var output = await TestHelpers.Generate(cs);
+
+            var options = new Options(".\\")
+            {
+                GenericReturnType = new ClientType
+                {
+                    Name = "Observable",
+                    Module = "rxjs"
+                },
+                CustomMap = new System.Collections.Generic.Dictionary<string, ClientType>
+                {
+                    { "Bla.LazyLoadEvent", new ClientType{ Module = "primeng/components/common/lazyloadevent", Name = "LazyLoadEvent" } }
+                }
+            };
+
+            var generator = new Generator(
+                new string[] { cs },
+                new string[0],
+                new Package[0],
+                new string[0],
+                options
+            );
+            var output = await generator.GenerateOutputsAsync();
+
+            Assert.AreEqual(Read($"{file}-output.ts")
+                .Trim(),
+                output.ElementAt(index).Value
+                .Trim());
         }
 
         [TestMethod]

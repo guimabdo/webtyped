@@ -37,7 +37,7 @@ export class MyService {
 		);
 	};
 }
-export namespace MyService {
+export declare namespace MyService {
 	export type QueryParameters = {obj?: extMdl0.ComplexType, _wtKind: 'Query' };
 	export interface QueryCallInfo extends WebTypedCallInfo<QueryParameters, Array<any/*object*/>> { kind: 'Query'; }
 	export type QueryFunctionBase = (obj?: extMdl0.ComplexType) => Observable<Array<any/*object*/>>;

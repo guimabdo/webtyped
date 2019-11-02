@@ -1,9 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using WebTyped.Annotations;
 using WebTyped.Elements;
 
 namespace WebTyped {
@@ -26,8 +23,10 @@ namespace WebTyped {
             }
 
             var attrs = p.GetAttributes();
-			var hasNamedTupleAttr = attrs.Any(a => a.AttributeClass.Name == nameof(NamedTupleAttribute));
-			var res = typeResolver.Resolve(type, context, hasNamedTupleAttr);
+
+            //Removing tuple support...it' not worth it
+			//var hasNamedTupleAttr = attrs.Any(a => a.AttributeClass.Name == nameof(NamedTupleAttribute));
+			var res = typeResolver.Resolve(type, context/*, hasNamedTupleAttr*/);
 
 			this.Name = p.Name;
 			this.FromName = p.Name;
@@ -170,21 +169,21 @@ namespace WebTyped {
 
 
 			//var hasMapFunc = !string.IsNullOrWhiteSpace(res.MapAltToOriginalFunc);
-			string unsupportedNamedTupleMessage = "[UNSUPPORTED - NamedTupleAttribute must be used only for tuple parameters]";
+			//string unsupportedNamedTupleMessage = "[UNSUPPORTED - NamedTupleAttribute must be used only for tuple parameters]";
 			string typeName = res.Name;
 
-			if (hasNamedTupleAttr) {
-				if (!res.IsTuple) {
-					this.BodyRelayFormat = unsupportedNamedTupleMessage;
-					this.SearchRelayFormat = unsupportedNamedTupleMessage;
-					//typeName = unsupportedNamedTupleMessage;
-				}
-				else {
-					this.BodyRelayFormat = $"{res.MapAltToOriginalFunc}({this.Name})";
-					this.SearchRelayFormat = $"{this.Name}: {this.BodyRelayFormat}";
-					//typeName = res.AltName;
-				}
-			}
+			//if (hasNamedTupleAttr) {
+			//	if (!res.IsTuple) {
+			//		this.BodyRelayFormat = unsupportedNamedTupleMessage;
+			//		this.SearchRelayFormat = unsupportedNamedTupleMessage;
+			//		//typeName = unsupportedNamedTupleMessage;
+			//	}
+			//	else {
+			//		this.BodyRelayFormat = $"{res.MapAltToOriginalFunc}({this.Name})";
+			//		this.SearchRelayFormat = $"{this.Name}: {this.BodyRelayFormat}";
+			//		//typeName = res.AltName;
+			//	}
+			//}
 
 			if (TsEnum.IsEnum(type)) {
 				if (res.TsType != null && res.TsType is TsEnum) {
