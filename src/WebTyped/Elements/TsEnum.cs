@@ -13,7 +13,7 @@ namespace WebTyped.Elements
 
 		public override (string file, string content)? GenerateOutput() {
 			//If external
-			if (this.ExternalType != null) { return null; }
+			if (this.HasCustomMap) { return null; }
 			var subClasses = new List<INamedTypeSymbol>();
 			var sb = new StringBuilder();
 

@@ -1,12 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using WebTyped.Annotations;
 using WebTyped.Elements;
 
 namespace WebTyped {
@@ -126,7 +122,7 @@ namespace WebTyped {
 
 		public override (string file, string content)? GenerateOutput() {
 			//If external
-			if (this.ExternalType != null) { return null; }
+			if (this.HasCustomMap) { return null; }
 			//if(Options.TypingsScope == TypingsScope.Global) {
 			//	return GenerateOutputGlobal();
 			//}

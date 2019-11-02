@@ -37,7 +37,7 @@ export class CblxIdentityService {
 		);
 	};
 }
-export namespace CblxIdentityService {
+export declare namespace CblxIdentityService {
 	export type SignupParameters = {model: extMdl1.CblxSignupModel, _wtKind: 'Signup' };
 	export interface SignupCallInfo extends WebTypedCallInfo<SignupParameters, extMdl0.CblxSignupResultModel> { kind: 'Signup'; }
 	export type SignupFunctionBase = (model: extMdl1.CblxSignupModel) => Observable<extMdl0.CblxSignupResultModel>;
