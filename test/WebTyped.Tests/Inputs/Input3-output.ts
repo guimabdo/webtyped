@@ -10,15 +10,15 @@
 	filter?: string;
 }
 
-export namespace ODataModelOf1$ {
-	export const $ = 'ODataModelOf1';
-	export const $ids = 'ids';
-	export const $search = 'search';
-	export const $skip = 'skip';
-	export const $take = 'take';
-	export const $orderBy = 'orderBy';
-	export const $select = 'select';
-	export const $expand = 'expand';
-	export const $count = 'count';
-	export const $filter = 'filter';
+export class ODataModelOf1$ {
+	static readonly $ = 'ODataModelOf1';
+	static readonly $ids = 'ids';
+	static readonly $search = 'search';
+	static readonly $skip = 'skip';
+	static readonly $take = 'take';
+	static readonly $orderBy = 'orderBy';
+	static readonly $select = 'select';
+	static readonly $expand = 'expand';
+	static readonly $count = 'count';
+	static readonly $filter = 'filter';
 }

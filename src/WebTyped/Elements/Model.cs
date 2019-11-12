@@ -1,12 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using WebTyped.Annotations;
 using WebTyped.Elements;
 
 namespace WebTyped {
@@ -58,6 +54,20 @@ namespace WebTyped {
 					var prop = m as IPropertySymbol;
 					var isNullable = TypeResolver.IsNullable(prop.Type) || !prop.Type.IsValueType;
 					var name = Options.KeepPropsCase ? m.Name : m.Name.ToCamelCase();
+
+                    var summary = prop.GetDocumentationCommentXml();
+                    if (!string.IsNullOrWhiteSpace(summary))
+                    {
+                        summary = summary.Split("<summary>").Last().Split("</summary>").First().Trim();
+                        sb.AppendLine(level + 1, "/**");
+                        var lines = summary.Split(System.Environment.NewLine);
+                        foreach(var l in lines)
+                        {
+                            sb.AppendLine(level + 1,$"*{l.Trim()}");
+                        }
+                        sb.AppendLine(level + 1, "**/");
+                    }
+
 					sb.AppendLine(level + 1, $"{name}{(isNullable ? "?" : "")}: {TypeResolver.Resolve(prop.Type, context).Name};");
 				}
 				sb.AppendLine(level, "}");
@@ -71,8 +81,11 @@ namespace WebTyped {
 			}
 
 			//Static part
-			if (hasConsts) {
-				//string modulePart = hasModule ? $"{Module}." : "";
+			if (hasConsts
+                //removing const support for now
+                //If we enable it again, we should merge these members with KeysAndNames...
+                && false 
+                ) {
 				//https://github.com/Microsoft/TypeScript/issues/17372
 				//Currently we can't merge namespaces and const enums.
 				//This is supposed to be a bug.
@@ -83,41 +96,18 @@ namespace WebTyped {
 				//the only way to inline values. Consts values direclty inside namespaces/modules are not inlined...
 				//---R: Now, supporting only scoped types, maybe values dont need to be inlined...
 
-				sb.AppendLine(level, $"export namespace {ClassName} {{");
+				sb.AppendLine(level, $"export class {ClassName} {{");
 				level++;
 				foreach (var m in TypeSymbol.GetMembers()) {
 					var fieldSymbol = (m as IFieldSymbol);
 					if (fieldSymbol != null && fieldSymbol.IsConst) {
 						//Consts names should not be changed, they are commonly uppercased both in client and server...
 						var name = m.Name;
-						sb.AppendLine(level, $"export const {name} = {JsonConvert.SerializeObject(fieldSymbol.ConstantValue)};");
+						sb.AppendLine(level, $"static readonly {name} = {JsonConvert.SerializeObject(fieldSymbol.ConstantValue)};");
 					}
 				}
 				level--;
 				sb.AppendLine(level, "}");
-
-				//sb.AppendLine(level, $"export const enum ${ClassName} {{");
-				//List<string> constants = new List<string>();
-				//foreach (var m in TypeSymbol.GetMembers()) {
-				//	var fieldSymbol = (m as IFieldSymbol);
-				//	if (fieldSymbol != null && fieldSymbol.IsConst) {
-				//		//Consts names should not be changed, they are commonly uppercased both in client and server...
-				//		// var name = Options.KeepPropsCase ? m.Name : m.Name.ToCamelCase();
-				//		var name = m.Name;
-				//		constants.Add($"{name} = {JsonConvert.SerializeObject(fieldSymbol.ConstantValue)}");
-				//		//sb.AppendLine(level + 1, $"{name} = {JsonConvert.SerializeObject(fieldSymbol.ConstantValue)};");
-				//	}
-				//}
-
-				//sb.AppendLine(
-				//	level + 1,
-				//	string.Join(
-				//		$",{System.Environment.NewLine}{new StringBuilder().Append('\t', level + 1)}",
-				//		constants
-				//	)
-				//);
-
-				//sb.AppendLine(level, "}");
 			}
 			
 						
@@ -132,7 +122,7 @@ namespace WebTyped {
 
 		public override (string file, string content)? GenerateOutput() {
 			//If external
-			if (this.ExternalType != null) { return null; }
+			if (this.HasCustomMap) { return null; }
 			//if(Options.TypingsScope == TypingsScope.Global) {
 			//	return GenerateOutputGlobal();
 			//}

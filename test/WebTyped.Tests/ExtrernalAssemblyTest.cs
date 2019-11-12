@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,18 +10,40 @@ namespace WebTyped.Tests {
     {
 		[TestMethod]
 		public async Task GenerateFromAssemblyTest() {
-            var options = new Options(".\\", 
-                false, ServiceMode.Angular, 
-                new string[0], "", 
-                false, 
-                null
-            );
+            var options = new Options(".\\")
+            {
+                GenericReturnType = new  ClientType {
+                    Name = "Observable",
+                    Module = "rxjs"
+                },
+                CustomMap = new Dictionary<string, ClientType> {
+                    {
+                        "ExternalLib.Models2.ExternalModel2",
+                        new ClientType { Module ="out", Name = "MissingTypeFromSomewhere" } }
+                }
+            };
+
+            //var options = new Options(".\\", 
+            //    false, 
+            //    //ServiceMode.Angular, 
+            //    new ClientType
+            //    {
+            //        Name = "Observable",
+            //        Module = "rxjs"
+            //    },
+            //    new string[0], "", 
+            //    false, 
+            //    null,
+            //    null
+            //);
             var generator = new Generator(
                 new string[] {
 @"
 using ExternalLib.Models;
+using ExternalLib.Models2;
 public class Test : ExternalModel {
     public int Test2 {get;set;}
+    public ExternalModel2 Missing {get;set;}
 }
 "
                 }

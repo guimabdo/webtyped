@@ -1,19 +1,66 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
+name: $(Build.SourceBranch)$(rev:.r)
 trigger:
-- master
+  - releases/*
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'windows-latest'
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+variables:
+  rev: $[counter(variables['Build.SourceBranch'], 0)]
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+stages:
+- stage: Build
+  displayName: Build
+  jobs:
+    - job: SetBuildName
+      steps:
+        - powershell: Write-Host "##vso[build.updatebuildnumber]$env:Build_SourceBranchName.$env:rev"
+          displayName: Setting build name for Release
+          condition: contains(variables['Build.SourceBranch'], '/releases/')
+        - powershell: Write-Host "##vso[build.updatebuildnumber]0.0.0-$env:Build_SourceBranchName.$env:rev"
+          displayName: Setting build name for Dev
+          condition: not(contains(variables['Build.SourceBranch'], '/releases/'))
+
+    - job: Build
+      dependsOn: SetBuildName
+      steps:
+      - script: dotnet publish ./src/WebTyped.Cli -c Release -o ./src/WebTyped.Npm/cli/program
+        displayName: Dotnet - Building and publishing
+
+      - script: npm version $(Build.BuildNumber)
+        workingDirectory: src/WebTyped.Npm/cli
+        displayName: Setting npm package version
+
+      - powershell: (Get-Content ./README.md) | Set-Content ./src/WebTyped.Npm/cli/README.md
+        displayName: npm - updating README
+
+      - script: npm pack
+        workingDirectory: src/WebTyped.Npm/cli
+        displayName: npm - packing
+
+      - task: PublishPipelineArtifact@1
+        inputs:
+         artifact: 'tarball'
+         targetPath: 'src/WebTyped.Npm/cli/guimabdo-webtyped-$(Build.BuildNumber).tgz'
+
+- stage: Deploy
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'))
+  dependsOn: Build
+  displayName: Deploy stage
+  jobs:
+  - deployment: Deploy
+    environment: npm-guimabdo-webtyped
+    displayName: NPM - @guimabdo/webtyped
+    strategy:
+     runOnce:
+       deploy:
+         steps:
+           - task: DownloadPipelineArtifact@2
+             inputs:
+              artifactName: 'tarball'
+           - task: Npm@1
+             inputs:
+               command: 'custom'
+               workingDir: '$(Pipeline.Workspace)'
+               customCommand: 'publish guimabdo-webtyped-$(Build.BuildNumber).tgz --access public'
+               customEndpoint: 'npm - guimabdo'

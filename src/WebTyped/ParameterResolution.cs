@@ -1,9 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using WebTyped.Annotations;
 using WebTyped.Elements;
 
 namespace WebTyped {
@@ -26,8 +23,10 @@ namespace WebTyped {
             }
 
             var attrs = p.GetAttributes();
-			var hasNamedTupleAttr = attrs.Any(a => a.AttributeClass.Name == nameof(NamedTupleAttribute));
-			var res = typeResolver.Resolve(type, context, hasNamedTupleAttr);
+
+            //Removing tuple support...it' not worth it
+			//var hasNamedTupleAttr = attrs.Any(a => a.AttributeClass.Name == nameof(NamedTupleAttribute));
+			var res = typeResolver.Resolve(type, context/*, hasNamedTupleAttr*/);
 
 			this.Name = p.Name;
 			this.FromName = p.Name;
@@ -56,8 +55,6 @@ namespace WebTyped {
 								}
 								break;
 						}
-
-						//
 
 						break;
 				}
@@ -148,8 +145,16 @@ namespace WebTyped {
 				if (hasModifications) {
 					this.SearchRelayFormat = "";
 					if (props.Any()) {
-						this.SearchRelayFormat = $"...({this.Name} ? {{ {this.FromName}: {{ {string.Join(", ", props)} }} }} : {{}})";
-					}
+                        //Pensar melhor, no asp.net podemos colocar como parametros varias models com props de nomes iguais. 
+                        //Por esse motivo fazemos o obj: {}
+                        //Ao mesmo tempo, isso é uma modelagem esquisita de api. Talvez devemos dar preferencia mesmo para a segunda opção
+                        //onde fica tudo na "raiz". Além disso, não testei ainda o comportamento do asp.net quando multiplos parametros
+                        //que clasheiam sujas props
+                        //O maior motivo, é que no caso de uma model que possui alguns itens na raiz, ficando ora model.coisa e $coisa2
+                        //por ex, o asp.net se perde em seu modelbinding, considerando apenas no model.<algo>.
+                        //this.SearchRelayFormat = $"...({this.Name} ? {{ {this.FromName}: {{ {string.Join(", ", props)} }} }} : {{}})";
+                        this.SearchRelayFormat = $"...({this.Name} ? {{ {string.Join(", ", props)} }} : {{}})";
+                    }
 					if (outProps.Any()) {
 						if (props.Any()) {
                             //Add comma
@@ -164,21 +169,21 @@ namespace WebTyped {
 
 
 			//var hasMapFunc = !string.IsNullOrWhiteSpace(res.MapAltToOriginalFunc);
-			string unsupportedNamedTupleMessage = "[UNSUPPORTED - NamedTupleAttribute must be used only for tuple parameters]";
+			//string unsupportedNamedTupleMessage = "[UNSUPPORTED - NamedTupleAttribute must be used only for tuple parameters]";
 			string typeName = res.Name;
 
-			if (hasNamedTupleAttr) {
-				if (!res.IsTuple) {
-					this.BodyRelayFormat = unsupportedNamedTupleMessage;
-					this.SearchRelayFormat = unsupportedNamedTupleMessage;
-					//typeName = unsupportedNamedTupleMessage;
-				}
-				else {
-					this.BodyRelayFormat = $"{res.MapAltToOriginalFunc}({this.Name})";
-					this.SearchRelayFormat = $"{this.Name}: {this.BodyRelayFormat}";
-					//typeName = res.AltName;
-				}
-			}
+			//if (hasNamedTupleAttr) {
+			//	if (!res.IsTuple) {
+			//		this.BodyRelayFormat = unsupportedNamedTupleMessage;
+			//		this.SearchRelayFormat = unsupportedNamedTupleMessage;
+			//		//typeName = unsupportedNamedTupleMessage;
+			//	}
+			//	else {
+			//		this.BodyRelayFormat = $"{res.MapAltToOriginalFunc}({this.Name})";
+			//		this.SearchRelayFormat = $"{this.Name}: {this.BodyRelayFormat}";
+			//		//typeName = res.AltName;
+			//	}
+			//}
 
 			if (TsEnum.IsEnum(type)) {
 				if (res.TsType != null && res.TsType is TsEnum) {
