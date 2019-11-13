@@ -96,7 +96,7 @@ namespace WebTyped
                 (this.Services as List<Service>).Add(file as Service);
             }
         }
-        public TypeResolution Resolve(ITypeSymbol typeSymbol, ResolutionContext context/*, bool useTupleAltNames = false*/)
+        public TypeResolution Resolve(ITypeSymbol typeSymbol, ResolutionContext context)
         {
             var type = typeSymbol as INamedTypeSymbol;
 
@@ -184,7 +184,7 @@ namespace WebTyped
                 //When inheriting from another generic model
                 if (type.IsGenericType)
                 {
-                    var gp_ = GetGenericPart(type, result.OriginalName, context/*, useTupleAltNames*/);
+                    var gp_ = GetGenericPart(type, result.OriginalName, context);
                     result.OriginalName = $"{result.OriginalName}{gp_.genericPart}";
                 }
                 return result;
@@ -200,7 +200,7 @@ namespace WebTyped
                 }
                 else
                 {
-                    var elementTypeRes = Resolve(arrTypeSymbol.ElementType, context/*, useTupleAltNames*/);
+                    var elementTypeRes = Resolve(arrTypeSymbol.ElementType, context);
                     result.OriginalName = $"Array<{elementTypeRes.Name}>";
                 }
                 return result;
@@ -208,8 +208,6 @@ namespace WebTyped
             //tuples
             if (type.IsTupleType)
             {
-                //var tupleProps = type.TupleElements
-                //	.Select(te => $"{(Options.KeepPropsCase ? te.Name : te.Name.ToCamelCase())}: {Resolve(te.Type as INamedTypeSymbol, context).Name}");
                 var tupleElements = type.TupleElements
                     .Select(te => new
                     {
@@ -220,8 +218,7 @@ namespace WebTyped
 
                 var tupleProps = tupleElements
                     .Select(te => $"/** field:{te.field} */{te.tupleField}: {te.type}");
-                //var tupleAltProps = tupleElements
-                //    .Select(te => $"/** tuple field:{te.tupleField} */{te.field}: {te.type}");
+
                 result.OriginalName = $"{{{string.Join(", ", tupleProps)}}}";
                 //result.AltName = $"{{{string.Join(", ", tupleAltProps)}}}";
                 //var mapParam = "__source";
@@ -256,23 +253,20 @@ namespace WebTyped
                 parent = parent.ContainingType;
             }
             //Change type to ts type
-            var tsTypeName = ToTsTypeName(type, context/*, useTupleAltNames*/);
+            var tsTypeName = ToTsTypeName(type, context);
             //If contains "{" or "}" then it was converted to anonymous type, so no need to do anything else.
             if (tsTypeName.Contains("{"))
             {
                 result.OriginalName = tsTypeName;
                 return result;
             }
-            //if (tsTypeName == "any") {
-            //	return $"any/* {type.ToString()} */";
-            //}
 
-            var gp = GetGenericPart(type, tsTypeName, context/*, useTupleAltNames*/);
+            var gp = GetGenericPart(type, tsTypeName, context);
             result.OriginalName = $"{gp.modifiedTsTypeName}{gp.genericPart}";
             return result;
         }
 
-        public (string genericPart, string modifiedTsTypeName) GetGenericPart(INamedTypeSymbol type, string tsTypeName, ResolutionContext context/*, bool useTupleAltNames*/)
+        public (string genericPart, string modifiedTsTypeName) GetGenericPart(INamedTypeSymbol type, string tsTypeName, ResolutionContext context)
         {
             string genericPart = "";
             //Generic
@@ -280,7 +274,7 @@ namespace WebTyped
             {
                 if (string.IsNullOrEmpty(tsTypeName))
                 {
-                    tsTypeName = Resolve(type.TypeArguments[0], context/*, useTupleAltNames*/).Name;
+                    tsTypeName = Resolve(type.TypeArguments[0], context).Name;
                 }
                 else
                 {
@@ -288,12 +282,11 @@ namespace WebTyped
                         .Select(t =>
                             t is INamedTypeSymbol ?
                             /* When type is defined */
-                            Resolve(t as INamedTypeSymbol, context/*, useTupleAltNames*/).Name
+                            Resolve(t as INamedTypeSymbol, context).Name
                             : t.Name /* When it is a generic param reference */ );
                     genericPart = $"<{string.Join(", ", types)}>";
                 }
             }
-            //genericPart = genericPart.Replace("*", "");
 
             if (tsTypeName == "any" || tsTypeName.StartsWith("any/*"))
             {
@@ -316,7 +309,7 @@ namespace WebTyped
             return ((t as INamedTypeSymbol)?.ConstructedFrom?.ToString().StartsWith("System.Nullable<")).GetValueOrDefault();
         }
 
-        string ToTsTypeName(INamedTypeSymbol original, ResolutionContext context/*, bool useTupleAltNames = false*/)
+        string ToTsTypeName(INamedTypeSymbol original, ResolutionContext context)
         {
             if (IsNullable(original)) { return ""; }
             switch (original.SpecialType)
@@ -370,6 +363,11 @@ namespace WebTyped
                 case "System.Collections.Generic.IEnumerable<T>":
                 case "System.Collections.Generic.ICollection<T>":
                 case "System.Linq.IQueryable<T>":
+                case "System.Collections.Generic.IList<>":
+                case "System.Collections.Generic.List<>":
+                case "System.Collections.Generic.IEnumerable<>":
+                case "System.Collections.Generic.ICollection<>":
+                case "System.Linq.IQueryable<>":
                     return "Array";
                 case "System.Object":
                     return "any";
@@ -379,16 +377,17 @@ namespace WebTyped
                     return "";
                 case "System.Collections.Generic.KeyValuePair<TKey, TValue>":
                     {
-                        var keyType = Resolve(original.TypeArguments[0], context/*, useTupleAltNames*/).Name;
-                        var valType = Resolve(original.TypeArguments[1], context/*, useTupleAltNames*/).Name;
+                        var keyType = Resolve(original.TypeArguments[0], context).Name;
+                        var valType = Resolve(original.TypeArguments[1], context).Name;
                         return Options.KeepPropsCase ?
                         $"{{ Key: {keyType}, Value: {valType} }}"
                         : $"{{ key: {keyType}, value: {valType} }}";
                     }
                 case "System.Collections.Generic.Dictionary<TKey, TValue>":
+                case "System.Collections.Generic.Dictionary<,>":
                     {
-                        var keyType = Resolve(original.TypeArguments[0], context/*, useTupleAltNames*/).Name;
-                        var valType = Resolve(original.TypeArguments[1], context/*, useTupleAltNames*/).Name;
+                        var keyType = Resolve(original.TypeArguments[0], context).Name;
+                        var valType = Resolve(original.TypeArguments[1], context).Name;
                         if (keyType == "string" || keyType == "number")
                         {
                             return $"{{ [key: {keyType}]: {valType} }}";
@@ -417,12 +416,6 @@ namespace WebTyped
             //Create indexes
             //Create root index
             var sbRootIndex = new StringBuilder();
-            //if (Options.IsAngular) {
-            //	sbRootIndex.AppendLine("import { NgModule, ModuleWithProviders } from '@angular/core';");
-            //	sbRootIndex.AppendLine("import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';");
-            //	var ngV = Options.ServiceMode == ServiceMode.Angular4 ? "4" : "";
-            //	sbRootIndex.AppendLine($"import {{ WebTypedEventEmitterService, WebTypedInterceptor }} from '@guimabdo/webtyped-angular{ngV}';");
-            //}
 
             //Create index for each module folder
             IEnumerable<ITsFile> moduledFiles = Services;
@@ -484,28 +477,6 @@ namespace WebTyped
             sbRootIndex.AppendLine("export var serviceTypes = [");
             sbRootIndex.AppendLine(1, string.Join($",{System.Environment.NewLine}	", services));
             sbRootIndex.AppendLine("]");
-
-            //if (Options.IsAngular) {
-            //	sbRootIndex.AppendLine("@NgModule({");
-            //	sbRootIndex.AppendLine(1, "imports: [ HttpClientModule ]");
-            //	sbRootIndex.AppendLine("})");
-            //	sbRootIndex.AppendLine("export class WebTypedGeneratedModule {");
-            //	sbRootIndex.AppendLine(1, "static forRoot(): ModuleWithProviders {");
-            //	sbRootIndex.AppendLine(2, "return {");
-            //	sbRootIndex.AppendLine(3, "ngModule: WebTypedGeneratedModule,");
-            //	sbRootIndex.AppendLine(3, "providers: [");
-            //	sbRootIndex.AppendLine(4, "{");
-            //	sbRootIndex.AppendLine(5, "provide: HTTP_INTERCEPTORS,");
-            //	sbRootIndex.AppendLine(5, "useClass: WebTypedInterceptor,");
-            //	sbRootIndex.AppendLine(5, "multi: true");
-            //	sbRootIndex.AppendLine(4, "},");
-            //	sbRootIndex.AppendLine(4, "WebTypedEventEmitterService,");
-            //	sbRootIndex.AppendLine(4, "...serviceTypes");
-            //	sbRootIndex.AppendLine(3, "]");
-            //	sbRootIndex.AppendLine(2, "};");
-            //	sbRootIndex.AppendLine(1, "}");
-            //	sbRootIndex.AppendLine("}");
-            //}
 
             var rootIndexFile = Path.Combine(Options.OutDir, "index.ts");
             outputManager(rootIndexFile, sbRootIndex.ToString());
