@@ -49,7 +49,6 @@ namespace WebTyped
                 {
                     var moduleCamel = string.Join('.', Module.Split('.').Select(s => s.ToCamelCase()));
                     dir = Path.Combine(Options.OutDir, moduleCamel);
-                    //Directory.CreateDirectory(dir);
                 }
                 return Path.Combine(dir, Filename);
             }
@@ -68,7 +67,6 @@ namespace WebTyped
             Module = options.AdjustModule(Module);
             FilenameWithoutExtenstion = $"{ControllerName.ToCamelCase()}.service";
             Options = options;
-            //TypeResolver.Add(this);
         }
 
         public (string file, string content) GenerateOutput()
@@ -92,15 +90,6 @@ namespace WebTyped
             var path = arg.Replace("[controller]", ControllerName.ToCamelCase());
             int level = 0;
 
-            //switch (Options.ServiceMode) {
-            //	case ServiceMode.Angular:
-            //	case ServiceMode.Angular4:
-            //		sb.AppendLine(level, "@Injectable()");
-            //		break;
-            //}
-
-            //sb.AppendLine(level, $"export class {ClassName} extends WebTypedClient {{");
-
             if (Options.Inject?.BeforeServiceClass != null)
             {
                 foreach (var line in Options.Inject.BeforeServiceClass)
@@ -114,21 +103,6 @@ namespace WebTyped
             sb.AppendLine(level, $"	static readonly controllerName = '{TypeSymbol.Name}';");
             sb.AppendLine(level, $"	private api = '{path}';");
 
-            //switch (Options.ServiceMode) {
-            //	case ServiceMode.Angular:
-            //	case ServiceMode.Angular4:
-            //		sb.AppendLine(level, $"	constructor(@Optional() @Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebTypedEventEmitterService)) eventEmitter: WebTypedEventEmitterService) {{");
-            //		sb.AppendLine(level, $@"		super(baseUrl, '{path}', httpClient, eventEmitter);");
-            //		break;
-            //	case ServiceMode.Fetch:
-            //	case ServiceMode.Jquery:
-            //		sb.AppendLine(level, $@"	constructor(baseUrl: string = WebTypedClient.baseUrl) {{");
-            //		sb.AppendLine(level, $@"		super(baseUrl, '{path}');");
-            //		break;
-            //}
-
-            //sb.AppendLine(level, "	}");
-
             sb.AppendLine(level, "	constructor(private invoker: WebTypedInvoker) {}");
 
 
@@ -141,7 +115,6 @@ namespace WebTyped
             {
                 if (m.Kind == SymbolKind.NamedType)
                 {
-                    //subClasses.Add(m as INamedTypeSymbol);
                     continue;
                 }
                 if (m.DeclaredAccessibility != Accessibility.Public) { continue; }
@@ -153,21 +126,11 @@ namespace WebTyped
                 if (m.Name == ".ctor") { continue; }
 
                 var mtdAttrs = mtd.GetAttributes();
-                //var hasNamedTupleAttr = mtdAttrs.Any(a => a.AttributeClass.Name == nameof(NamedTupleAttribute));
-                //var returnType = TypeResolver.Resolve(mtd.ReturnType as INamedTypeSymbol, context, hasNamedTupleAttr);
                 var returnType = TypeResolver.Resolve(mtd.ReturnType as ITypeSymbol, context);
                 var returnTypeName = returnType.Name;
-                //if (hasNamedTupleAttr) {
-                //	if (!returnType.IsTuple) {
-                //		returnTypeName = "[UNSUPPORTED - NamedTupleAttribute must be used only for tuples]";
-                //	} else {
-                //		returnTypeName = returnType.AltName;
-                //	}
-                //}
                 //Not marked actions will accept posts
                 var httpMethod = "Post";
                 string action = "";
-                //string search = "undefined";
 
                 //Get http method from method name pattern
                 if (mtd.Name.StartsWith("Get")) { httpMethod = "Get"; }
@@ -208,9 +171,7 @@ namespace WebTyped
                     }
                 }
                 //Replace route variables
-                action = action
-                    .Replace("[action]", methodName);
-                //.Replace("{", "${");
+                action = action.Replace("[action]", methodName);
 
                 var regex = new Regex(@"\{(?<paramName>\w+)(:\w+(\(.*?\))?)?\??}");
                 action = regex.Replace(action, match =>
@@ -219,7 +180,6 @@ namespace WebTyped
                 });
 
                 //Resolve how parameters are sent
-                //var pendingParameters = new List<string>();
                 var pendingParameters = new List<ParameterResolution>();
                 var parameterResolutions = mtd.Parameters.Select(p => new ParameterResolution(p, TypeResolver, context, Options)).Where(p => !p.Ignore);
                 var bodyParam = "null";
@@ -243,19 +203,6 @@ namespace WebTyped
                 }
                 var strParameters = string.Join(", ", parameterResolutions.Select(pr => pr.Signature));
 
-                //if(pendingParameters.Any() && bodyParam == "null" && new string[] {
-                //	"Put", "Patch", "Post"
-                //}.Contains(httpMethod)) {
-                //	bodyParam = pendingParameters[0];
-                //	pendingParameters.RemoveAt(0);
-                //}
-                //string genericReturnType;
-                //switch (Options.ServiceMode) {
-                //	case ServiceMode.Jquery: genericReturnType = "JQuery.jqXHR"; break;
-                //	case ServiceMode.Fetch: genericReturnType = "Promise"; break;
-                //	case ServiceMode.Angular: case ServiceMode.Angular4: default: genericReturnType = "Observable"; break;
-                //}
-
                 var upperMethodName = methodName[0].ToString().ToUpper() + methodName.Substring(1);
                 typeAliases.Add($"export type {upperMethodName}Parameters = {{{strParameters}{(parameterResolutions.Any() ? ", " : "")}_wtKind: '{upperMethodName}' }};");
                 typeAliases.Add($"export interface {upperMethodName}CallInfo extends WebTypedCallInfo<{upperMethodName}Parameters, {returnTypeName}> {{ kind: '{upperMethodName}'; }}");
@@ -263,13 +210,6 @@ namespace WebTyped
                 typeAliases.Add($"export interface {upperMethodName}Function extends WebTypedFunction<{upperMethodName}Parameters, {returnTypeName}>, {upperMethodName}FunctionBase {{}}");
 
                 sb.AppendLine(level + 1, $"{methodName}: {ClassName}.{upperMethodName}Function = ({strParameters}) : {genericReturnType}<{returnTypeName}> => {{");
-                //sb.AppendLine(level + 2, $"return this.invoke{httpMethod}({{");
-                //            sb.AppendLine(level + 4, $"returnTypeName: '{returnTypeName}',");
-                //            sb.AppendLine(level + 4, $"kind: '{upperMethodName}',");
-                //sb.AppendLine(level + 4, $"func: this.{methodName},");
-                //sb.AppendLine(level + 4, $"parameters: {{ {string.Join(", ", parameterResolutions.Select(p => p.Name))}{(parameterResolutions.Any() ? ", " : "")}_wtKind: '{upperMethodName}' }}");
-                //sb.AppendLine(level + 3, "},");
-                //sb.AppendLine(level + 3, $"`{action}`,");
                 sb.AppendLine(level + 2, $"return this.invoker.invoke({{");
 
                 //info
@@ -322,27 +262,8 @@ namespace WebTyped
             typeAliases.ForEach(ta => sb.AppendLine(level + 1, ta));
             sb.AppendLine(level, "}");
             sb.Insert(0, context.GetImportsText());
-            //if (!string.IsNullOrEmpty(Module)) {
-            //	level--;
-            //	sb.AppendLine(level, "}");
-            //}
-
-            //if (subClasses.Any()) {
-            //	sb.AppendLine(level, $"export module {controller}Service {{");
-            //	subClasses.ForEach(s => sb.AppendLine(CreateModelCode(s, level + 1)));
-            //	sb.AppendLine(level, $"}}");
-            //}
-            //var dir = Options.OutDir;
-            //if (!string.IsNullOrEmpty(Module)) {
-            //	dir = Path.Combine(Options.OutDir, Module.ToCamelCase());
-            //	//Directory.CreateDirectory(dir);
-            //}
-            //var file = Path.Combine(dir, Filename);
             string content = sb.ToString();
             return (OutputFilePath, content);
-            //await FileHelper.WriteAsync(file, content);
-            //return file;
-            //File.WriteAllText(Path.Combine(Options.ServicesDir, Filename), sb.ToString());
         }
 
         public static bool IsService(INamedTypeSymbol t)
