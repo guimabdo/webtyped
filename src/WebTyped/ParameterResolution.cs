@@ -7,11 +7,17 @@ namespace WebTyped {
 	public class ParameterResolution {
 		public string Name { get; private set; }
 		public string Signature { get; private set; }
-		public string BodyRelayFormat { get; private set; }
+		//public string BodyRelayFormat { get; private set; }
 		public string SearchRelayFormat { get; private set; }
 		public ParameterFromKind From { get; private set; } = ParameterFromKind.None;
 		public string FromName { get; set; }
 		public bool Ignore { get; private set; }
+
+        public bool IsOptional { get; private set; }
+
+
+        public string TypeDescription { get; private set;  }
+
 		public ParameterResolution(IParameterSymbol parameterSymbol, TypeResolver typeResolver, ResolutionContext context, Options options) {
 			var p = parameterSymbol;
             var type = p.Type;
@@ -30,7 +36,6 @@ namespace WebTyped {
 
 			this.Name = p.Name;
 			this.FromName = p.Name;
-			this.BodyRelayFormat = this.Name;
 			this.SearchRelayFormat = this.Name;
 			var fromAttr = attrs.FirstOrDefault(a => a.AttributeClass.Name.StartsWith("From"));
 
@@ -58,36 +63,10 @@ namespace WebTyped {
 
 						break;
 				}
-				//if (attrs.Any(a => a.AttributeClass.Name.StartsWith("FromBody"))) {
-				//	this.From = ParameterFromKind.FromBody;
-				//}
-				//if (attrs.Any(a => a.AttributeClass.Name.StartsWith("FromUri"))) {
-				//	this.From = ParameterFromKind.FromUri;
-
-				//}
-				//if (attrs.Any(a => a.AttributeClass.Name.StartsWith("FromQuery"))) {
-				//	this.From = ParameterFromKind.FromQuery;
-				//}
-				//if (attrs.Any(a => a.AttributeClass.Name.StartsWith("FromRoute"))) {
-				//	this.From = ParameterFromKind.FromRoute;
-				//}
-
-				//switch (From) {
-				//	case ParameterFromKind.FromQuery:
-				//	case ParameterFromKind.FromUri:
-				//		break;
-				//	default:
-				//		break;
-				//}
 			}
 
 			//Check if it is a Model being used to catch query/route parameters
 			if (type.IsReferenceType) {
-				//var allProps = new List<string>();
-				////When FromRoute is used in a model it should be ignored in queries
-				//var ignoredQueryProps = new List<string>();
-				////When FromQuery/FromUri is used it may be renamed
-				//var renamedQueryProps = new Dictionary<string, string>();
 				var props = new List<string>();
 				var outProps = new List<string>();
 				var hasModifications = false;
@@ -168,22 +147,7 @@ namespace WebTyped {
 			}
 
 
-			//var hasMapFunc = !string.IsNullOrWhiteSpace(res.MapAltToOriginalFunc);
-			//string unsupportedNamedTupleMessage = "[UNSUPPORTED - NamedTupleAttribute must be used only for tuple parameters]";
 			string typeName = res.Name;
-
-			//if (hasNamedTupleAttr) {
-			//	if (!res.IsTuple) {
-			//		this.BodyRelayFormat = unsupportedNamedTupleMessage;
-			//		this.SearchRelayFormat = unsupportedNamedTupleMessage;
-			//		//typeName = unsupportedNamedTupleMessage;
-			//	}
-			//	else {
-			//		this.BodyRelayFormat = $"{res.MapAltToOriginalFunc}({this.Name})";
-			//		this.SearchRelayFormat = $"{this.Name}: {this.BodyRelayFormat}";
-			//		//typeName = res.AltName;
-			//	}
-			//}
 
 			if (TsEnum.IsEnum(type)) {
 				if (res.TsType != null && res.TsType is TsEnum) {
@@ -198,7 +162,9 @@ namespace WebTyped {
 					}
 				}
 			}
-          
+
+            this.TypeDescription = typeName;
+            this.IsOptional = p.IsOptional;
             this.Signature = $"{p.Name}{(p.IsOptional ? "?" : "")}: {typeName}" + (res.IsNullable ? " | null" : "");
 			this.Ignore = p.GetAttributes().Any(a => a.AttributeClass.Name == "FromServices");
 		}

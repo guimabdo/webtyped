@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using System.IO;
+using WebTyped.Abstractions;
 
 namespace WebTyped.Elements
 {
@@ -52,7 +53,30 @@ namespace WebTyped.Elements
 			//return file;
 		}
 
-		public static bool IsEnum(ITypeSymbol t) {
+        public override OutputFileAbstraction GetAbstraction()
+        {
+            //If external
+            if (this.HasCustomMap) { return null; }
+
+            var result = new EnumAbstraction
+            {
+                Path = AbstractPath,
+                Values = TypeSymbol
+                    .GetMembers()
+                    .Where(m => m.Kind == SymbolKind.Field)
+                    .Select(m => m as IFieldSymbol)
+                    .Select(f => new EnumValueAbstraction
+                    {
+                        Name = f.Name,
+                        Value = (int)f.ConstantValue
+                    }).ToList()
+            };
+            
+
+            return result;
+        }
+
+        public static bool IsEnum(ITypeSymbol t) {
 			if (t.BaseType?.SpecialType != SpecialType.System_Enum) { return false; }
 			return true;
 		}

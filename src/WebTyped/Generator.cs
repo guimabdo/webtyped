@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using WebTyped.Abstractions;
 using WebTyped.Elements;
 
 namespace WebTyped
@@ -310,6 +311,12 @@ namespace Microsoft.AspNetCore.Mvc{
         {
             var typeResolver = await PrepareAsync();
             return typeResolver.GenerateOutputs();
+        }
+
+        public async Task<List<OutputFileAbstraction>> GenerateAbstractionsAsync()
+        {
+            var typeResolver = await PrepareAsync();
+            return typeResolver.GenerateAbstractions();
         }
 
         public async Task WriteFilesAsync()

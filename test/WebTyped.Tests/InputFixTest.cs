@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.Extensions.FileSystemGlobbing;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,7 +7,33 @@ using System.Threading.Tasks;
 namespace WebTyped.Tests {
 	[TestClass]
 	public class InputFixTest {
-		[TestMethod]
+        [TestMethod]
+        public async Task Bla()
+        {
+            //Find cs files
+            var matcher = new Matcher();
+            matcher.AddInclude("../Hypemov.MediaStore.Data/Enums/*.cs");
+            matcher.AddInclude("../Hypemov.MediaStore.Business/**/*Model.cs");
+            matcher.AddInclude("../Hypemov.MediaStore.Business/Validators/FileAttribute.cs");
+            matcher.AddInclude("../Hypemov.MediaStore.Web/Controllers/*Controller.cs");
+            var csFiles = matcher.GetResultsInFullPath(@"C:\Repos\Hypemov.MediaStore\Hypemov.MediaStore.Web");
+            var codes = csFiles.Select(f => File.ReadAllText(f));
+
+            var options = new Options(@"C:\Tests\WebTyped\");
+            var generator = new Generator(
+                codes,
+                new string[0],
+                new Package[0],
+                new string[0],
+                options
+            );
+
+            var output = await generator.GenerateAbstractionsAsync();
+        }
+
+
+
+        [TestMethod]
 		public async Task Input1ShouldBeFixed() {
 			await AssertOutput("Input1");
 		}

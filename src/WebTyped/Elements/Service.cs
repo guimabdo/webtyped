@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using WebTyped.Abstractions;
 
 namespace WebTyped
 {
@@ -51,6 +52,18 @@ namespace WebTyped
                     dir = Path.Combine(Options.OutDir, moduleCamel);
                 }
                 return Path.Combine(dir, Filename);
+            }
+        }
+
+        public string AbstractPath {
+            get {
+                var dir ="";
+                if (!string.IsNullOrEmpty(Module))
+                {
+                    var moduleCamel = string.Join('.', Module.Split('.').Select(s => s.ToCamelCase()));
+                    dir = moduleCamel;
+                }
+                return Path.Combine(dir, FilenameWithoutExtenstion);
             }
         }
 
@@ -196,7 +209,7 @@ namespace WebTyped
                     //[FromBody]
                     if (pr.From == ParameterFromKind.FromBody)
                     {
-                        bodyParam = pr.BodyRelayFormat;
+                        bodyParam = pr.Name;
                         continue;
                     }
                     pendingParameters.Add(pr);
@@ -264,6 +277,155 @@ namespace WebTyped
             sb.Insert(0, context.GetImportsText());
             string content = sb.ToString();
             return (OutputFilePath, content);
+        }
+
+        public OutputFileAbstraction GetAbstraction()
+        {
+            var context = new ResolutionContext(this);
+            var serviceAbstraction = new ServiceAbstraction();
+            serviceAbstraction.Path = AbstractPath;
+            serviceAbstraction.ClassName = ClassName;
+            serviceAbstraction.ControllerName = TypeSymbol.Name;
+            serviceAbstraction.Actions = new List<ActionAbstraction>();
+
+            //Resolve endpoint
+            var routeAttr = TypeSymbol.GetAttributes().FirstOrDefault(a => a.AttributeClass.Name == "Route" || a.AttributeClass.Name.ToString() == "RoutePrefix");
+            var arg = (routeAttr.ApplicationSyntaxReference.GetSyntax() as AttributeSyntax).ArgumentList.Arguments[0].ToString().Replace("\"", "");
+            var path = arg.Replace("[controller]", ControllerName.ToCamelCase());
+            serviceAbstraction.Endpoint = path;
+
+            //Actions
+            var existingMethods = new Dictionary<string, int>();
+            foreach (var m in TypeSymbol.GetMembers())
+            {
+                if (m.Kind == SymbolKind.NamedType)
+                {
+                    continue;
+                }
+                if (m.DeclaredAccessibility != Accessibility.Public) { continue; }
+                if (m.IsStatic) { continue; }
+                if (m.Kind != SymbolKind.Method) { continue; }
+                if (m.IsImplicitlyDeclared) { continue; }
+                if (!m.IsDefinition) { continue; }
+                var mtd = m as IMethodSymbol;
+                if (m.Name == ".ctor") { continue; }
+
+
+                var actionAbstraction = new ActionAbstraction();
+                serviceAbstraction.Actions.Add(actionAbstraction);
+
+
+                var mtdAttrs = mtd.GetAttributes();
+                var returnType = TypeResolver.Resolve(mtd.ReturnType as ITypeSymbol, context);
+                var returnTypeName = returnType.Name;
+                //Not marked actions will accept posts
+                var httpMethod = "Post";
+                string action = "";
+
+                //Get http method from method name pattern
+                if (mtd.Name.StartsWith("Get")) { httpMethod = "Get"; }
+                if (mtd.Name.StartsWith("Post")) { httpMethod = "Post"; }
+                if (mtd.Name.StartsWith("Put")) { httpMethod = "Put"; }
+                if (mtd.Name.StartsWith("Delete")) { httpMethod = "Delete"; }
+                if (mtd.Name.StartsWith("Patch")) { httpMethod = "Patch"; }
+                var methodName = mtd.Name.ToCamelCase();
+                if (existingMethods.ContainsKey(methodName))
+                {
+                    existingMethods[methodName]++;
+                    methodName = $"{methodName}_{existingMethods[methodName]}";
+                }
+                else
+                {
+                    existingMethods.Add(methodName, 0);
+                }
+
+                actionAbstraction.FunctionName = methodName;
+
+                var httpAttr = mtdAttrs.FirstOrDefault(a => a.AttributeClass.Name.StartsWith("Http"));
+                var routeMethodAttr = mtdAttrs.FirstOrDefault(a => a.AttributeClass.Name.StartsWith("Route"));
+                //If has Http attribute
+                if (httpAttr != null)
+                {
+                    httpMethod = httpAttr.AttributeClass.Name.Substring(4);
+                    //Check if it contains route info
+                    var args = (httpAttr.ApplicationSyntaxReference.GetSyntax() as AttributeSyntax)?.ArgumentList?.Arguments;
+                    if (args != null && args.Value.Count > 0)
+                    {
+                        action = args.Value[0].ToString().Replace("\"", "");
+                    }
+                }
+                //Check if contains route attr
+                if (routeMethodAttr != null)
+                {
+                    var args = (routeMethodAttr.ApplicationSyntaxReference.GetSyntax() as AttributeSyntax).ArgumentList.Arguments;
+                    if (args.Count > 0)
+                    {
+                        action = args[0].ToString().Replace("\"", "");
+                    }
+                }
+                //Replace route variables
+                action = action.Replace("[action]", methodName);
+
+                var regex = new Regex(@"\{(?<paramName>\w+)(:\w+(\(.*?\))?)?\??}");
+                action = regex.Replace(action, match =>
+                {
+                    return $"${{{match.Groups["paramName"].Value}}}";
+                });
+
+                //Resolve how parameters are sent
+                var pendingParameters = new List<ParameterResolution>();
+                var parameterResolutions = mtd.Parameters.Select(p => new ParameterResolution(p, TypeResolver, context, Options)).Where(p => !p.Ignore);
+                foreach (var pr in parameterResolutions)
+                {
+                    //[FromRoute]
+                    if (action.Contains($"{{{pr.Name}}}"))
+                    {
+                        //Casting to any because encodeURIComponent expects string
+                        action = action.Replace($"{{{pr.Name}}}", $"{{encodeURIComponent(<any>{pr.Name})}}");
+                        continue;
+                    }
+
+                    //[FromBody]
+                    if (pr.From == ParameterFromKind.FromBody)
+                    {
+                        actionAbstraction.BodyParameterName = pr.Name;
+                        continue;
+                    }
+                    pendingParameters.Add(pr);
+                }
+                var strParameters = string.Join(", ", parameterResolutions.Select(pr => pr.Signature));
+
+                actionAbstraction.Parameters = parameterResolutions.Select(p => new ParameterAbstraction{ 
+                    Name = p.Name,
+                    IsOptional = p.IsOptional,
+                    TypeDescription = p.TypeDescription
+                }).ToList();
+
+                actionAbstraction.ReturnTypeDescription = returnTypeName;
+                //action
+                actionAbstraction.ActionName = action;
+                //httpMethod
+                actionAbstraction.HttpMethod = httpMethod;
+
+                actionAbstraction.SearchParametersNames = new List<string>();
+
+                //Body
+                switch (httpMethod)
+                {
+                    case "Put":
+                    case "Patch":
+                    case "Post":
+                        break;
+                    default:
+                        actionAbstraction.BodyParameterName = null;
+                        break;
+                }
+
+                //Search
+                actionAbstraction.SearchParametersNames = pendingParameters.Select(pr => pr.Name).ToList();
+            }
+
+            return serviceAbstraction;
         }
 
         public static bool IsService(INamedTypeSymbol t)
