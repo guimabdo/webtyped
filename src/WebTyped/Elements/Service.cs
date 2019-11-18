@@ -140,7 +140,7 @@ namespace WebTyped
 
                 var mtdAttrs = mtd.GetAttributes();
                 var returnType = TypeResolver.Resolve(mtd.ReturnType as ITypeSymbol, context);
-                var returnTypeName = returnType.Name;
+                var returnTypeName = returnType.Declaration;
                 //Not marked actions will accept posts
                 var httpMethod = "Post";
                 string action = "";
@@ -317,7 +317,7 @@ namespace WebTyped
 
                 var mtdAttrs = mtd.GetAttributes();
                 var returnType = TypeResolver.Resolve(mtd.ReturnType as ITypeSymbol, context);
-                var returnTypeName = returnType.Name;
+                var returnTypeName = returnType.Declaration;
                 //Not marked actions will accept posts
                 var httpMethod = "Post";
                 string action = "";
@@ -398,10 +398,11 @@ namespace WebTyped
                 actionAbstraction.Parameters = parameterResolutions.Select(p => new ParameterAbstraction{ 
                     Name = p.Name,
                     IsOptional = p.IsOptional,
-                    TypeDescription = p.TypeDescription
+                    //TypeDescription = p.TypeDescription
+                    Type = p.Type
                 }).ToList();
 
-                actionAbstraction.ReturnTypeDescription = returnTypeName;
+                actionAbstraction.ReturnType = returnType;
                 //action
                 actionAbstraction.ActionName = action;
                 //httpMethod
@@ -425,6 +426,7 @@ namespace WebTyped
                 actionAbstraction.SearchParametersNames = pendingParameters.Select(pr => pr.Name).ToList();
             }
 
+            serviceAbstraction.Imports = context.GetImports();
             return serviceAbstraction;
         }
 

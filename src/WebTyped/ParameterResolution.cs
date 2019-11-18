@@ -15,8 +15,7 @@ namespace WebTyped {
 
         public bool IsOptional { get; private set; }
 
-
-        public string TypeDescription { get; private set;  }
+        public TypeResolution Type { get; private set; }
 
 		public ParameterResolution(IParameterSymbol parameterSymbol, TypeResolver typeResolver, ResolutionContext context, Options options) {
 			var p = parameterSymbol;
@@ -147,10 +146,10 @@ namespace WebTyped {
 			}
 
 
-			string typeName = res.Name;
+			string typeName = res.Declaration;
 
 			if (TsEnum.IsEnum(type)) {
-				if (res.TsType != null && res.TsType is TsEnum) {
+				if (res.IsEnum) {
 					var enumNames = string
 						.Join(
 							" | ",
@@ -163,7 +162,7 @@ namespace WebTyped {
 				}
 			}
 
-            this.TypeDescription = typeName;
+            this.Type = res;
             this.IsOptional = p.IsOptional;
             this.Signature = $"{p.Name}{(p.IsOptional ? "?" : "")}: {typeName}" + (res.IsNullable ? " | null" : "");
 			this.Ignore = p.GetAttributes().Any(a => a.AttributeClass.Name == "FromServices");

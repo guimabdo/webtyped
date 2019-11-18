@@ -19,16 +19,20 @@ namespace WebTyped.Abstractions
         /// </summary>
         //public object Imports { get; set; }
 
+        public TypeResolution Type { get; set; }
+
         public IDictionary<string, string> Imports { get; set; }
 
         /// <summary>
         /// Model name
         /// </summary>
         //public string Name { get; set; }
-        public string ClassDeclaration { get; set; }
+        //public string ClassDeclaration { get; set; }
 
 
         public List<FieldAbstraction> Fields { get; set; }
+
+        public List<FieldAbstraction> AllFields { get; set; }
 
         //public object Extends { get; set; }
     }
@@ -41,6 +45,7 @@ namespace WebTyped.Abstractions
 
     public class EnumAbstraction : OutputFileAbstraction
     {
+        public string Name { get; set; }
         public List<EnumValueAbstraction> Values { get; set; }
     }
 
@@ -53,6 +58,8 @@ namespace WebTyped.Abstractions
         public string Endpoint { get; set; }
 
         public List<ActionAbstraction> Actions { get; set; }
+
+        public IDictionary<string, string> Imports { get; set; }
     }
 
     public class ParameterAbstraction
@@ -60,7 +67,8 @@ namespace WebTyped.Abstractions
         public string Name { get; set; }
         public bool IsOptional { get; set; }
 
-        public string TypeDescription { get; set; }
+        //public string TypeDescription { get; set; }
+        public TypeResolution Type { get; set; }
     }
 
     public class ActionAbstraction
@@ -77,7 +85,7 @@ namespace WebTyped.Abstractions
 
         public List<string> SearchParametersNames { get; set; }
 
-        public string ReturnTypeDescription { get; set; }
+        public TypeResolution ReturnType { get; set; }
     }
 
     public class FieldAbstraction
@@ -87,6 +95,10 @@ namespace WebTyped.Abstractions
         public bool IsNullable { get; set; }
 
         public string TypeDeclaration { get; set; }
+
+        //public string ConstructedFrom { get; set; }
+
+        public TypeResolution TypeResolution { get; set; }
         //public TypeAbstraction Type { get; set; }
     }
 

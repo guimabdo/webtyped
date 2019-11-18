@@ -61,6 +61,7 @@ namespace WebTyped.Elements
             var result = new EnumAbstraction
             {
                 Path = AbstractPath,
+                Name = TypeSymbol.Name,
                 Values = TypeSymbol
                     .GetMembers()
                     .Where(m => m.Kind == SymbolKind.Field)

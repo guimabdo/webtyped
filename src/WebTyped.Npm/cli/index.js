@@ -34,36 +34,39 @@ var e = exec(cmd, (err, stdout) => {
         //Pass to generator
         let files = customGenerator(abstractions);
 
-        for (let f of files) {
-            let filePath = args[2] + path.sep + f.path;
-            filePath = filePath.replace(/\\/g, path.sep);
-            filePath = filePath.replace(/\//g, path.sep);
-            console.log(filePath);
-            //fs.writeFile(args[2] + '/' + f.path, f.content, {}, () => { });
-            //fs.writeFileSync(path, f.content);
-            writeFileSyncRecursive(filePath, f.content, 'utf-8');
+        //Clean up dir
+        let outDir = args[2];
+        let webtypedMemoryFile = outDir + path.sep + '.webtyped';
+        if (fs.existsSync(webtypedMemoryFile)) {
+            let generatedFiles = fs.readFileSync(webtypedMemoryFile, 'utf8').split(';');
+            for (let f of generatedFiles) {
+                fs.unlinkSync(f);
+            }
+
         }
 
+        //Read .webtyped memory
+        let paths = [];
         
+        for (let f of files) {
+            let filePath = outDir + path.sep + f.path;
+            filePath = filePath.replace(/\\/g, path.sep);
+            filePath = filePath.replace(/\//g, path.sep);
+
+            //Create dir
+            let parts = filePath.split(path.sep);
+            let dir = parts.slice(0, parts.length - 1).join(path.sep);
+            fs.mkdirSync(dir, { recursive: true });
+
+            //Save file
+            fs.writeFileSync(filePath, f.content);
+            paths.push(filePath);
+        }
+
+        fs.mkdirSync(outDir, { recursive: true });
+        fs.writeFileSync(webtypedMemoryFile, paths.join(';'));
     }
 });
 
 e.stdout.pipe(process.stdout);
 e.stderr.pipe(process.stderr);
-
-
-function writeFileSyncRecursive(filename, content, charset) {
-    
-    const folders = filename.split(path.sep).slice(0, -1);
-    if (folders.length) {
-        // create folder path if it doesn't exist
-        folders.reduce((last, folder) => {
-            const folderPath = last ? last + path.sep + folder : folder;
-            if (!fs.existsSync(folderPath)) {
-                fs.mkdirSync(folderPath);
-            }
-            return folderPath;
-        });
-    }
-    fs.writeFileSync(filename, content, charset);
-}

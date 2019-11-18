@@ -19,58 +19,28 @@ namespace WebTyped
             //If external
             if (this.HasCustomMap) { return null; }
 
+            //Static
+            if (TypeSymbol.IsStatic) { return null; }
+
             var abstraction = new ModelAbstraction();
             abstraction.Path = AbstractPath;
             abstraction.Fields = new List<FieldAbstraction>();
+            abstraction.AllFields = new List<FieldAbstraction>();
 
 
             var context = new ResolutionContext(this);
-            if (!TypeSymbol.IsStatic)
+            abstraction.Type = TypeResolver.Resolve(TypeSymbol, context, true);
+            //Members
+            var currentTypeSymbol = TypeSymbol;
+            //var dctAllFields = new Dictionary<string, FieldAbstraction>();
+            HashSet<string> existingFields = new HashSet<string>();
+            do
             {
-
-                string inheritance = "";
-
-                if (TypeSymbol.BaseType != null && TypeSymbol.BaseType.SpecialType != SpecialType.System_Object)
+                foreach (var m in currentTypeSymbol.GetMembers())
                 {
-                    var inheritanceTypeResolution = TypeResolver.Resolve(TypeSymbol.BaseType, context);
-                    if (inheritanceTypeResolution.IsAny)
-                    {
-                        if (inheritanceTypeResolution.Name.Contains("/*"))
-                        {
-                            inheritance = $"/*extends {inheritanceTypeResolution.Name.Replace("any/*", "").Replace("*/", "")}*/";
-                        }
-
-                    }
-                    else
-                    {
-                        inheritance = $"extends {inheritanceTypeResolution.Name} ";
-                    }
-                }
-
-                string genericArguments = "";
-                if (TypeSymbol.TypeArguments.Any())
-                {
-                    genericArguments = $"<{string.Join(", ", TypeSymbol.TypeArguments.Select(t => t.Name))}>";
-                }
-
-                //sb.AppendLine(level, $"export interface {ClassName}{genericArguments} {inheritance}{{");
-                abstraction.ClassDeclaration = $"{ClassName}{genericArguments} {inheritance}";
-                foreach (var m in TypeSymbol.GetMembers())
-                {
-                    if (m.Kind == SymbolKind.NamedType)
-                    {
-                        //subClasses.Add(m as INamedTypeSymbol);
-                        continue;
-                    }
-                    if (m.IsStatic)
-                    {
-                        //if (m.Kind == SymbolKind.Field && (m as IFieldSymbol).IsConst)
-                        //{
-                        //    hasConsts = true;
-                        //}
-                        continue;
-                    }
-                    if (m.Kind != SymbolKind.Property) { continue; }
+                    if (existingFields.Contains(m.Name)) { continue; }
+                    if (m.Kind != SymbolKind.Field && m.Kind != SymbolKind.Property) { continue; }
+                    if (m.IsStatic) { continue; }
                     if (m.DeclaredAccessibility != Accessibility.Public) { continue; }
 
                     var fieldAbstraction = new FieldAbstraction();
@@ -90,16 +60,53 @@ namespace WebTyped
 
                     fieldAbstraction.IsNullable = isNullable;
                     fieldAbstraction.Name = name;
-                    fieldAbstraction.TypeDeclaration = typeResolution.Name;
-                    //fieldAbstraction.Type = new TypeAbstraction
-                    //{
-                    //    Name = prop.Type.Name,
-                    //    //Alias = ""
-                    //};
-                    abstraction.Fields.Add(fieldAbstraction);
-                    //sb.AppendLine(level + 1, $"{name}{(isNullable ? "?" : "")}: {typeResolution.Name};");
+                    fieldAbstraction.TypeDeclaration = typeResolution.Declaration;
+                    fieldAbstraction.TypeResolution = typeResolution;
+
+                    //dctAllFields[m.Name] = fieldAbstraction;
+                    abstraction.AllFields.Add(fieldAbstraction);
+                    if (currentTypeSymbol == TypeSymbol)
+                    {
+                        abstraction.Fields.Add(fieldAbstraction);
+                    }
                 }
-            }
+                currentTypeSymbol = currentTypeSymbol.BaseType;
+            } while (currentTypeSymbol != null);
+
+            //foreach (var m in TypeSymbol.GetMembers())
+            //{
+            //    if (m.Kind == SymbolKind.NamedType)
+            //    {
+            //        continue;
+            //    }
+            //    if (m.IsStatic)
+            //    {
+            //        continue;
+            //    }
+            //    if (m.Kind != SymbolKind.Property) { continue; }
+            //    if (m.DeclaredAccessibility != Accessibility.Public) { continue; }
+
+            //    var fieldAbstraction = new FieldAbstraction();
+
+            //    var prop = m as IPropertySymbol;
+            //    var isNullable = TypeResolver.IsNullable(prop.Type) || !prop.Type.IsValueType;
+            //    var name = Options.KeepPropsCase ? m.Name : m.Name.ToCamelCase();
+
+            //    var summary = prop.GetDocumentationCommentXml();
+            //    if (!string.IsNullOrWhiteSpace(summary))
+            //    {
+            //        summary = summary.Split("<summary>").Last().Split("</summary>").First().Trim();
+            //        fieldAbstraction.Summary = summary;
+            //    }
+
+            //    var typeResolution = TypeResolver.Resolve(prop.Type, context);
+
+            //    fieldAbstraction.IsNullable = isNullable;
+            //    fieldAbstraction.Name = name;
+            //    fieldAbstraction.TypeDeclaration = typeResolution.Declaration;
+            //    fieldAbstraction.TypeResolution = typeResolution;
+            //    abstraction.Fields.Add(fieldAbstraction);
+            //}
 
             //AppendKeysAndNames(sb);
 
@@ -126,15 +133,15 @@ namespace WebTyped
                     var inheritanceTypeResolution = TypeResolver.Resolve(TypeSymbol.BaseType, context);
                     if (inheritanceTypeResolution.IsAny)
                     {
-                        if (inheritanceTypeResolution.Name.Contains("/*"))
+                        if (inheritanceTypeResolution.Declaration.Contains("/*"))
                         {
-                            inheritance = $"/*extends {inheritanceTypeResolution.Name.Replace("any/*", "").Replace("*/", "")}*/";
+                            inheritance = $"/*extends {inheritanceTypeResolution.Declaration.Replace("any/*", "").Replace("*/", "")}*/";
                         }
 
                     }
                     else
                     {
-                        inheritance = $"extends {inheritanceTypeResolution.Name} ";
+                        inheritance = $"extends {inheritanceTypeResolution.Declaration} ";
                     }
                 }
 
@@ -179,7 +186,7 @@ namespace WebTyped
                         sb.AppendLine(level + 1, "**/");
                     }
 
-                    sb.AppendLine(level + 1, $"{name}{(isNullable ? "?" : "")}: {TypeResolver.Resolve(prop.Type, context).Name};");
+                    sb.AppendLine(level + 1, $"{name}{(isNullable ? "?" : "")}: {TypeResolver.Resolve(prop.Type, context).Declaration};");
                 }
                 sb.AppendLine(level, "}");
 
