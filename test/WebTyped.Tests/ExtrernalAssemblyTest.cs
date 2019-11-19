@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.Extensions.FileSystemGlobbing;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,6 +9,7 @@ namespace WebTyped.Tests {
 	[TestClass]
 	public class ExtrernalAssemblyTest
     {
+    
 		[TestMethod]
 		public async Task GenerateFromAssemblyTest() {
             var options = new Options(".\\")

@@ -3,192 +3,153 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using WebTyped.Abstractions;
 
 namespace WebTyped.Elements {
-	public abstract class TsModelBase : ITsFile {
-		public INamedTypeSymbol TypeSymbol { get; private set; }
-		public TypeResolver TypeResolver { get; private set; }
-		public Options Options { get; private set; }
-		//public string ClassName { get; set; }
+    public abstract class TsModelBase : ITsFile
+    {
+        public INamedTypeSymbol TypeSymbol { get; private set; }
+        public TypeResolver TypeResolver { get; private set; }
+        public Options Options { get; private set; }
 
-		public string ClassName {
-			get {
-				if (TypeSymbol.TypeArguments.Any()) {
-					//if (TypeSymbol.TypeArguments.Any()) {
-					//	// fileNameCore += $"_of_{string.Join('_', TypeSymbol.TypeArguments.Select(ta => ta.Name))}";
-					//	fileNameCore += $"Of{TypeSymbol.TypeArguments.Count()}";
-					//}
-					return $"{TypeSymbol.Name}Of{TypeSymbol.TypeArguments.Count()}";
-				}
-				else {
-					return TypeSymbol.Name;
-				}
-			}
-		}
+        public string ClassName {
+            get {
+                if (TypeSymbol.TypeArguments.Any())
+                {
+                    return $"{TypeSymbol.Name}Of{TypeSymbol.TypeArguments.Count()}";
+                }
+                else
+                {
+                    return TypeSymbol.Name;
+                }
+            }
+        }
 
-		public string FullName {
-			get {
-				return ClassName;
-				//if(Options.TypingsScope == TypingsScope.Module) { return ClassName; }
-				//if (string.IsNullOrEmpty(Module)) { return ClassName; }
-				//return $"{Module}.{ClassName}";
-			}
-		}
+        public string ModuleCamel {
+            get {
+                return Module.ToCamelCase();
+            }
+        }
 
-		public string ModuleCamel {
-			get {
-				//return string.Join('.', Module.Split('.').Select(s => s.ToCamelCase()));
-				return Module.ToCamelCase();
-			}
-		}
+        public string Module {
+            get {
+                var parent = TypeSymbol.ContainingType;
+                if (parent != null && TypeResolver.TypeFiles.TryGetValue(parent, out var parentElement))
+                {
+                    return $"{parentElement.ClassName}";
+                }
 
-		public string Module {
-			get {
-				var parent = TypeSymbol.ContainingType;
-				if (parent != null && TypeResolver.TypeFiles.TryGetValue(parent, out var parentElement)) {
-					return $"{parentElement.FullName}";
-				}
-
-				//Module will be Namespace.{parent classes}
-				//var moduleName = Options.TruncateNamespace(TypeSymbol.ContainingNamespace);
-				var moduleName = "";
-				if (!TypeSymbol.ContainingNamespace.IsGlobalNamespace) {
-					moduleName = TypeSymbol.ContainingNamespace.ToString();
-				}
-				var parents = new List<string>();
-				while (parent != null) {
-					parents.Add(parent.Name);
-					parent = parent.ContainingType;
-				}
-				if (parents.Any()) {
-					parents.Reverse();
-					moduleName += $".{string.Join(".", parents)}";
-				}
-				return Options.AdjustModule(moduleName);
-				//return moduleName;
-			}
-		}
+                //Module will be Namespace.{parent classes}
+                var moduleName = "";
+                if (!TypeSymbol.ContainingNamespace.IsGlobalNamespace)
+                {
+                    moduleName = TypeSymbol.ContainingNamespace.ToString();
+                }
+                var parents = new List<string>();
+                while (parent != null)
+                {
+                    parents.Add(parent.Name);
+                    parent = parent.ContainingType;
+                }
+                if (parents.Any())
+                {
+                    parents.Reverse();
+                    moduleName += $".{string.Join(".", parents)}";
+                }
+                return Options.AdjustModule(moduleName);
+            }
+        }
 
         public bool HasCustomMap {
             get {
-                if(Options.CustomMap == null) { return false; }
+                if (Options.CustomMap == null) { return false; }
                 return Options.CustomMap.ContainsKey(TypeSymbol.ConstructedFrom.ToString());
             }
         }
 
-		//public (string name, string module)? ExternalType {
-		//	get {
-  //              //if(Options.CustomMap == null) { return null; }
-  //              //if (!Options.CustomMap.ContainsKey(TypeSymbol.ConstructedFrom.ToString())) { return null; }
+        public string OutputFilePath {
+            get {
+                return Path.Combine(Options.OutDir, ModuleCamel, Filename);
+            }
+        }
 
-  //              //OBSOLETE (WebTyped.Attributes)
-		//		var clientTypeAttr = TypeSymbol.GetAttributes().FirstOrDefault(a => a.AttributeClass.Name == nameof(ClientTypeAttribute));
+        //public string OutputFilePathWithoutExtension {
+        //    get {
+        //        return Path.Combine(Options.OutDir, ModuleCamel, FilenameWithoutExtenstion);
+        //    }
+        //}
 
-		//		if (clientTypeAttr == null) { return null; }
-		//		var args = clientTypeAttr.ConstructorArguments.ToList();
-		//		var name = (args[0].Value ?? TypeSymbol.Name).ToString();
-		//		var module = args[1].Value != null ? args[1].Value.ToString() : null;
-		//		return (name, module);
-		//	}
-		//}
+        public string AbstractPath {
+            get {
+                return Path.Combine(ModuleCamel, FilenameWithoutExtenstion);
+            }
+        }
 
+        public string FilenameWithoutExtenstion {
+            get {
+                return ClassName.ToCamelCase();
+            }
+        }
 
-		//string FullClassName {
-		//	get {
-		//		if (string.IsNullOrEmpty(Module)) { return TypeSymbol.Name; }
-		//		return $"{Module}.{TypeSymbol.Name}";
-		//	}
-		//}
-		public string OutputFilePath {
-			get {
-				//if (Options.TypingsScope == TypingsScope.Module) {
-				//	return Path.Combine(Options.OutDir, ModuleCamel, Filename);
-				//}
-				//return Path.Combine(Options.TypingsDir, Filename);
-				return Path.Combine(Options.OutDir, ModuleCamel, Filename);
-			}
-		}
+        protected string Filename {
+            get {
+                return $"{FilenameWithoutExtenstion}.ts";
+            }
+        }
 
-		public string FilenameWithoutExtenstion {
-			get {
-				//if(Options.TypingsScope == TypingsScope.Module) {
-				//	return ClassName.ToCamelCase();
-				//}
+        public TsModelBase(INamedTypeSymbol modelType, TypeResolver typeResolver, Options options)
+        {
+            TypeSymbol = modelType;
+            TypeResolver = typeResolver;
+            Options = options;
+        }
 
-				//var fileNamePart = ClassName.ToCamelCase();
-				////if (TypeSymbol.TypeArguments.Any()) {
-				////	// fileNameCore += $"_of_{string.Join('_', TypeSymbol.TypeArguments.Select(ta => ta.Name))}";
-				////	fileNameCore += $"Of{TypeSymbol.TypeArguments.Count()}";
-				////}
-				//if (string.IsNullOrEmpty(Module)) { return $"{fileNamePart}.d"; }
-				//return $"{Module}.{fileNamePart}.d";
-				return ClassName.ToCamelCase();
-			}
-		}
+        protected void AppendKeysAndNames(StringBuilder sb)
+        {
+            var level = 0;
+            sb.AppendLine();
+            sb.AppendLine($"export class {ClassName}$ {{");
+            level++;
 
-		protected string Filename {
-			get {
-				return $"{FilenameWithoutExtenstion}.ts";
-				//if (this.TypeSymbol.TypeArguments.Any()) {
-				//return $"{FilenameWithoutExtenstion}`.ts";
-				//} else {
-				//	return $"{FilenameWithoutExtenstion}.ts";
-				//}
-			}
-		}
+            //Class name
+            sb.AppendLine(level, $"static readonly $ = '{ClassName}';");
 
-		public TsModelBase(INamedTypeSymbol modelType, TypeResolver typeResolver, Options options) {
-			TypeSymbol = modelType;
-			TypeResolver = typeResolver;
-			Options = options;
-		}
-
-		protected void AppendKeysAndNames(StringBuilder sb) {
-			var level = 0;
-			sb.AppendLine();
-			sb.AppendLine($"export class {ClassName}$ {{");
-			level++;
-
-			//Class name
-			sb.AppendLine(level, $"static readonly $ = '{ClassName}';");
-
-			//Members
-			var currentTypeSymbol = TypeSymbol;
-			var members = new List<ISymbol>();
-			do {
-				members.AddRange(currentTypeSymbol.GetMembers());
-				currentTypeSymbol = currentTypeSymbol.BaseType;
-			} while (currentTypeSymbol != null);
+            //Members
+            var currentTypeSymbol = TypeSymbol;
+            var members = new List<ISymbol>();
+            do
+            {
+                members.AddRange(currentTypeSymbol.GetMembers());
+                currentTypeSymbol = currentTypeSymbol.BaseType;
+            } while (currentTypeSymbol != null);
 
             HashSet<string> appendedMembers = new HashSet<string>();
 
-			foreach (var m in members) {
-				if (m.Kind != SymbolKind.Field && m.Kind != SymbolKind.Property) {
-					continue;
-				}
-				if (m.DeclaredAccessibility != Accessibility.Public) { continue; }
-				var name = m.Name;
-				if (!Options.KeepPropsCase && !((m as IFieldSymbol)?.IsConst).GetValueOrDefault()) {
-					name = name.ToCamelCase();
-				}
+            foreach (var m in members)
+            {
+                if (m.Kind != SymbolKind.Field && m.Kind != SymbolKind.Property)
+                {
+                    continue;
+                }
+                if (m.DeclaredAccessibility != Accessibility.Public) { continue; }
+                var name = m.Name;
+                if (!Options.KeepPropsCase && !((m as IFieldSymbol)?.IsConst).GetValueOrDefault())
+                {
+                    name = name.ToCamelCase();
+                }
 
                 //Avoid dup
                 if (appendedMembers.Contains(name)) { continue; }
 
                 appendedMembers.Add(name);
-				sb.AppendLine(level, $"static readonly ${name} = '{name}';");
-				//sb.AppendLine(level, $"export namespace {name} {{");
-				//level++;
-				//sb.AppendLine(level, $"export const $nameof = '{name}';");
-				//level--;
-				//sb.AppendLine(level, "}");
-				// sb.AppendLine(2, $@"{name} = ""{name}"",");
-			}
+                sb.AppendLine(level, $"static readonly ${name} = '{name}';");
+            }
 
-			level--;
-			sb.AppendLine("}");
-		}
+            level--;
+            sb.AppendLine("}");
+        }
 
-		public abstract (string file, string content)? GenerateOutput();
-	}
+        public abstract (string file, string content)? GenerateOutput();
+        public abstract OutputFileAbstraction GetAbstraction();
+    }
 }

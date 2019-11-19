@@ -5,6 +5,8 @@ using System.Text;
 namespace WebTyped.Cli
 {
 	public class Config {
+        public string Generator { get; set; }
+
 		public IEnumerable<string> Files { get; set; }
 
         public IEnumerable<string> Assemblies { get; set; }

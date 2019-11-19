@@ -6,38 +6,36 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WebTyped.Abstractions;
 using WebTyped.Elements;
 
 namespace WebTyped
 {
     public class TypeResolution
     {
-        public string OriginalName { get; set; }
+        public string ConstructedFrom { get; set; }
+
+        public string ModuleAlias { get; set; }
+
         /// <summary>
-        /// Currently used for named tuples...
+        /// TypeResolution or string with the generic argument name
         /// </summary>
-        //public string AltName { get; set; }
+        public List<object> GenericArguments { get; set; }
 
-        //public bool UseAltName { get; set; }
-        public ITsFile TsType { get; set; }
+        public string Declaration { get; set; }
 
-        public string Name {
-            get {
-                //if (UseAltName)
-                //{
-                //    if (string.IsNullOrWhiteSpace(AltName)) { return "[This type doesn't have an alternative name. Are you using NamedTupleAttribute without a tuple type?]"; }
-                //    return AltName;
-                //}
-                return OriginalName;
-            }
-        }
+        //public ITsFile TsType { get; set; }
+        public bool IsEnum { get; set; }
 
-        //public string MapAltToOriginalFunc { get; set; }
         public bool IsNullable { get; set; }
-        // public bool IsTuple { get; set; }
+
+        public TypeResolution Inherits { get; set; }
+
+        public bool IsKnown { get; set; }
+
         public bool IsAny {
             get {
-                return this.Name == "any" || this.Name.StartsWith("any/*");
+                return this.Declaration == "any" || this.Declaration.StartsWith("any/*");
             }
         }
     }
@@ -60,6 +58,11 @@ namespace WebTyped
             }
 
             return _aliasByModule[externalModule];
+        }
+
+        public IDictionary<string, string> GetImports()
+        {
+            return _aliasByModule;
         }
 
         public string GetImportsText()
@@ -96,14 +99,58 @@ namespace WebTyped
                 (this.Services as List<Service>).Add(file as Service);
             }
         }
-        public TypeResolution Resolve(ITypeSymbol typeSymbol, ResolutionContext context)
+        public TypeResolution Resolve(
+            ITypeSymbol typeSymbol, 
+            ResolutionContext context, 
+            bool fillInheritance = false
+        )
         {
             var type = typeSymbol as INamedTypeSymbol;
 
             var result = new TypeResolution();
+            result.ConstructedFrom = type?.ConstructedFrom?.ToString();
+
+            //Normalize type identifier
+            if (!string.IsNullOrWhiteSpace(result.ConstructedFrom))
+            {
+                var splitted = result.ConstructedFrom.Split('<');
+                var baseName = splitted[0];
+                if (splitted.Length > 1)
+                {
+                    splitted = splitted[1].Split(',');
+                    //Normalize constructedFrom. when analyzing compiled assemblies, generic args are omitted
+                    result.ConstructedFrom = baseName + "<" + new StringBuilder().Append(',', splitted.Length - 1) + ">";
+                }
+            }
+
+            //Get generics
+            if (type != null && type.IsGenericType)
+            {
+                result.GenericArguments = type
+                        .TypeArguments
+                        .Select(t =>
+                            t is INamedTypeSymbol ?
+                                /* When type is defined */
+                                (object)Resolve(t as INamedTypeSymbol, context)
+                                //Just the argument name
+                                : t.Name
+                        )
+                        .ToList();
+
+            }
+
+            //Base Type
+            if (fillInheritance && type != null && type.BaseType != null && type.BaseType.SpecialType != SpecialType.System_Object)
+            {
+                result.Inherits = Resolve(
+                    type.BaseType, 
+                    context, 
+                    //Avoid creating unecessary extra import int the current context 
+                    false);
+            }
 
             //User custom type mapping
-            if(Options.CustomMap != null && type != null && Options.CustomMap.ContainsKey(type.ConstructedFrom.ToString()))
+            if (Options.CustomMap != null && type != null && Options.CustomMap.ContainsKey(type.ConstructedFrom.ToString()))
             {
                 //Found definition with this full type name
                 var clientType = Options.CustomMap[type.ConstructedFrom.ToString()];
@@ -112,35 +159,39 @@ namespace WebTyped
                 var externalName = clientType.Name;
                 if (string.IsNullOrWhiteSpace(externalModule))
                 {
-                    result.OriginalName = externalName;
+                    result.Declaration = externalName;
                 }
                 else
                 {
                     var alias = context.GetAliasByModule(externalModule);
-                    result.OriginalName = $"{alias}.{externalName}";
+                    result.ModuleAlias = alias;
+                    result.Declaration = $"{alias}.{externalName}";
                 }
 
+                result.IsKnown = true;
                 return result;
             }
 
             //Generic part of a generic class
             if (typeSymbol is ITypeParameterSymbol)
             {
-                result.OriginalName = typeSymbol.Name;
+                result.Declaration = typeSymbol.Name;
                 return result;
             }
 
             result.IsNullable = IsNullable(typeSymbol);
 
-            var tsType = TypeFiles.ContainsKey(typeSymbol) ? 
+            var tsType = TypeFiles.ContainsKey(typeSymbol) ?
                                TypeFiles[typeSymbol]
                                     //When inheriting from another generic model
-                                    : TypeFiles.ContainsKey(typeSymbol.OriginalDefinition) ? 
+                                    : TypeFiles.ContainsKey(typeSymbol.OriginalDefinition) ?
                                             TypeFiles[typeSymbol.OriginalDefinition] : null;
             if (tsType != null)
             {
-                result.TsType = tsType;
-                result.OriginalName = tsType.FullName;
+                //result.TsType = tsType;
+                result.IsEnum = tsType is TsEnum;
+                result.IsKnown = true;
+                result.Declaration = tsType.ClassName;
                 if (tsType is TsModelBase
                     &&
                     tsType != context.Target //auto-reference
@@ -148,44 +199,26 @@ namespace WebTyped
                 {
                     var tsModel = tsType as TsModelBase;
 
-                    //External types
-                    //if (tsModel.ExternalType != null)
-                    //{
-                    //    var externalModule = tsModel.ExternalType.Value.module;
-                    //    var externalName = tsModel.ExternalType.Value.name ?? result.OriginalName;
-                    //    if (string.IsNullOrWhiteSpace(externalModule))
-                    //    {
-                    //        result.OriginalName = externalName;
-                    //    }
-                    //    else
-                    //    {
-                    //        var alias = context.GetAliasByModule(externalModule);
-                    //        result.OriginalName = $"{alias}.{externalName}";
-                    //    }
-                    //}
-                    ////else if(Options.TypingsScope == TypingsScope.Module) {
-                    //else
-                    //{
-                        var c = new Uri("C:\\", UriKind.Absolute);
-                        var uriOther = new Uri(c, new Uri(tsModel.OutputFilePath, UriKind.Relative));
-                        var uriMe = new Uri(c, new Uri(context.Target.OutputFilePath, UriKind.Relative));
+                    var c = new Uri("C:\\", UriKind.Absolute);
+                    var uriOther = new Uri(c, new Uri(tsModel.OutputFilePath, UriKind.Relative));
+                    var uriMe = new Uri(c, new Uri(context.Target.OutputFilePath, UriKind.Relative));
 
 
-                        var module = uriMe.MakeRelativeUri(uriOther).ToString();
-                        module = module.Substring(0, module.Length - 3);
-                        if (module[0] != '.')
-                        {
-                            module = "./" + module;
-                        }
-                        var alias = context.GetAliasByModule(module);
-                        result.OriginalName = $"{alias}.{result.OriginalName}";
-                    //}
+                    var module = uriMe.MakeRelativeUri(uriOther).ToString();
+                    module = module.Substring(0, module.Length - 3);
+                    if (module[0] != '.')
+                    {
+                        module = "./" + module;
+                    }
+                    var alias = context.GetAliasByModule(module);
+                    result.ModuleAlias = alias;
+                    result.Declaration = $"{alias}.{result.Declaration}";
                 }
                 //When inheriting from another generic model
                 if (type.IsGenericType)
                 {
-                    var gp_ = GetGenericPart(type, result.OriginalName, context);
-                    result.OriginalName = $"{result.OriginalName}{gp_.genericPart}";
+                    var gp_ = GetGenericPart(type, result.Declaration, context);
+                    result.Declaration = $"{result.Declaration}{gp_.genericPart}";
                 }
                 return result;
             }
@@ -194,14 +227,23 @@ namespace WebTyped
             if (typeSymbol is IArrayTypeSymbol)
             {
                 var arrTypeSymbol = typeSymbol as IArrayTypeSymbol;
+
+                //This generic type does not really exists, just the base type "System.Array", but it will help generators easily identify arrays
+                result.ConstructedFrom = "System.Array<>";
+                result.GenericArguments = new List<object>
+                {
+                    Resolve(arrTypeSymbol.ElementType, context)
+                };
+
+
                 if (arrTypeSymbol.ElementType.SpecialType == SpecialType.System_Byte)
                 {
-                    result.OriginalName = "string";
+                    result.Declaration = "string";
                 }
                 else
                 {
                     var elementTypeRes = Resolve(arrTypeSymbol.ElementType, context);
-                    result.OriginalName = $"Array<{elementTypeRes.Name}>";
+                    result.Declaration = $"Array<{elementTypeRes.Declaration}>";
                 }
                 return result;
             }
@@ -213,19 +255,13 @@ namespace WebTyped
                     {
                         field = (Options.KeepPropsCase ? te.Name : te.Name.ToCamelCase()),
                         tupleField = (Options.KeepPropsCase ? te.CorrespondingTupleField.Name : te.CorrespondingTupleField.Name.ToCamelCase()),
-                        type = Resolve(te.Type as INamedTypeSymbol, context).OriginalName
+                        type = Resolve(te.Type as INamedTypeSymbol, context).Declaration
                     });
 
                 var tupleProps = tupleElements
                     .Select(te => $"/** field:{te.field} */{te.tupleField}: {te.type}");
 
-                result.OriginalName = $"{{{string.Join(", ", tupleProps)}}}";
-                //result.AltName = $"{{{string.Join(", ", tupleAltProps)}}}";
-                //var mapParam = "__source";
-                //var mapping = string.Join(", ", tupleElements.Select(t => $"{t.tupleField}: {mapParam}.{t.field}"));
-                //result.MapAltToOriginalFunc = $"function({mapParam}) {{ return {{ {mapping}  }} }}";
-                //result.IsTuple = true;
-                //result.UseAltName = useTupleAltNames;
+                result.Declaration = $"{{{string.Join(", ", tupleProps)}}}";
                 return result;
             }
 
@@ -257,12 +293,12 @@ namespace WebTyped
             //If contains "{" or "}" then it was converted to anonymous type, so no need to do anything else.
             if (tsTypeName.Contains("{"))
             {
-                result.OriginalName = tsTypeName;
+                result.Declaration = tsTypeName;
                 return result;
             }
 
             var gp = GetGenericPart(type, tsTypeName, context);
-            result.OriginalName = $"{gp.modifiedTsTypeName}{gp.genericPart}";
+            result.Declaration = $"{gp.modifiedTsTypeName}{gp.genericPart}";
             return result;
         }
 
@@ -274,7 +310,7 @@ namespace WebTyped
             {
                 if (string.IsNullOrEmpty(tsTypeName))
                 {
-                    tsTypeName = Resolve(type.TypeArguments[0], context).Name;
+                    tsTypeName = Resolve(type.TypeArguments[0], context).Declaration;
                 }
                 else
                 {
@@ -282,7 +318,7 @@ namespace WebTyped
                         .Select(t =>
                             t is INamedTypeSymbol ?
                             /* When type is defined */
-                            Resolve(t as INamedTypeSymbol, context).Name
+                            Resolve(t as INamedTypeSymbol, context).Declaration
                             : t.Name /* When it is a generic param reference */ );
                     genericPart = $"<{string.Join(", ", types)}>";
                 }
@@ -295,7 +331,6 @@ namespace WebTyped
                 {
                     genericPart = $"/*{genericPart}*/";
                 }
-                //return $"{tsTypeName}{(string.IsNullOrEmpty(genericPart) ? "" : $"")}";
             }
             if (tsTypeName == "Array" && string.IsNullOrWhiteSpace(genericPart))
             {
@@ -307,6 +342,13 @@ namespace WebTyped
         {
             //return (t as INamedTypeSymbol)?.ConstructedFrom?.ToString() == "System.Nullable<T>";
             return ((t as INamedTypeSymbol)?.ConstructedFrom?.ToString().StartsWith("System.Nullable<")).GetValueOrDefault();
+        }
+
+        public class NormalizedType
+        {
+            public string Name { get; set; }
+
+            public List<string> GenericArguments { get; set; }
         }
 
         string ToTsTypeName(INamedTypeSymbol original, ResolutionContext context)
@@ -343,19 +385,8 @@ namespace WebTyped
             }
             var constructedFrom = (original as INamedTypeSymbol).ConstructedFrom.ToString();
 
-            //IQueryable<int> a;
             switch (constructedFrom)
             {
-                //ase nameof(Boolean):
-                //	return "boolean";
-                //case nameof(DateTime):
-                //case nameof(String):
-                //	return "string";
-                //case nameof(Int32):
-                //case nameof(Int16):
-                //case nameof(Int64):
-                //	return "number";
-                //case nameof(IEnumerable):
                 case "System.DateTimeOffset":
                     return "string";
                 case "System.Collections.Generic.IList<T>":
@@ -377,8 +408,8 @@ namespace WebTyped
                     return "";
                 case "System.Collections.Generic.KeyValuePair<TKey, TValue>":
                     {
-                        var keyType = Resolve(original.TypeArguments[0], context).Name;
-                        var valType = Resolve(original.TypeArguments[1], context).Name;
+                        var keyType = Resolve(original.TypeArguments[0], context).Declaration;
+                        var valType = Resolve(original.TypeArguments[1], context).Declaration;
                         return Options.KeepPropsCase ?
                         $"{{ Key: {keyType}, Value: {valType} }}"
                         : $"{{ key: {keyType}, value: {valType} }}";
@@ -386,8 +417,8 @@ namespace WebTyped
                 case "System.Collections.Generic.Dictionary<TKey, TValue>":
                 case "System.Collections.Generic.Dictionary<,>":
                     {
-                        var keyType = Resolve(original.TypeArguments[0], context).Name;
-                        var valType = Resolve(original.TypeArguments[1], context).Name;
+                        var keyType = Resolve(original.TypeArguments[0], context).Declaration;
+                        var valType = Resolve(original.TypeArguments[1], context).Declaration;
                         if (keyType == "string" || keyType == "number")
                         {
                             return $"{{ [key: {keyType}]: {valType} }}";
@@ -487,6 +518,32 @@ namespace WebTyped
             var result = new Dictionary<string, string>();
             Process((file, content) => result.Add(file, content));
             return result;
+        }
+
+        public List<OutputFileAbstraction> GenerateAbstractions()
+        {
+            var result = new List<OutputFileAbstraction>();
+
+            foreach (var m in Models)
+            {
+                var modelAbstraction = m.GetAbstraction();
+                if (modelAbstraction != null)
+                {
+                    result.Add(modelAbstraction);
+                }
+            }
+
+            foreach (var s in Services)
+            {
+                var serviceAbstraction = s.GetAbstraction();
+                if (serviceAbstraction != null)
+                {
+                    result.Add(serviceAbstraction);
+                }
+            }
+
+            return result;
+
         }
 
         public async Task SaveAllAsync()

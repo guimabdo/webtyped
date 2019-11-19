@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using WebTyped.Abstractions;
 
 namespace WebTyped
 {
@@ -49,9 +50,20 @@ namespace WebTyped
                 {
                     var moduleCamel = string.Join('.', Module.Split('.').Select(s => s.ToCamelCase()));
                     dir = Path.Combine(Options.OutDir, moduleCamel);
-                    //Directory.CreateDirectory(dir);
                 }
                 return Path.Combine(dir, Filename);
+            }
+        }
+
+        public string AbstractPath {
+            get {
+                var dir ="";
+                if (!string.IsNullOrEmpty(Module))
+                {
+                    var moduleCamel = string.Join('.', Module.Split('.').Select(s => s.ToCamelCase()));
+                    dir = moduleCamel;
+                }
+                return Path.Combine(dir, FilenameWithoutExtenstion);
             }
         }
 
@@ -68,7 +80,6 @@ namespace WebTyped
             Module = options.AdjustModule(Module);
             FilenameWithoutExtenstion = $"{ControllerName.ToCamelCase()}.service";
             Options = options;
-            //TypeResolver.Add(this);
         }
 
         public (string file, string content) GenerateOutput()
@@ -92,15 +103,6 @@ namespace WebTyped
             var path = arg.Replace("[controller]", ControllerName.ToCamelCase());
             int level = 0;
 
-            //switch (Options.ServiceMode) {
-            //	case ServiceMode.Angular:
-            //	case ServiceMode.Angular4:
-            //		sb.AppendLine(level, "@Injectable()");
-            //		break;
-            //}
-
-            //sb.AppendLine(level, $"export class {ClassName} extends WebTypedClient {{");
-
             if (Options.Inject?.BeforeServiceClass != null)
             {
                 foreach (var line in Options.Inject.BeforeServiceClass)
@@ -114,21 +116,6 @@ namespace WebTyped
             sb.AppendLine(level, $"	static readonly controllerName = '{TypeSymbol.Name}';");
             sb.AppendLine(level, $"	private api = '{path}';");
 
-            //switch (Options.ServiceMode) {
-            //	case ServiceMode.Angular:
-            //	case ServiceMode.Angular4:
-            //		sb.AppendLine(level, $"	constructor(@Optional() @Inject('API_BASE_URL') baseUrl: string, httpClient: HttpClient, @Inject(forwardRef(() => WebTypedEventEmitterService)) eventEmitter: WebTypedEventEmitterService) {{");
-            //		sb.AppendLine(level, $@"		super(baseUrl, '{path}', httpClient, eventEmitter);");
-            //		break;
-            //	case ServiceMode.Fetch:
-            //	case ServiceMode.Jquery:
-            //		sb.AppendLine(level, $@"	constructor(baseUrl: string = WebTypedClient.baseUrl) {{");
-            //		sb.AppendLine(level, $@"		super(baseUrl, '{path}');");
-            //		break;
-            //}
-
-            //sb.AppendLine(level, "	}");
-
             sb.AppendLine(level, "	constructor(private invoker: WebTypedInvoker) {}");
 
 
@@ -141,7 +128,6 @@ namespace WebTyped
             {
                 if (m.Kind == SymbolKind.NamedType)
                 {
-                    //subClasses.Add(m as INamedTypeSymbol);
                     continue;
                 }
                 if (m.DeclaredAccessibility != Accessibility.Public) { continue; }
@@ -153,21 +139,11 @@ namespace WebTyped
                 if (m.Name == ".ctor") { continue; }
 
                 var mtdAttrs = mtd.GetAttributes();
-                //var hasNamedTupleAttr = mtdAttrs.Any(a => a.AttributeClass.Name == nameof(NamedTupleAttribute));
-                //var returnType = TypeResolver.Resolve(mtd.ReturnType as INamedTypeSymbol, context, hasNamedTupleAttr);
                 var returnType = TypeResolver.Resolve(mtd.ReturnType as ITypeSymbol, context);
-                var returnTypeName = returnType.Name;
-                //if (hasNamedTupleAttr) {
-                //	if (!returnType.IsTuple) {
-                //		returnTypeName = "[UNSUPPORTED - NamedTupleAttribute must be used only for tuples]";
-                //	} else {
-                //		returnTypeName = returnType.AltName;
-                //	}
-                //}
+                var returnTypeName = returnType.Declaration;
                 //Not marked actions will accept posts
                 var httpMethod = "Post";
                 string action = "";
-                //string search = "undefined";
 
                 //Get http method from method name pattern
                 if (mtd.Name.StartsWith("Get")) { httpMethod = "Get"; }
@@ -208,9 +184,7 @@ namespace WebTyped
                     }
                 }
                 //Replace route variables
-                action = action
-                    .Replace("[action]", methodName);
-                //.Replace("{", "${");
+                action = action.Replace("[action]", methodName);
 
                 var regex = new Regex(@"\{(?<paramName>\w+)(:\w+(\(.*?\))?)?\??}");
                 action = regex.Replace(action, match =>
@@ -219,7 +193,6 @@ namespace WebTyped
                 });
 
                 //Resolve how parameters are sent
-                //var pendingParameters = new List<string>();
                 var pendingParameters = new List<ParameterResolution>();
                 var parameterResolutions = mtd.Parameters.Select(p => new ParameterResolution(p, TypeResolver, context, Options)).Where(p => !p.Ignore);
                 var bodyParam = "null";
@@ -236,25 +209,12 @@ namespace WebTyped
                     //[FromBody]
                     if (pr.From == ParameterFromKind.FromBody)
                     {
-                        bodyParam = pr.BodyRelayFormat;
+                        bodyParam = pr.Name;
                         continue;
                     }
                     pendingParameters.Add(pr);
                 }
                 var strParameters = string.Join(", ", parameterResolutions.Select(pr => pr.Signature));
-
-                //if(pendingParameters.Any() && bodyParam == "null" && new string[] {
-                //	"Put", "Patch", "Post"
-                //}.Contains(httpMethod)) {
-                //	bodyParam = pendingParameters[0];
-                //	pendingParameters.RemoveAt(0);
-                //}
-                //string genericReturnType;
-                //switch (Options.ServiceMode) {
-                //	case ServiceMode.Jquery: genericReturnType = "JQuery.jqXHR"; break;
-                //	case ServiceMode.Fetch: genericReturnType = "Promise"; break;
-                //	case ServiceMode.Angular: case ServiceMode.Angular4: default: genericReturnType = "Observable"; break;
-                //}
 
                 var upperMethodName = methodName[0].ToString().ToUpper() + methodName.Substring(1);
                 typeAliases.Add($"export type {upperMethodName}Parameters = {{{strParameters}{(parameterResolutions.Any() ? ", " : "")}_wtKind: '{upperMethodName}' }};");
@@ -263,13 +223,6 @@ namespace WebTyped
                 typeAliases.Add($"export interface {upperMethodName}Function extends WebTypedFunction<{upperMethodName}Parameters, {returnTypeName}>, {upperMethodName}FunctionBase {{}}");
 
                 sb.AppendLine(level + 1, $"{methodName}: {ClassName}.{upperMethodName}Function = ({strParameters}) : {genericReturnType}<{returnTypeName}> => {{");
-                //sb.AppendLine(level + 2, $"return this.invoke{httpMethod}({{");
-                //            sb.AppendLine(level + 4, $"returnTypeName: '{returnTypeName}',");
-                //            sb.AppendLine(level + 4, $"kind: '{upperMethodName}',");
-                //sb.AppendLine(level + 4, $"func: this.{methodName},");
-                //sb.AppendLine(level + 4, $"parameters: {{ {string.Join(", ", parameterResolutions.Select(p => p.Name))}{(parameterResolutions.Any() ? ", " : "")}_wtKind: '{upperMethodName}' }}");
-                //sb.AppendLine(level + 3, "},");
-                //sb.AppendLine(level + 3, $"`{action}`,");
                 sb.AppendLine(level + 2, $"return this.invoker.invoke({{");
 
                 //info
@@ -322,27 +275,159 @@ namespace WebTyped
             typeAliases.ForEach(ta => sb.AppendLine(level + 1, ta));
             sb.AppendLine(level, "}");
             sb.Insert(0, context.GetImportsText());
-            //if (!string.IsNullOrEmpty(Module)) {
-            //	level--;
-            //	sb.AppendLine(level, "}");
-            //}
-
-            //if (subClasses.Any()) {
-            //	sb.AppendLine(level, $"export module {controller}Service {{");
-            //	subClasses.ForEach(s => sb.AppendLine(CreateModelCode(s, level + 1)));
-            //	sb.AppendLine(level, $"}}");
-            //}
-            //var dir = Options.OutDir;
-            //if (!string.IsNullOrEmpty(Module)) {
-            //	dir = Path.Combine(Options.OutDir, Module.ToCamelCase());
-            //	//Directory.CreateDirectory(dir);
-            //}
-            //var file = Path.Combine(dir, Filename);
             string content = sb.ToString();
             return (OutputFilePath, content);
-            //await FileHelper.WriteAsync(file, content);
-            //return file;
-            //File.WriteAllText(Path.Combine(Options.ServicesDir, Filename), sb.ToString());
+        }
+
+        public OutputFileAbstraction GetAbstraction()
+        {
+            var context = new ResolutionContext(this);
+            var serviceAbstraction = new ServiceAbstraction();
+            serviceAbstraction.Path = AbstractPath;
+            serviceAbstraction.ClassName = ClassName;
+            serviceAbstraction.ControllerName = TypeSymbol.Name;
+            serviceAbstraction.Actions = new List<ActionAbstraction>();
+
+            //Resolve endpoint
+            var routeAttr = TypeSymbol.GetAttributes().FirstOrDefault(a => a.AttributeClass.Name == "Route" || a.AttributeClass.Name.ToString() == "RoutePrefix");
+            var arg = (routeAttr.ApplicationSyntaxReference.GetSyntax() as AttributeSyntax).ArgumentList.Arguments[0].ToString().Replace("\"", "");
+            var path = arg.Replace("[controller]", ControllerName.ToCamelCase());
+            serviceAbstraction.Endpoint = path;
+
+            //Actions
+            var existingMethods = new Dictionary<string, int>();
+            foreach (var m in TypeSymbol.GetMembers())
+            {
+                if (m.Kind == SymbolKind.NamedType)
+                {
+                    continue;
+                }
+                if (m.DeclaredAccessibility != Accessibility.Public) { continue; }
+                if (m.IsStatic) { continue; }
+                if (m.Kind != SymbolKind.Method) { continue; }
+                if (m.IsImplicitlyDeclared) { continue; }
+                if (!m.IsDefinition) { continue; }
+                var mtd = m as IMethodSymbol;
+                if (m.Name == ".ctor") { continue; }
+
+
+                var actionAbstraction = new ActionAbstraction();
+                serviceAbstraction.Actions.Add(actionAbstraction);
+
+
+                var mtdAttrs = mtd.GetAttributes();
+                var returnType = TypeResolver.Resolve(mtd.ReturnType as ITypeSymbol, context);
+                var returnTypeName = returnType.Declaration;
+                //Not marked actions will accept posts
+                var httpMethod = "Post";
+                string action = "";
+
+                //Get http method from method name pattern
+                if (mtd.Name.StartsWith("Get")) { httpMethod = "Get"; }
+                if (mtd.Name.StartsWith("Post")) { httpMethod = "Post"; }
+                if (mtd.Name.StartsWith("Put")) { httpMethod = "Put"; }
+                if (mtd.Name.StartsWith("Delete")) { httpMethod = "Delete"; }
+                if (mtd.Name.StartsWith("Patch")) { httpMethod = "Patch"; }
+                var methodName = mtd.Name.ToCamelCase();
+                if (existingMethods.ContainsKey(methodName))
+                {
+                    existingMethods[methodName]++;
+                    methodName = $"{methodName}_{existingMethods[methodName]}";
+                }
+                else
+                {
+                    existingMethods.Add(methodName, 0);
+                }
+
+                actionAbstraction.FunctionName = methodName;
+
+                var httpAttr = mtdAttrs.FirstOrDefault(a => a.AttributeClass.Name.StartsWith("Http"));
+                var routeMethodAttr = mtdAttrs.FirstOrDefault(a => a.AttributeClass.Name.StartsWith("Route"));
+                //If has Http attribute
+                if (httpAttr != null)
+                {
+                    httpMethod = httpAttr.AttributeClass.Name.Substring(4);
+                    //Check if it contains route info
+                    var args = (httpAttr.ApplicationSyntaxReference.GetSyntax() as AttributeSyntax)?.ArgumentList?.Arguments;
+                    if (args != null && args.Value.Count > 0)
+                    {
+                        action = args.Value[0].ToString().Replace("\"", "");
+                    }
+                }
+                //Check if contains route attr
+                if (routeMethodAttr != null)
+                {
+                    var args = (routeMethodAttr.ApplicationSyntaxReference.GetSyntax() as AttributeSyntax).ArgumentList.Arguments;
+                    if (args.Count > 0)
+                    {
+                        action = args[0].ToString().Replace("\"", "");
+                    }
+                }
+                //Replace route variables
+                action = action.Replace("[action]", methodName);
+
+                var regex = new Regex(@"\{(?<paramName>\w+)(:\w+(\(.*?\))?)?\??}");
+                action = regex.Replace(action, match =>
+                {
+                    return $"${{{match.Groups["paramName"].Value}}}";
+                });
+
+                //Resolve how parameters are sent
+                var pendingParameters = new List<ParameterResolution>();
+                var parameterResolutions = mtd.Parameters.Select(p => new ParameterResolution(p, TypeResolver, context, Options)).Where(p => !p.Ignore);
+                foreach (var pr in parameterResolutions)
+                {
+                    //[FromRoute]
+                    if (action.Contains($"{{{pr.Name}}}"))
+                    {
+                        //Casting to any because encodeURIComponent expects string
+                        action = action.Replace($"{{{pr.Name}}}", $"{{encodeURIComponent(<any>{pr.Name})}}");
+                        continue;
+                    }
+
+                    //[FromBody]
+                    if (pr.From == ParameterFromKind.FromBody)
+                    {
+                        actionAbstraction.BodyParameterName = pr.Name;
+                        continue;
+                    }
+                    pendingParameters.Add(pr);
+                }
+                var strParameters = string.Join(", ", parameterResolutions.Select(pr => pr.Signature));
+
+                actionAbstraction.Parameters = parameterResolutions.Select(p => new ParameterAbstraction{ 
+                    Name = p.Name,
+                    IsOptional = p.IsOptional,
+                    //TypeDescription = p.TypeDescription
+                    Type = p.Type
+                }).ToList();
+
+                actionAbstraction.ReturnType = returnType;
+                //action
+                actionAbstraction.ActionName = action;
+                //httpMethod
+                actionAbstraction.HttpMethod = httpMethod;
+
+                actionAbstraction.SearchParametersNames = new List<string>();
+
+                //Body
+                switch (httpMethod)
+                {
+                    case "Put":
+                    case "Patch":
+                    case "Post":
+                        break;
+                    default:
+                        actionAbstraction.BodyParameterName = null;
+                        break;
+                }
+
+                //Search
+                actionAbstraction.SearchParametersNames = pendingParameters.Select(pr => pr.Name).ToList();
+            }
+
+            serviceAbstraction.Imports = context.GetImports();
+            return serviceAbstraction;
         }
 
         public static bool IsService(INamedTypeSymbol t)
