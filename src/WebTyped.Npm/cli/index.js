@@ -1,4 +1,4 @@
-#!/usr/bin / env node
+#!/usr/bin/env node
 const { exec } = require('child_process');
 const program = require('commander');
 const fs = require('fs');
