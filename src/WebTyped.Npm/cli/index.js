@@ -63,6 +63,7 @@ var e = exec(cmd, (err, stdout) => {
             paths.push(filePath);
         }
 
+        //Write .webtyped memory
         fs.mkdirSync(outDir, { recursive: true });
         fs.writeFileSync(webtypedMemoryFile, paths.join(';'));
     }
