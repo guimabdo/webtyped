@@ -134,33 +134,33 @@ namespace WebTyped.Cli {
                     while (true) { }
                 }
 
-                if (args[0] == "abstractions")
-                {
-                    return await Execute(async g => {
-                        var abstractions = await g.GenerateAbstractionsAsync();
-                        var json = JsonConvert.SerializeObject(abstractions, Formatting.Indented, new JsonSerializerSettings { 
-                            ContractResolver = new CamelCasePropertyNamesContractResolver()
-                        });
+                //if (args[0] == "abstractions")
+                //{
+                //    return await Execute(async g => {
+                //        var abstractions = await g.GenerateAbstractionsAsync();
+                //        var json = JsonConvert.SerializeObject(abstractions, Formatting.Indented, new JsonSerializerSettings { 
+                //            ContractResolver = new CamelCasePropertyNamesContractResolver()
+                //        });
 
-                        Console.WriteLine(json);
-                     });
-                }
+                //        Console.WriteLine(json);
+                //     });
+                //}
 
-                if (args[0] == "generate-with")
-                {
-                    return await Execute(async g => {
-                        var abstractions = await g.GenerateAbstractionsAsync();
+                //if (args[0] == "generate-with")
+                //{
+                //    return await Execute(async g => {
+                //        var abstractions = await g.GenerateAbstractionsAsync();
                         
-                        var json = JsonConvert.SerializeObject(abstractions, new JsonSerializerSettings {
-                            ContractResolver = new CamelCasePropertyNamesContractResolver()
-                        });
-                        var tempDir = Path.GetTempPath();
-                        var filePath = Path.Combine(tempDir, "webtyped-abstractions.json");
-                        File.WriteAllText(filePath, json);
-                        Console.WriteLine("Abstractions=>" + filePath);
-                        //Console.WriteLine(Directory.GetCurrentDirectory());
-                    });
-                }
+                //        var json = JsonConvert.SerializeObject(abstractions, new JsonSerializerSettings {
+                //            ContractResolver = new CamelCasePropertyNamesContractResolver()
+                //        });
+                //        var tempDir = Path.GetTempPath();
+                //        var filePath = Path.Combine(tempDir, "webtyped-abstractions.json");
+                //        File.WriteAllText(filePath, json);
+                //        Console.WriteLine("Abstractions=>" + filePath);
+                //        //Console.WriteLine(Directory.GetCurrentDirectory());
+                //    });
+                //}
 
                 Console.WriteLine($"Unknown argument {args[0]}");
                 return 1;
@@ -190,11 +190,11 @@ namespace WebTyped.Cli {
 			return matcher.GetResultsInFullPath(Directory.GetCurrentDirectory()).ToHashSet();
 		}
 
-		static async Task<int> Execute(Func<Generator,Task> func = null) {
-            if(func == null)
-            {
-                func = g => g.WriteFilesAsync();
-            }
+		static async Task<int> Execute(/*Func<Generator,Task> func = null*/) {
+            //if(func == null)
+            //{
+            //    func = g => g.WriteFilesAsync();
+            //}
 			var dtInit = DateTime.Now;
 			var config = await ReadConfigAsync();
 			if (config.Files == null || !config.Files.Any()) {
@@ -263,9 +263,28 @@ namespace WebTyped.Cli {
                 config.Packages,
                 config.ReferenceTypes,
                 options);
-            //await gen.WriteFilesAsync();
-            await func(gen);
-			var dtEnd = DateTime.Now;
+            if (string.IsNullOrWhiteSpace(config.Generator))
+            {
+                await gen.WriteFilesAsync();
+            }
+            else
+            {
+                Console.WriteLine($" \u001b[37m Generating abstractions");
+                var abstractions = await gen.GenerateAbstractionsAsync();
+
+                var json = JsonConvert.SerializeObject(abstractions, new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                });
+                File.WriteAllText(".webtyped-abstractions", json);
+                //var tempDir = Path.GetTempPath();
+                //var filePath = Path.Combine(tempDir, "webtyped-abstractions.json");
+                //File.WriteAllText(filePath, json);
+                //Console.WriteLine("Abstractions=>" + filePath);
+                //Console.WriteLine(Directory.GetCurrentDirectory());
+            }
+            //await func(gen);
+            var dtEnd = DateTime.Now;
 			Console.WriteLine($"Time: {Math.Truncate((dtEnd - dtInit).TotalMilliseconds)}ms");
 			return 0;
 		}
