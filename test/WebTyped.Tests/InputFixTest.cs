@@ -23,8 +23,16 @@ namespace WebTyped.Tests {
             var generator = new Generator(
                 codes,
                 new string[0],
-                new Package[0],
-                new string[0],
+                new Package[] { 
+                    new Package
+                    {
+                        Name = "Cblx.Backend",
+                        Csproj = "C:/Repos/Hypemov.MediaStore/Hypemov.MediaStore.Data/Hypemov.MediaStore.Data.csproj",
+                    }
+                },
+                new string[] {
+                    "Cblx.Backend.Models.*"
+                },
                 options
             );
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace WebTyped.Abstractions
@@ -10,7 +11,27 @@ namespace WebTyped.Abstractions
         public string Path { get; set; }
     }
 
+    public class AttributeAbstraction
+    {
+        //Most of time we could not resolve the exact type
+        //public string ConstructedFrom { get; set; }
+        //So we only get simple name from syntax
+        public string Name { get; set; }
 
+        //public List<KeyValuePair<string, NamedArgumentAbstraction>> NamedArguments { get; set; }
+        //public Dictionary<string, NamedArgumentAbstraction> NamedArguments { get; set; }
+        //public List<string> ArgumentsExpressions { get; set; }
+        public List<AttributeArgumentAbstraction> Arguments { get; set; }
+    }
+
+    public class AttributeArgumentAbstraction
+    {
+        public string Name { get; set; }
+
+        //public string Kind { get; set; }
+        //public bool IsNull { get; set; }
+        public string Value { get; set; }
+    }
 
     public class ModelAbstraction : OutputFileAbstraction
     {
@@ -91,15 +112,31 @@ namespace WebTyped.Abstractions
     public class FieldAbstraction
     {
         public string Name { get; set; }
+
         public string Summary { get; set; }
+
         public bool IsNullable { get; set; }
 
         public string TypeDeclaration { get; set; }
 
-        //public string ConstructedFrom { get; set; }
-
         public TypeResolution TypeResolution { get; set; }
-        //public TypeAbstraction Type { get; set; }
+        
+        public List<AttributeAbstraction> Attributes { get; set; }
+
+        public string FromQuery {
+            get {
+                var fromAttr = Attributes.FirstOrDefault(a => a.Name == "FromQuery" || a.Name == "FromUri");
+                return fromAttr?.Arguments.FirstOrDefault()?.Value ?? Name;
+            }
+        }
+
+        public string FromRoute {
+            get {
+                var fromAttr = Attributes.FirstOrDefault(a => a.Name == "FromRoute");
+                if(fromAttr == null) { return null; }
+                return fromAttr?.Arguments.FirstOrDefault()?.Value ?? Name;
+            }
+        }
     }
 
     //public class TypeAbstraction
@@ -115,23 +152,16 @@ namespace WebTyped.Abstractions
     //    public TypeModuleAbstraction Module { get; set; }
     //}
 
-    public class NameAbstraction
-    {
-        public NameAbstraction(string name)
-        {
-            Value = name;
-            CamelCaseValue = name.ToCamelCase();
-        }
+    //public class NameAbstraction
+    //{
+    //    public NameAbstraction(string name)
+    //    {
+    //        Value = name;
+    //        CamelCaseValue = name.ToCamelCase();
+    //    }
 
-        public string Value { get; set; }
+    //    public string Value { get; set; }
 
-        public string CamelCaseValue { get; set; }
-    }
-
-
-
-    public class TypeModuleAbstraction
-    {
-        public string Alias { get; set; }
-    }
+    //    public string CamelCaseValue { get; set; }
+    //}
 }
