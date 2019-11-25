@@ -150,7 +150,7 @@ namespace WebTyped
             }
 
             //User custom type mapping
-            if (Options.CustomMap != null && Options.CustomMap.ContainsKey(result.ConstructedFrom))
+            if (Options.CustomMap != null && result.ConstructedFrom != null && Options.CustomMap.ContainsKey(result.ConstructedFrom))
             {
                 //Found definition with this full type name
                 var clientType = Options.CustomMap[result.ConstructedFrom];

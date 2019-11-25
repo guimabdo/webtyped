@@ -40,6 +40,36 @@ namespace WebTyped.Tests {
         }
 
 
+        [TestMethod]
+        public async Task Ble()
+        {
+            //Find cs files
+            var matcher = new Matcher();
+            matcher.AddInclude("../../Itz.Teia/Itz.Teia.Data/Enums/*.cs");
+            matcher.AddInclude("../../Itz.Teia/Itz.Teia.Business/**/*Model.cs");
+            matcher.AddInclude("../../Itz.Teia/Itz.Teia.Web/Controllers/*Controller.cs");
+            var csFiles = matcher.GetResultsInFullPath(@"C:\Repos\Hypemov.MediaStore\Hypemov.MediaStore.Web");
+            var codes = csFiles.Select(f => File.ReadAllText(f));
+
+            var options = new Options(@"C:\Tests\WebTyped\")
+            {
+                CustomMap = new System.Collections.Generic.Dictionary<string, ClientType>()
+                {
+                    {  "ODataParameters", new ClientType { Name = "Bla" } }
+                }
+            };
+            var generator = new Generator(
+                codes,
+                new string[0],
+                new Package[0],
+                new string[0],
+                options
+            );
+
+            var output = await generator.GenerateOutputsAsync();
+        }
+
+
 
         [TestMethod]
 		public async Task Input1ShouldBeFixed() {

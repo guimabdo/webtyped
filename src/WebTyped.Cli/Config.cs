@@ -39,6 +39,7 @@ namespace WebTyped.Cli
 		public Options ToOptions() {
 			return new Options(OutDir) {
                 Clear = Clear,
+                CustomMap = CustomMap,
                 GenericReturnType = GenericReturnType,
                 ModuleTrims = Trims ?? new string[0],
                 BaseModule = BaseModule,

@@ -70,6 +70,71 @@ public class Test : ExternalModel {
 		}
 
         [TestMethod]
+        public async Task GenerateCustomFromServiceParameterTest()
+        {
+            var options = new Options(".\\")
+            {
+                CustomMap = new Dictionary<string, ClientType> {
+                    {
+                        "ODataParameters",
+                        new ClientType { Module ="out", Name = "ODataParameters" }
+                    }
+                }
+            };
+
+            var generator = new Generator(
+              new string[] {
+@"
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Cblx.Backend.Models;
+using Cblx.Backend.OData;
+using Itz.Teia.Business;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+
+namespace Itz.Teia.Web.Controllers
+{
+    [ApiController]
+    [Route(""[controller]"")]
+    [Authorize]
+    public class ThingController : ControllerBase
+        {
+            readonly ThingBusiness b;
+            public ThingController(ThingBusiness b)
+            {
+                this.b = b;
+            }
+
+            [HttpGet]
+            [AllowAnonymous]
+            public ODataResult<ThingModel> Query([FromQuery]ODataParameters query)
+            {
+                return b.Query(query);
+            }
+
+            [HttpPost]
+            public async Task Save([FromBody]ThingSaveModel model)
+            {
+                await b.Save(model);
+            }
+        }
+    }
+
+"
+              }
+              ,
+              new string[0],
+              new Package[0],
+              new string[0],
+              options);
+            var output = await generator.GenerateOutputsAsync();
+        }
+
+        [TestMethod]
         public async Task GenerateCustomMapTest()
         {
             var options = new Options(".\\")

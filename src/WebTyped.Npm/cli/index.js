@@ -10,6 +10,8 @@ program.version(pkg.version);
 program
     .option('-c, --configuration <configuration>', 'Configuration File', 'webtyped.json')
     .action(function (cmd) {
+        console.log(pkg.version + '\n\n');
+
         //Check if webtyped.json exists
         if (!fs.existsSync(cmd.configuration)) {
             console.log('\x1b[31m%s\x1b[0m', '\n    Configuration file not found\n');
