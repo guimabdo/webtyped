@@ -23,12 +23,50 @@ namespace WebTyped.Tests {
             var generator = new Generator(
                 codes,
                 new string[0],
+                new Package[] { 
+                    new Package
+                    {
+                        Name = "Cblx.Backend",
+                        Csproj = "C:/Repos/Hypemov.MediaStore/Hypemov.MediaStore.Data/Hypemov.MediaStore.Data.csproj",
+                    }
+                },
+                new string[] {
+                    "Cblx.Backend.Models.*"
+                },
+                options
+            );
+
+            var output = await generator.GenerateAbstractionsAsync();
+        }
+
+
+        [TestMethod]
+        public async Task Ble()
+        {
+            //Find cs files
+            var matcher = new Matcher();
+            matcher.AddInclude("../../Itz.Teia/Itz.Teia.Data/Enums/*.cs");
+            matcher.AddInclude("../../Itz.Teia/Itz.Teia.Business/**/*Model.cs");
+            matcher.AddInclude("../../Itz.Teia/Itz.Teia.Web/Controllers/*Controller.cs");
+            var csFiles = matcher.GetResultsInFullPath(@"C:\Repos\Hypemov.MediaStore\Hypemov.MediaStore.Web");
+            var codes = csFiles.Select(f => File.ReadAllText(f));
+
+            var options = new Options(@"C:\Tests\WebTyped\")
+            {
+                CustomMap = new System.Collections.Generic.Dictionary<string, ClientType>()
+                {
+                    {  "ODataParameters", new ClientType { Name = "Bla" } }
+                }
+            };
+            var generator = new Generator(
+                codes,
+                new string[0],
                 new Package[0],
                 new string[0],
                 options
             );
 
-            var output = await generator.GenerateAbstractionsAsync();
+            var output = await generator.GenerateOutputsAsync();
         }
 
 
