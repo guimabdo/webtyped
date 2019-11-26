@@ -5,6 +5,7 @@ using Microsoft.Extensions.FileSystemGlobbing;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -123,49 +124,90 @@ namespace Microsoft.AspNetCore.Mvc{
             //var nugetGlobalPackages = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
             //     ? "%userprofile%/.nuget/packages"
             //     : "~/.nuget/packages";
-
-            var nugetGlobalPackages = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/.nuget/packages";
-
-            foreach (var pkg in packages)
+            if (packages.Any())
             {
-                if(string.IsNullOrWhiteSpace(pkg.Version) && string.IsNullOrWhiteSpace(pkg.Csproj))
+                //Finding nuget global-packages
+                //var process = Process.Start("dotnet", "nuget locals global-packages --list");
+                //process.BeginOutputReadLine();
+                Process process = new Process
                 {
-                    throw new Exception($"{pkg.Name} version not informed");
-                }
-
-                var version = pkg.Version;
-                if (!string.IsNullOrWhiteSpace(pkg.Csproj))
-                {
-                    var reference = XDocument
-                        .Load(pkg.Csproj)
-                        .Descendants()
-                        .FirstOrDefault(d => d.Name.LocalName == "PackageReference" && d.Attribute("Include").Value == pkg.Name);
-
-                    if (reference != null)
+                    StartInfo = {
+                        FileName = "dotnet",
+                        Arguments = "nuget locals global-packages --list",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        CreateNoWindow = true
+                    }
+                };
+                string globalPackagePath = "";
+                process.EnableRaisingEvents = true;
+                process.OutputDataReceived += (s, e) => {
+                    if (string.IsNullOrWhiteSpace(globalPackagePath))
                     {
-                        version = reference.Attribute("Version").Value;
+                        globalPackagePath = e.Data;
+                    }
+                };
+                process.ErrorDataReceived += (s, e) => Debug.WriteLine($@"Error: {e.Data}");
+                process.Start();
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+                process.WaitForExit();
+                globalPackagePath = globalPackagePath.Replace("info : global-packages: ", "");
+
+                if (string.IsNullOrWhiteSpace(globalPackagePath))
+                {
+                    Console.WriteLine($"Nuget global-packages not found");
+                }
+                else
+                {
+
+                    foreach (var pkg in packages)
+                    {
+                        if (string.IsNullOrWhiteSpace(pkg.Version) && string.IsNullOrWhiteSpace(pkg.Csproj))
+                        {
+                            throw new Exception($"{pkg.Name} version not informed");
+                        }
+
+                        var version = pkg.Version;
+                        if (!string.IsNullOrWhiteSpace(pkg.Csproj))
+                        {
+                            var reference = XDocument
+                                .Load(pkg.Csproj)
+                                .Descendants()
+                                .FirstOrDefault(d => d.Name.LocalName == "PackageReference" && d.Attribute("Include").Value == pkg.Name);
+
+                            if (reference != null)
+                            {
+                                version = reference.Attribute("Version").Value;
+                            }
+                        }
+
+
+
+
+                        //var nugetGlobalPackages = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/.nuget/packages";
+                        var pkgDir = $"{globalPackagePath}/{pkg.Name}/{version}";
+
+                        if (!Directory.Exists(pkgDir))
+                        {
+                            Console.WriteLine($"Package {pkg.Name} not found in {pkgDir}");
+                            continue;
+                        }
+
+                        var dllPaths = Directory.GetFiles(pkgDir, $"*.dll", SearchOption.AllDirectories);
+                        var grouped = dllPaths.GroupBy(path => Path.GetFileName(path));
+                        foreach (var g in grouped)
+                        {
+                            externals.Add(MetadataReference.CreateFromFile(g.First()));
+                        }
+
+                        //if(dllPath != null)
+                        //{
+                        //    externals.Add(MetadataReference.CreateFromFile(dllPath));
+                        //}
                     }
                 }
-
-                var pkgDir = $"{nugetGlobalPackages}/{pkg.Name}/{version}";
-
-                if (!Directory.Exists(pkgDir))
-                {
-                    Console.WriteLine($"Package {pkg.Name} not found");
-                    continue;
-                }
-
-                var dllPaths = Directory.GetFiles(pkgDir, $"*.dll", SearchOption.AllDirectories);
-                var grouped = dllPaths.GroupBy(path => Path.GetFileName(path));
-                foreach (var g in grouped)
-                {
-                    externals.Add(MetadataReference.CreateFromFile(g.First()));
-                }
-
-                //if(dllPath != null)
-                //{
-                //    externals.Add(MetadataReference.CreateFromFile(dllPath));
-                //}
             }
 
             var compilation = CSharpCompilation.Create(
