@@ -551,6 +551,8 @@ namespace WebTyped
             var currentFiles =
                 Directory.Exists(Options.OutDir) ?
                 Directory.GetFiles(Options.OutDir, "*.ts", SearchOption.AllDirectories)
+                //Normalize slashes
+                .Select(f => f.Replace("\\", "/"))
                 : new string[0];
             List<Task<string>> tasks = new List<Task<string>>();
             Process((file, content) => tasks.Add(FileHelper.WriteAsync(file, content)));
