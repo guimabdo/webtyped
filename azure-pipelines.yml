@@ -20,6 +20,7 @@ stages:
       dependsOn: SetBuildName
       steps:
       - script: dotnet restore
+      - script: find /home/vsts/.nuget/
       - task: DotNetCoreCLI@2
         displayName: Testing
         inputs:
