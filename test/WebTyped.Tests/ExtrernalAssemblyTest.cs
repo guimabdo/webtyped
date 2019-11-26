@@ -24,7 +24,7 @@ namespace WebTyped.Tests {
                         new ClientType { Module ="out", Name = "MissingTypeFromSomewhere" } }
                 }
             };
-
+            
             //var options = new Options(".\\", 
             //    false, 
             //    //ServiceMode.Angular, 
@@ -59,14 +59,21 @@ public class Test : ExternalModel {
                         Name = "MSTest.TestFramework",
                         Csproj = @"../../../WebTyped.Tests.csproj"
                         // Version = "1.1.18"
+                    },
+                     new Package
+                    {
+                        Name = "AutoMapper",
+                        Csproj = @"../../../WebTyped.Tests.csproj"
                     }
                 },
                 new string[] {
+                    "AutoMapper.Mapper",
                     "ExternalLib.Models.*",
                     "Cblx.*Model"
                 },
                 options);
             var output = await generator.GenerateOutputsAsync();
+            Assert.IsTrue(output.ContainsKey("./autoMapper/mapper.ts"));
 		}
 
         [TestMethod]
