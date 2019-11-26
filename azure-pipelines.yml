@@ -2,9 +2,6 @@ name: $(Build.SourceBranch)$(rev:.r)
 trigger:
   - releases/*
 
-pool:
-  vmImage: 'windows-latest'
-
 variables:
   rev: $[counter(variables['Build.SourceBranch'], 0)]
 
@@ -14,12 +11,10 @@ stages:
   jobs:
     - job: SetBuildName
       steps:
-        - powershell: Write-Host "##vso[build.updatebuildnumber]$env:Build_SourceBranchName.$env:rev"
-          displayName: Setting build name for Release
-          condition: contains(variables['Build.SourceBranch'], '/releases/')
-        - powershell: Write-Host "##vso[build.updatebuildnumber]0.0.0-$env:Build_SourceBranchName.$env:rev"
-          displayName: Setting build name for Dev
-          condition: not(contains(variables['Build.SourceBranch'], '/releases/'))
+      - script: echo "##vso[build.updatebuildnumber]$(Build.SourceBranchName).$(Rev)"
+        condition: contains(variables['Build.SourceBranch'], '/releases/')
+      - script: echo "##vso[build.updatebuildnumber]0.0.0-$(Build.SourceBranchName).$(Rev)"
+        condition: not(contains(variables['Build.SourceBranch'], '/releases/'))
 
     - job: Build
       dependsOn: SetBuildName
