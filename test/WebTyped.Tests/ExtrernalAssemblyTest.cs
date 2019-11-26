@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.FileSystemGlobbing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -24,7 +25,7 @@ namespace WebTyped.Tests {
                         new ClientType { Module ="out", Name = "MissingTypeFromSomewhere" } }
                 }
             };
-
+            
             //var options = new Options(".\\", 
             //    false, 
             //    //ServiceMode.Angular, 
@@ -51,22 +52,33 @@ public class Test : ExternalModel {
                 }
                 ,
                 new string[] {
-                    @"..\..\..\..\ExternalLib\bin\Debug\netstandard2.0\ExternalLib.dll"
+                    @"../../../../ExternalLib\bin\Debug\netstandard2.0\ExternalLib.dll"
                 },
                 new Package[] {
                     new Package
                     {
                         Name = "MSTest.TestFramework",
-                        Csproj = @"..\..\..\WebTyped.Tests.csproj"
+                        Csproj = @"../../../WebTyped.Tests.csproj"
                         // Version = "1.1.18"
+                    },
+                     new Package
+                    {
+                        Name = "AutoMapper",
+                        Csproj = @"../../../WebTyped.Tests.csproj"
                     }
                 },
                 new string[] {
+                    "AutoMapper.Mapper",
                     "ExternalLib.Models.*",
                     "Cblx.*Model"
                 },
                 options);
             var output = await generator.GenerateOutputsAsync();
+            foreach(var kvp in output)
+            {
+                Console.WriteLine(kvp.Key);
+            }
+            Assert.IsTrue(output.ContainsKey("./autoMapper/mapper.ts"));
 		}
 
         [TestMethod]

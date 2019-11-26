@@ -491,8 +491,8 @@ namespace WebTyped
 
                 if (!string.IsNullOrEmpty(tm.Key))
                 {
-                    var typesDir = Path.Combine(Options.OutDir, tm.Key.ToCamelCase());
-                    var typesIndexFile = Path.Combine(typesDir, "index.ts");
+                    var typesDir = FileHelper.PathCombine(Options.OutDir, tm.Key.ToCamelCase());
+                    var typesIndexFile = FileHelper.PathCombine(typesDir, "index.ts");
                     outputManager(typesIndexFile, sbTypeIndex.ToString());
                 }
 
@@ -509,7 +509,7 @@ namespace WebTyped
             sbRootIndex.AppendLine(1, string.Join($",{System.Environment.NewLine}	", services));
             sbRootIndex.AppendLine("]");
 
-            var rootIndexFile = Path.Combine(Options.OutDir, "index.ts");
+            var rootIndexFile = FileHelper.PathCombine(Options.OutDir, "index.ts");
             outputManager(rootIndexFile, sbRootIndex.ToString());
         }
 
@@ -557,23 +557,16 @@ namespace WebTyped
             if (Options.Clear)
             {
                 Console.WriteLine("Webtyped - Clearing invalid files");
-                //currentFiles.ToList().ForEach(f => Console.WriteLine(f));
                 var files = new HashSet<string>();
                 foreach (var t in tasks)
                 {
                     files.Add(await t);
                 }
-                //Console.Write("new files");
-                //files.ToList().ForEach(f => Console.WriteLine(f));
                 var delete = currentFiles.Except(files, StringComparer.InvariantCultureIgnoreCase);
-                //delete.ToList().ForEach(f => Console.WriteLine(f));
-                //Console.WriteLine($"celete: {string.Join(", ", delete)}");
                 foreach (var f in delete)
                 {
                     var line = File.ReadLines(f).FirstOrDefault();
                     var mark = FileHelper.Mark.Replace(System.Environment.NewLine, "");
-                    //Console.WriteLine($"{line} == {FileHelper.Mark} - {line.CompareTo(FileHelper.Mark.Replace(System.Environment.NewLine, ""))}");
-                    //if (line.ToUpper().Contains(FileHelper.Mark.ToUpper())) {
                     if (line == mark)
                     {
                         Console.WriteLine($"deleting {f}");

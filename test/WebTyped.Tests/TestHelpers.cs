@@ -21,7 +21,7 @@ namespace WebTyped.Tests {
             //             null
             //         );
 
-            var options = new Options(".\\")
+            var options = new Options("./")
             {
                 GenericReturnType = new ClientType
                 {

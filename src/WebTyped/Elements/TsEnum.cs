@@ -45,8 +45,8 @@ namespace WebTyped.Elements
 
 			AppendKeysAndNames(sb);
 
-			//File.WriteAllText(Path.Combine(Options.ModelsDir, Filename), sb.ToString());
-			//string file = Path.Combine(Options.TypingsDir, Filename);
+			//File.WriteAllText(FileHelper.PathCombine(Options.ModelsDir, Filename), sb.ToString());
+			//string file = FileHelper.PathCombine(Options.TypingsDir, Filename);
 			string content = sb.ToString();
 			return (OutputFilePath, content);
 			//await FileHelper.WriteAsync(file, content);

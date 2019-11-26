@@ -28,5 +28,13 @@ namespace WebTyped {
 			}
 			return file;
 		}
+
+        public static string PathCombine(params string[] parts)
+        {
+            return Path.Combine(parts)
+                .Replace("\\", "/") //Avoid backslashes
+                //Avoid dup slashes for any reason
+                .Replace("//", "/");
+        }
 	}
 }
