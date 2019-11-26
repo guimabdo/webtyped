@@ -28,7 +28,7 @@ namespace WebTyped
         public string FilenameWithoutExtenstion { get; private set; }
         public string FilePathWithoutExtension {
             get {
-                return Path.Combine(Module, FilenameWithoutExtenstion);
+                return FileHelper.PathCombine(Module, FilenameWithoutExtenstion);
             }
         }
         public string ControllerName { get; private set; }
@@ -49,9 +49,9 @@ namespace WebTyped
                 if (!string.IsNullOrEmpty(Module))
                 {
                     var moduleCamel = string.Join('.', Module.Split('.').Select(s => s.ToCamelCase()));
-                    dir = Path.Combine(Options.OutDir, moduleCamel);
+                    dir = FileHelper.PathCombine(Options.OutDir, moduleCamel);
                 }
-                return Path.Combine(dir, Filename);
+                return FileHelper.PathCombine(dir, Filename);
             }
         }
 
@@ -63,7 +63,7 @@ namespace WebTyped
                     var moduleCamel = string.Join('.', Module.Split('.').Select(s => s.ToCamelCase()));
                     dir = moduleCamel;
                 }
-                return Path.Combine(dir, FilenameWithoutExtenstion);
+                return FileHelper.PathCombine(dir, FilenameWithoutExtenstion);
             }
         }
 

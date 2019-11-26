@@ -69,19 +69,19 @@ namespace WebTyped.Elements {
 
         public string OutputFilePath {
             get {
-                return Path.Combine(Options.OutDir, ModuleCamel, Filename);
+                return FileHelper.PathCombine(Options.OutDir, ModuleCamel, Filename);
             }
         }
 
         //public string OutputFilePathWithoutExtension {
         //    get {
-        //        return Path.Combine(Options.OutDir, ModuleCamel, FilenameWithoutExtenstion);
+        //        return FileHelper.PathCombine(Options.OutDir, ModuleCamel, FilenameWithoutExtenstion);
         //    }
         //}
 
         public string AbstractPath {
             get {
-                return Path.Combine(ModuleCamel, FilenameWithoutExtenstion);
+                return FileHelper.PathCombine(ModuleCamel, FilenameWithoutExtenstion);
             }
         }
 

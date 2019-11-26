@@ -9,7 +9,7 @@ namespace WebTyped.Tests {
 		[TestMethod]
 		public async Task IndexFolderCasingShouldBeAllCamel() {
 			var output = await TestHelpers.Generate("namespace Some.NameSpace { public class MyClass {} }");
-			Assert.AreEqual(@".\some.nameSpace\myClass.ts", output.ElementAt(0).Key);
+			Assert.AreEqual(@"./some.nameSpace/myClass.ts", output.ElementAt(0).Key);
 		}
 
 		//string Read(string file) {
