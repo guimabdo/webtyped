@@ -19,6 +19,10 @@ stages:
     - job: Build
       dependsOn: SetBuildName
       steps:
+      - task: DotNetCoreCLI@2
+        inputs:
+          command: 'test'
+          projects: 'test/WebTyped.Tests/WebTyped.Tests.csproj'
       - script: dotnet publish ./src/WebTyped.Cli -c Release -o ./src/WebTyped.Npm/cli/program
         displayName: Dotnet - Building and publishing
 
