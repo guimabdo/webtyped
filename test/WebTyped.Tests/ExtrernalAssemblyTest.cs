@@ -51,13 +51,13 @@ public class Test : ExternalModel {
                 }
                 ,
                 new string[] {
-                    @"..\..\..\..\ExternalLib\bin\Debug\netstandard2.0\ExternalLib.dll"
+                    @"../../../../ExternalLib\bin\Debug\netstandard2.0\ExternalLib.dll"
                 },
                 new Package[] {
                     new Package
                     {
                         Name = "MSTest.TestFramework",
-                        Csproj = @"..\..\..\WebTyped.Tests.csproj"
+                        Csproj = @"../../../WebTyped.Tests.csproj"
                         // Version = "1.1.18"
                     }
                 },
