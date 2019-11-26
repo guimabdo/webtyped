@@ -187,7 +187,7 @@ namespace Microsoft.AspNetCore.Mvc{
 
 
                         //var nugetGlobalPackages = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/.nuget/packages";
-                        var pkgDir = $"{globalPackagePath}{pkg.Name}/{version}";
+                        var pkgDir = $"{globalPackagePath}{pkg.Name}/{version}".ToLower();
 
                         if (!Directory.Exists(pkgDir))
                         {
