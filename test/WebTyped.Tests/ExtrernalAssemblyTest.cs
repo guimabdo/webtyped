@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.FileSystemGlobbing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -73,6 +74,10 @@ public class Test : ExternalModel {
                 },
                 options);
             var output = await generator.GenerateOutputsAsync();
+            foreach(var kvp in output)
+            {
+                Console.WriteLine(kvp.Key);
+            }
             Assert.IsTrue(output.ContainsKey("./autoMapper/mapper.ts"));
 		}
 
